@@ -1,0 +1,189 @@
+{
+    "visao_explicabilidade": {
+        "escopo": {
+            "escopo": {
+                "necessidade_de_explicabilidade": "Fornecer explicações justificáveis para decisões de indeferimento baseadas na análise da IA, garantindo transparência e responsabilidade perante os solicitantes, procuradores, examinadores e reguladores.",
+                "stakeholders_afetados": [
+                    "solicitante",
+                    "procurador",
+                    "examinador",
+                    "regulador"
+                ],
+                "impactos": [],
+                "criterios_de_sucesso": "Não identificado nas informações fornecidas na entrada; requer investigação posterior.",
+                "descricao_geral": "Sistema de apoio ao processo de registro de marcas, permitindo submissão, análise e concessão de registros por entidade pública responsável por propriedade industrial.",
+                "dominio_do_problema": "Registro de marcas e propriedade industrial"
+            }
+        },
+        "posicionamento": {
+            "posicionamentos": [
+                {
+                    "stakeholder": "solicitante",
+                    "para_quem": "Solicitante",
+                    "para_que": "Decisões de indeferimento justificáveis e transparentes",
+                    "nome_produto": "Lacuna identificada",
+                    "categoria_produto": "Sistemas de apoio ao registro de marcas",
+                    "beneficio_chave": "Transparência e responsabilidade nas decisões de indeferimento",
+                    "unlike": "Lacuna identificada",
+                    "our_product": "Solução de explicabilidade para IA de registro de marcas"
+                },
+                {
+                    "stakeholder": "procurador",
+                    "para_quem": "Procurador",
+                    "para_que": "Decisões de indeferimento justificáveis e transparentes",
+                    "nome_produto": "Lacuna identificada",
+                    "categoria_produto": "Sistemas de apoio ao registro de marcas",
+                    "beneficio_chave": "Transparência e responsabilidade nas decisões de indeferimento",
+                    "unlike": "Lacuna identificada",
+                    "our_product": "Solução de explicabilidade para IA de registro de marcas"
+                },
+                {
+                    "stakeholder": "examinador",
+                    "para_quem": "Examinador",
+                    "para_que": "Decisões de indeferimento justificáveis e transparentes",
+                    "nome_produto": "Lacuna identificada",
+                    "categoria_produto": "Sistemas de apoio ao registro de marcas",
+                    "beneficio_chave": "Transparência e responsabilidade nas decisões de indeferimento",
+                    "unlike": "Lacuna identificada",
+                    "our_product": "Solução de explicabilidade para IA de registro de marcas"
+                },
+                {
+                    "stakeholder": "regulador",
+                    "para_quem": "Regulador",
+                    "para_que": "Decisões de indeferimento justificáveis e transparentes",
+                    "nome_produto": "Lacuna identificada",
+                    "categoria_produto": "Sistemas de apoio ao registro de marcas",
+                    "beneficio_chave": "Transparência e responsabilidade nas decisões de indeferimento",
+                    "unlike": "Lacuna identificada",
+                    "our_product": "Solução de explicabilidade para IA de registro de marcas"
+                }
+            ]
+        },
+        "stakeholders": {
+            "stakeholders": [
+                {
+                    "stakeholder": "solicitante",
+                    "descricao": "Solicitante: indivíduo ou entidade que solicita o registro de marca e que se beneficia da transparência e responsabilidade nas decisões de indeferimento.",
+                    "responsabilidade": "Não identificada nas informações fornecidas; requer investigação posterior."
+                },
+                {
+                    "stakeholder": "procurador",
+                    "descricao": "Procurador: profissional que representa o solicitante no processo de registro de marca e que se beneficia da transparência e responsabilidade nas decisões de indeferimento.",
+                    "responsabilidade": "Não identificada nas informações fornecidas; requer investigação posterior."
+                },
+                {
+                    "stakeholder": "examinador",
+                    "descricao": "Examinador: profissional responsável por avaliar os pedidos de registro de marca e que se beneficia da transparência e responsabilidade nas decisões de indeferimento.",
+                    "responsabilidade": "Não identificada nas informações fornecidas; requer investigação posterior."
+                },
+                {
+                    "stakeholder": "regulador",
+                    "descricao": "Regulador: autoridade que supervisiona o processo de registro de marca e que se beneficia da transparência e responsabilidade nas decisões de indeferimento.",
+                    "responsabilidade": "Não identificada nas informações fornecidas; requer investigação posterior."
+                }
+            ]
+        },
+        "necessidades_funcionalidades": {
+            "necessidades": [
+                {
+                    "necessidade": "Transparência e responsabilidade nas decisões de indeferimento, permitindo que solicitantes, procuradores, examinadores e reguladores compreendam os motivos e fundamentos das decisões tomadas.",
+                    "prioridade": "Requer investigação/validação posterior pelo Engenheiro de Requisitos",
+                    "planned_release": "Requer investigação/validação posterior pelo Engenheiro de Requisitos"
+                }
+            ]
+        },
+        "consulta_requisitos_adicionais": {
+            "consulta": "Retrieve information on Brazilian regulations and standards applicable to AI explainability in public sector systems, specifically for trademark registration processes. Include relevant laws (e.g., LGPD, Lei de Acesso à Informação, Lei de Inovação), guidelines on explainable AI, procurement standards for public software, performance and infrastructure constraints for systems handling trademark data, quality criteria for explanations (e.g., transparency, accountability, fairness), design constraints, dependencies, and assumptions for AI-based decision support, and documentation and support requirements for public sector software."
+        },
+        "conhecimento_recuperado": {
+            "consulta": "Retrieve information on Brazilian regulations and standards applicable to AI explainability in public sector systems, specifically for trademark registration processes. Include relevant laws (e.g., LGPD, Lei de Acesso à Informação, Lei de Inovação), guidelines on explainable AI, procurement standards for public software, performance and infrastructure constraints for systems handling trademark data, quality criteria for explanations (e.g., transparency, accountability, fairness), design constraints, dependencies, and assumptions for AI-based decision support, and documentation and support requirements for public sector software.",
+            "quantidade_trechos": 10,
+            "trechos": [
+                {
+                    "texto": "Estado da Arte sobre Engenharia de Requisitos e Explicabilidade em Sistemas Baseados em Aprendizado de Máquina WRSL+’2024, Juiz de Fora/MG, Brazil\nTabela 5: A relação dos 27 estudos analisados neste MSL.\nID Estudo Referência\nE1 A Co-design Study for Multi-stakeholder Job Recommender System Explanations [34]\nE2 A Conceptual Model Framework for XAI Requirement Elicitation of Application Domain System [6]\nE3 A New Perspective on Evaluation Methods for Explainable Artificial Intelligence (XAI) [37]\nE4 A Requirements Engineering Perspective to AI-Based Systems Development: A Vision Paper [18]\nE5 An AI Chatbot for Explaining Deep Reinforcement Learning Decisions of Service-Oriented Systems [29]\nE6 An explanation space to align user studies with the technical development of Explainable AI [8]\nE7 An extension of iStar for Machine Learning requirements by following the PRISE methodology [7]\nE8 An ontology-based approach to engineering ethicality requirements [19]\nE9 Can Requirements Engineering",
+                    "arquivo": "requisitos_explicabilidade.pdf",
+                    "pagina": 7,
+                    "chunk": 0,
+                    "distancia": 0.29783809185028076
+                },
+                {
+                    "texto": "são considerados novos \nquando não compreendidos no estado da técnica. \n        § 1º O estado da técnica é constituído por tudo aquilo tornado acessível \nao público antes da data de depósito do pedido de patente, por descrição \nescrita ou oral, por uso ou qualquer outro meio, no Brasil ou no exterior, \nressalvado o disposto nos arts. 12, 16 e 17. \n        § 2º Para fins de aferição da novidade, o conteúdo completo de pedido \ndepositado no Brasil, e ainda não publicado, será considerado estado da \ntécnica a partir da data de depósito, ou da prioridade reivindicada, desde que \nvenha a ser publicado, mesmo que subseqüentemente. \n        § 3º O disposto no parágrafo anterior será aplicado ao pedido \ninternacional de patente depositado segundo tratado ou convenção em vigor no \nBrasil, desde que haja processamento nacional. \n        Art. 12. Não será considerada como estado da técnica a divulgação de \ninvenção ou modelo de utilidade, quando ocorrida durante os 12 (doze) meses \nque precedere",
+                    "arquivo": "lei_9279_propriedade_industrial.pdf",
+                    "pagina": 3,
+                    "chunk": 1,
+                    "distancia": 0.34412461519241333
+                },
+                {
+                    "texto": "r ciência dada ao interessado no processo; e \n        III - os pareceres e despachos internos que não necessitem ser do \nconhecimento das partes. \nCAPÍTULO VI \nDAS CLASSIFICAÇÕES \n        Art. 227. As classificações relativas às matérias dos Títulos I, II e III desta \nLei serão estabelecidas pelo INPI, quando não fixadas em tratado ou acordo \ninternacional em vigor no Brasil. \nCAPÍTULO VII \nDA RETRIBUIÇÃO \n        Art. 228. Para os serviços previstos nesta Lei será cobrada retribuição, \ncujo valor e processo de recolhimento serão estabelecidos por ato do titular do \nórgão da administração pública federal a que estiver vinculado o INPI. \nTÍTULO VIII \nDAS DISPOSIÇÕES TRANSITÓRIAS E FINAIS \n        Art. 229. Aos pedidos em andamento serão aplicadas as disposições \ndesta Lei, exceto quanto à patenteabilidade das substâncias, matérias ou \nprodutos obtidos por meios ou processos químicos e as substâncias, matérias, \nmisturas ou produtos alimentícios, químico-farmacêuticos e medicamentos de",
+                    "arquivo": "lei_9279_propriedade_industrial.pdf",
+                    "pagina": 47,
+                    "chunk": 1,
+                    "distancia": 0.3562468886375427
+                },
+                {
+                    "texto": "erecendo assim uma proteção especial por parte do legislador.\nO art. 125 da LPI estabelece:\nÀ marca registrada no Brasil considerada de alto renome será assegurada proteção especial, em todos os ramos de atividade.\nEm decorrência do disposto no art. 49 da Portaria INPI nº 8/2022, será considerada marca de terceiros o sinal registrado no INPI cujo\nconjunto de titulares não seja idêntico ao conjunto de requerentes do pedido em exame, ainda que parte dos requerentes seja titular do\ndireito em questão. Deste modo, pedidos de registro de marca serão indeferidos pelo art. 125 da LPI caso reproduzam ou imitem marca de\nalto renome cujo conjunto de titulares seja distinto.\nCabe esclarecer que esta proteção especial não dispensa a análise da colidência entre sinais, segundo orientações do item 5.11.1 Análise\nda colidência entre sinais.\nExemplo:\nRegistro anterior Pedido em exame\nCALDA\nMarca de alto renome\nSinais suficientemente distintos. A reprodução do termo \"CALDA\" no pedido em exame não é cap",
+                    "arquivo": "manual_marcas_sinal_marcario.pdf",
+                    "pagina": 13,
+                    "chunk": 2,
+                    "distancia": 0.3619645833969116
+                },
+                {
+                    "texto": "r apenas um\ndos cotitulares da marca anteriormente registrada no Brasil ou no exterior.\nConvém observar que está dispensado da referida comprovação o impugnante cuja marca anterior já se encontrava registrada ou\ndepositada no Brasil quando do protocolo do pedido impugnado.\n16/03/2026, 18:42 5·11 Análise do requisito da disponibilidade do sinal marcário - Manual de Marcas\nhttps://manualdemarcas.inpi.gov.br/projects/manual/wiki/5·11_Análise_do_requisito_da_disponibilidade_do_sinal_marcário 11/32",
+                    "arquivo": "manual_marcas_sinal_marcario.pdf",
+                    "pagina": 11,
+                    "chunk": 5,
+                    "distancia": 0.37702423334121704
+                },
+                {
+                    "texto": "Estado da Arte sobre Engenharia de Requisitos e Explicabilidade em Sistemas Baseados em Aprendizado de Máquina WRSL+’2024, Juiz de Fora/MG, Brazil\nsão preenchidos durante a leitura do texto completo de cada artigo.\nElaboramos o formulário de extração de dados baseado nas QPs. A\nTabela 2 apresenta o mapeamento entre os campos do formulário e\nas questões de pesquisa.\n4 CONDUÇÃO DA SELEÇÃO DE ESTUDOS\nNesta seção descrevemos a etapa de seleção dos estudos primários.\nA primeira etapa consistiu na busca de artigos utilizando a string\nde busca, aplicadas aos títulos, resumos e palavras-chave nas bases\nbibliográficas e motores de busca selecionados em março de 2024,\nque retornou 200 artigos, como descreve a Tabela 3. Identificamos\ne removemos 70 artigos duplicados (do grupo de 200 estudos) com\no apoio da ferramenta Parsif.al.\nTabela 3: Número de artigos por fonte incluindo duplicados.\nBase bibliográfica Artigos retornados Artigos aceitos\nEngineering Village 34 0\nIEEE Digital Library 33 06\nScie",
+                    "arquivo": "requisitos_explicabilidade.pdf",
+                    "pagina": 5,
+                    "chunk": 0,
+                    "distancia": 0.3770742416381836
+                },
+                {
+                    "texto": "essão à concorrência desleal. \n        Art. 3º Aplica-se também o disposto nesta Lei: \n        I - ao pedido de patente ou de registro proveniente do exterior e \ndepositado no País por quem tenha proteção assegurada por tratado ou \nconvenção em vigor no Brasil; e \n        II - aos nacionais ou pessoas domiciliadas em país que assegure aos \nbrasileiros ou pessoas domiciliadas no Brasil a reciprocidade de direitos iguais \nou equivalentes. \n        Art. 4º As disposições dos tratados em vigor no Brasil são aplicáveis, em \nigualdade de condições, às pessoas físicas e jurídicas nacionais ou \ndomiciliadas no País. \n        Art. 5º Consideram-se bens móveis, para os efeitos legais, os direitos de \npropriedade industrial.",
+                    "arquivo": "lei_9279_propriedade_industrial.pdf",
+                    "pagina": 1,
+                    "chunk": 1,
+                    "distancia": 0.38300538063049316
+                },
+                {
+                    "texto": "zar a infringência da referida proibição legal. Sua aplicação está\ncondicionada à ocorrência de imitação ou reprodução de marca registrada para assinalar produtos ou serviços idênticos, semelhantes ou\nafins e ao atendimento dos requisitos abaixo detalhados. Vale observar que é dispensável que o impugnado saiba quem é o titular da\nmarca alheia para efeito de aplicação do dispositivo legal em questão.\nComprovação do depósito da marca no Brasil\nO conhecimento das alegações baseadas na norma em questão está sujeito à comprovação do depósito de pedido de registro em nome\ndo impugnante, independente de exigência por parte do INPI, conforme disposto no § 2º do art. 158 da LPI:\nArt. 158 – Protocolizado, o pedido será publicado para apresentação de oposição no prazo de 60 (sessenta) dias.\n(...)\n§ 2º Não se conhecerá da oposição, nulidade administrativa ou de ação de nulidade se, fundamentada no inciso XXIII do art. 124 ou no art. 126, não\nse comprovar, no prazo de 60 (sessenta) dias após a inte",
+                    "arquivo": "manual_marcas_sinal_marcario.pdf",
+                    "pagina": 11,
+                    "chunk": 3,
+                    "distancia": 0.38303208351135254
+                },
+                {
+                    "texto": "es de fora do território nacional e que não sejam objeto de\ncomunicação, uso compartilhado de dados com agentes de tratamento brasileiros ou objeto de\ntransferência internacional de dados com outro país que não o de proveniência, desde que o país\nde proveniência proporcione grau de proteção de dados pessoais adequado ao previsto nesta Lei. \n§ 1º O tratamento de dados pessoais previsto no inciso III será regido por legislação\nespecífica, que deverá prever medidas proporcionais e estritamente necessárias ao atendimento\ndo interesse público, observados o devido processo legal, os princípios gerais de proteção e os\ndireitos do titular previstos nesta Lei. \n§ 2º É vedado o tratamento dos dados a que se refere o inciso III do caput deste artigo\npor pessoa de direito privado, exceto em procedimentos sob tutela de pessoa jurídica de direito\npúblico, que serão objeto de informe específico à autoridade nacional e que deverão observar a\nlimitação imposta no § 4º deste artigo. \n§ 3º A autoridade n",
+                    "arquivo": "lei_13709_lgpd.pdf",
+                    "pagina": 2,
+                    "chunk": 1,
+                    "distancia": 0.3894423246383667
+                },
+                {
+                    "texto": "descrição dos processos de tratamento de dados pessoais que podem\ngerar riscos às liberdades civis e aos direitos fundamentais, bem como medidas, salvaguardas e\nmecanismos de mitigação de risco; \nXVIII - órgão de pesquisa: órgão ou entidade da administração pública direta ou\nindireta ou pessoa jurídica de direito privado sem fins lucrativos legalmente constituída sob as\nleis brasileiras, com sede e foro no País, que inclua em sua missão institucional ou em seu\nobjetivo social ou estatutário a pesquisa básica ou aplicada de caráter histórico, científico,\ntecnológico ou estatístico; e  (Inciso com redação dada pela Medida Provisória nº 869, de\n27/12/2018, convertida na Lei nº 13.853, de 8/7/2019)\nXIX - autoridade nacional: entidade da administração pública responsável por zelar,\nimplementar e fiscalizar o cumprimento desta Lei em todo o território nacional. (Inciso com\nredação dada pela Medida Provisória nº 1.317, de 17/9/2025  ,   convertida na Lei nº 15.352, de\n25/2/2026)",
+                    "arquivo": "lei_13709_lgpd.pdf",
+                    "pagina": 3,
+                    "chunk": 3,
+                    "distancia": 0.4036492705345154
+                }
+            ]
+        },
+        "requisitos_adicionais_explicabilidade": {
+            "requisitos": [
+                {
+                    "categoria": "5.1 Padrões, Normas e Regulamentos Aplicáveis",
+                    "requisito": "O sistema deve gerar explicações de decisões de indeferimento que estejam em conformidade com a Lei Geral de Proteção de Dados (LGPD), garantindo que o tratamento de dados pessoais seja transparente, responsável e limitado ao estritamente necessário.",
+                    "justificativa": "O texto da LGPD recuperado pelo RAG indica que o tratamento de dados pessoais deve observar os princípios gerais de proteção, o devido processo legal e os direitos do titular, exigindo transparência e responsabilidade no uso de dados pessoais."
+                },
+                {
+                    "categoria": "5.1 Padrões, Normas e Regulamentos Aplicáveis",
+                    "requisito": "O sistema deve disponibilizar explicações auditáveis e acessíveis aos reguladores, permitindo que a autoridade nacional verifique a conformidade das decisões de indeferimento com as normas vigentes, conforme exigido pela LGPD.",
+                    "justificativa": "O trecho da LGPD recuperado pelo RAG destaca que procedimentos sob tutela de pessoa jurídica de direito público devem ser objeto de informe"
+                }
+            ]
+        }
+    }
+}
