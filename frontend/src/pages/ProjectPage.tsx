@@ -36,7 +36,7 @@ export default function ProjectPage() {
   const [gateway, setGateway] = useState("baml");
   const start = useMutation({
     mutationFn: () => api.post<RunSummary>(`/projects/${projectId}/runs`,
-      { phase, context_strategy: strategy, agent_gateway: gateway, base_run_id: phase === "2" ? baseRun : null }),
+      { phase, context_strategy: strategy, agent_gateway: gateway, base_run_id: phase !== "1" ? baseRun : null }),
     onSuccess: (r) => navigate(`/execucoes/${r.id}`),
   });
 
@@ -62,7 +62,8 @@ export default function ProjectPage() {
   const isEngineer = p.meu_papel === "requirements_engineer" || p.meu_papel === "admin";
   const hasScope = p.fontes.some((f) => f.source_kind === "escopo" && f.ativo);
   const ready = p.corpora.find((c) => c.status === "ready");
-  const approvedVisions = p.execucoes.filter((r) => r.phase === "1" && r.status === "completed");
+  const previousPhase = String(Number(phase) - 1);
+  const baseRuns = p.execucoes.filter((r) => r.phase === previousPhase && r.status === "completed");
   const elicitationDocs = p.fontes.filter((f) => f.source_kind === "elicitacao" && f.ativo).length;
 
   return (
@@ -101,20 +102,25 @@ export default function ProjectPage() {
             <form className="card stack" onSubmit={(e) => { e.preventDefault(); start.mutate(); }}>
               <h2>Iniciar execução</h2>
               <label>Fase
-                <select value={phase} onChange={(e) => setPhase(e.target.value)}>
+                <select value={phase} onChange={(e) => { setPhase(e.target.value); setBaseRun(""); }}>
                   <option value="1">1 — Define Explainability Vision</option>
                   <option value="2">2 — Elicit Explainability Requirements</option>
+                  <option value="3">3 — Analyze Explainability Requirements</option>
                 </select>
               </label>
-              {phase === "2" && (
+              {phase !== "1" && (
                 <>
-                  <label>Visão aprovada de base (execução da Fase 1)
+                  <label>Execução aprovada de base (Fase {previousPhase} — {PHASE_NAMES[previousPhase]})
                     <select value={baseRun} onChange={(e) => setBaseRun(e.target.value)} required>
                       <option value="">—</option>
-                      {approvedVisions.map((r) => <option key={r.id} value={r.id}>{r.id.slice(0, 8)} · {fmtDate(r.created_at)} · estratégia {r.context_strategy}</option>)}
+                      {baseRuns.map((r) => <option key={r.id} value={r.id}>{r.id.slice(0, 8)} · {fmtDate(r.created_at)} · estratégia {r.context_strategy}</option>)}
                     </select>
                   </label>
-                  {approvedVisions.length === 0 && <div className="alert warn">Conclua e aprove uma execução da Fase 1 antes.</div>}
+                  {baseRuns.length === 0 && <div className="alert warn">Conclua e aprove uma execução da Fase {previousPhase} antes.</div>}
+                </>
+              )}
+              {phase === "2" && (
+                <>
                   <div className="alert info small">
                     A execução pausa em 2.2.1 para você enviar o material de elicitação (transcrições de entrevistas,
                     atas de workshops…). {elicitationDocs > 0 ? `${elicitationDocs} documento(s) já enviados.` : "Você pode enviá-lo agora, na aba de fontes, ou quando a plataforma pedir."}
@@ -135,7 +141,7 @@ export default function ProjectPage() {
                 </select>
               </label>
               <ErrorBox error={start.error} />
-              <button className="primary" disabled={!hasScope || start.isPending || (phase === "2" && !baseRun)}>Iniciar</button>
+              <button className="primary" disabled={!hasScope || start.isPending || (phase !== "1" && !baseRun)}>Iniciar</button>
             </form>
           )}
         </div>

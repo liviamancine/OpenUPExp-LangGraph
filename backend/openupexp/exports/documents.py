@@ -7,13 +7,21 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from openupexp.config import get_settings
 from openupexp.db.models import Export, Run
-from openupexp.exports import requirements, vision
+from openupexp.exports import analysis, requirements, vision
 
 EXPORT_NAMES = {"1": ("documento-visao", vision.TEMPLATE_VERSION),
-                "2": ("erd-fase2", requirements.TEMPLATE_VERSION)}
+                "2": ("erd-fase2", requirements.TEMPLATE_VERSION),
+                "3": ("erd-fase3", analysis.TEMPLATE_VERSION)}
 
 
 async def render_current_document(session: AsyncSession, run: Run) -> str:
+    if run.phase == "3":
+        contents = await vision.current_contents(session, run)
+        base = await requirements.base_contents(session, run)
+        meta = await vision._meta(session, run, "rascunho", "—")
+        meta["base_run_id"] = str(run.base_run_id)
+        return analysis.render_analysis_markdown(
+            contents, base, meta, await requirements.consensus_records(session, run))
     if run.phase == "2":
         contents = await vision.current_contents(session, run)
         base = await requirements.base_contents(session, run)

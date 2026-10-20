@@ -77,3 +77,23 @@ correspondente for tomada. Onde vive no código: `backend/baml_src/requirements_
 | A-12 — Composição do ERD | ERD da Fase 2 = Parte 1 (Visão aprovada, com Glossário) + Parte 2 (plano, material, necessidades, requisitos, complementares, rastreabilidade NEED→REQ, consenso, lacunas) | Anotação BPMN em 2.3.2: "Create Explainability Requirement Document (ERD)" |
 | Glossário na Fase 2 | **Não implementado**: o passo 2 (capturar termos) não tem tarefa BPMN própria na Fase 2; o glossário da Visão é usado como entrada | Passo 2; saídas da tarefa citam o Glossário |
 | A-19 — Lista de Itens de Trabalho | Fora do escopo (passo 7) | Marcada "VAMOS TER???" |
+
+## 12.5 Interpretações provisórias adotadas na Fase 3 [PROPOSTA]
+
+Manifesto 0.3.0. A Fase 3 é a mais definida na teoria (`tarefas/analisar-requisito.md`): as
+taxonomias, a matriz de viabilidade e o MoSCoW vêm do texto. O que segue é escolha de engenharia.
+Código: `backend/baml_src/analysis_3_analyze.baml`, `backend/openupexp/agents/phase3.py`.
+
+| Pendência | Interpretação provisória | Base na teoria |
+|---|---|---|
+| A-14 — Formato do RER | `RER-n` por requisito, com os campos das "perguntas úteis" do passo 1: contexto de uso, quem usa a explicação, decisão apoiada, risco (ALTO/MÉDIO/BAIXO), objetivo principal, obrigação regulatória, requisitos regulatórios associados | Passo 1; RER marcado "artefato intermediário???Validar" |
+| Escopo da análise | Só os requisitos `EXPLICABILIDADE` passam por 3.1.2–3.2.6. Os `COMPLEMENTAR` (normas, desempenho…) entram como restrições e participam da análise de conflitos | "Analisar cada requisito de explicabilidade" (passo 1) |
+| A-15 — Aspectos (3.2.1) | Lista do passo 2 (Compreensão, Justificativa, Confiança, Auditoria, Contestação, Aprendizado) + `OUTRO` justificado; classificação múltipla com aspecto predominante | Passo 2 e boas práticas |
+| A-15 — Tipos de explicação (3.2.2) | Lista do passo 3 (Feature Importance, Local, Global, Example-based, Rule-based, Counterfactual) + `OUTRO`; sem escolher ferramenta; trechos acadêmicos da base de referência como evidência | Passo 3 ("não é selecionar uma ferramenta") |
+| Conflitos (3.2.3) | Todos os pares se houver até 40 requisitos; acima disso, pares com stakeholder em comum ou similaridade ≥ 0,8. Tipos a partir dos exemplos do passo 4. A cobertura de pares fica registrada | Passo 4 |
+| Dependências (3.2.4) | `depende_de` entre REQ-n e restrições tipadas; restrição regulatória exige evidência verificada na base de referência | Passo 5 (exemplo "depende de rastreabilidade — impactado pela LGPD") |
+| Viabilidade (3.2.5) | Os quatro critérios da matriz do passo 6 sempre presentes (`NAO_AVALIADO` + lacuna quando o agente omite) | Passo 6 |
+| A-16 — MoSCoW (3.2.6) | **A IA só sugere**; a prioridade é confirmada no consenso e na aprovação, e o Engenheiro pode editá-la. Alerta automático quando um requisito do qual outro depende tem prioridade menor | Passos 7 e 8 |
+| A-13 / A-20 — Reach Consensus sem número | Tratado como 3.2.7, com a mesma regra provisória da Fase 2; retorno apenas a 3.2 | Passo 8; BPMN sem numeração |
+| A-01 — Retorno do gateway 3.3 | Revisitar 3.1 ou 3.2, com comentário obrigatório | Anotação BPMN em 3.3 |
+| A-12 — ERD | ERD da Fase 3 = ERD aprovado da Fase 2 (Visão + Requisitos) + Parte 3 (RER, conflitos, MoSCoW, consenso, lacunas) | "Consolidate Explainability Requirement Document" |

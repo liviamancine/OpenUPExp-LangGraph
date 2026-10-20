@@ -49,6 +49,36 @@ def test_phase2_tasks_have_handlers_and_read_phase1_or_earlier_outputs():
         produced |= {w.artifact for w in t.writes}
 
 
+def test_phase3_tasks_have_handlers_and_read_earlier_outputs():
+    from openupexp.agents.phase3 import HANDLERS as P3
+
+    manifest = load_manifest()
+    phase = manifest.phase("3")
+    assert phase.implemented and phase.requires_phase == "2"
+    produced = {w.artifact for p in ("1", "2") for t in manifest.phase(p).tasks() for w in t.writes}
+    for t in phase.tasks():
+        if t.mechanism in ("agent", "deterministic"):
+            assert t.id in P3, f"tarefa {t.id} sem handler"
+        for r in t.reads:
+            if r.required:
+                assert r.artifact in produced, f"{t.id} lê {r.artifact} antes de ser produzido"
+        produced |= {w.artifact for w in t.writes}
+    assert set(manifest.task("3.3.gate").outcomes) == {"approve", "revisit_3_1", "revisit_3_2"}
+    assert set(manifest.task("3.2.7").outcomes) == {"close", "revisit_3_2"}
+
+
+def test_phase3_taxonomies_follow_theory():
+    from openupexp.baml_client import types as T
+
+    # tarefas/analisar-requisito.md, passos 2, 3, 6 e 7
+    assert {a.value for a in T.ExplanatoryAspect} - {"OUTRO"} == {
+        "COMPREENSAO", "JUSTIFICATIVA", "CONFIANCA", "AUDITORIA", "CONTESTACAO", "APRENDIZADO"}
+    assert {t.value for t in T.ExplanationType} - {"OUTRO"} == {
+        "FEATURE_IMPORTANCE", "LOCAL", "GLOBAL", "EXAMPLE_BASED", "RULE_BASED", "COUNTERFACTUAL"}
+    assert {c.value for c in T.FeasibilityCriterion} == {"TECNICA", "REGULATORIA", "OPERACIONAL", "ECONOMICA"}
+    assert {m.value for m in T.MoSCoW} == {"MUST", "SHOULD", "COULD", "WONT"}
+
+
 def test_phase2_human_points():
     m = load_manifest()
     assert set(m.task("2.3.gate").outcomes) == {"approve", "revisit_2_1", "revisit_2_2"}

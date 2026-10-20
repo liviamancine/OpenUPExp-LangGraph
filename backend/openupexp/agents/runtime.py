@@ -78,12 +78,14 @@ def _links_from_item(item: dict) -> list[tuple[str, str, str]]:
         r = (ref or {}).get("referencia") or ""
         if "-" in r and len(r) <= 40 and r.split("-")[0].isupper():
             links.append((item["id"], r, "derives_from"))
-    for field_name, kind in [("stakeholder_id", "relates_to"), ("termo_origem_id", "derives_from")]:
+    for field_name, kind in [("stakeholder_id", "relates_to"), ("termo_origem_id", "derives_from"),
+                             ("req_id", "refines")]:
         if item.get(field_name):
             links.append((item["id"], item[field_name], kind))
     for field_name, kind in [("stakeholder_ids", "relates_to"), ("solicitacao_ids", "derives_from"),
                              ("need_ids", "relates_to"), ("rn_ids", "derives_from"),
-                             ("origem_ids", "derives_from"), ("ri_ids", "relates_to"), ("cr_ids", "refines")]:
+                             ("origem_ids", "derives_from"), ("ri_ids", "relates_to"), ("cr_ids", "refines"),
+                             ("req_ids", "conflicts_with"), ("depende_de", "depends_on")]:
         for target in item.get(field_name) or []:
             if target:
                 links.append((item["id"], target, kind))

@@ -23,16 +23,54 @@ class StreamState(BaseModel, typing.Generic[StreamStateValueT]):
     value: StreamStateValueT
     state: typing_extensions.Literal["Pending", "Incomplete", "Complete"]
 # #########################################################################
-# Generated classes (55)
+# Generated classes (81)
 # #########################################################################
+
+class AspectClassification(BaseModel):
+    id: typing.Optional[str] = Field(default=None, description='ASP-n existente; null se novo')
+    req_id: typing.Optional[str] = None
+    aspectos: typing.List[types.ExplanatoryAspect] = Field(description='Classificação múltipla permitida')
+    predominante: typing.Optional[types.ExplanatoryAspect] = None
+    justificativa: typing.Optional[str] = None
+    lacunas: typing.List["Lacuna"]
+
+class AspectsArtifact(BaseModel):
+    classificacoes: typing.List["AspectClassification"]
 
 class CaptureTermsInput(BaseModel):
     documento_escopo: typing.Optional[str] = None
     problema: typing.Optional["ExplainabilityProblem"] = None
 
+class CharacterizeInput(BaseModel):
+    requisito: typing.Optional["ConsolidatedRequirement"] = None
+    stakeholders: typing.List["Stakeholder"]
+    necessidades: typing.List["ExplainabilityNeed"]
+    requisitos_complementares: typing.List["ConsolidatedRequirement"]
+    caracterizacao_existente: typing.Optional["CharacterizedRequirement"] = None
+
+class CharacterizedRequirement(BaseModel):
+    id: typing.Optional[str] = Field(default=None, description='RER-n existente; null se novo')
+    req_id: typing.Optional[str] = Field(default=None, description='REQ-n caracterizado')
+    contexto_uso: typing.Optional[str] = Field(default=None, description='Em qual contexto a explicação será utilizada')
+    usuarios_explicacao: typing.List[str] = Field(description='STK-n que utilizarão a explicação')
+    decisao_apoiada: typing.Optional[str] = Field(default=None, description='Qual decisão está sendo apoiada pelo sistema')
+    risco_decisao: typing.Optional[types.DecisionRisk] = Field(default=None, description='Risco/impacto da decisão; null se as entradas não sustentarem')
+    objetivo_principal: typing.Optional[str] = Field(default=None, description='Objetivo principal da explicação')
+    obrigacao_regulatoria: typing.Optional[bool] = Field(default=None, description='Existe obrigação regulatória de explicar? null se não houver evidência')
+    requisitos_regulatorios: typing.List[str] = Field(description='REQ-n complementares ou normas citadas nas entradas que se associam')
+    lacunas: typing.List["Lacuna"]
+
+class CharacterizedRequirementsArtifact(BaseModel):
+    caracterizacoes: typing.List["CharacterizedRequirement"]
+
 class ChecklistQuestion(BaseModel):
     dimensao: typing.Optional[str] = None
     pergunta: typing.Optional[str] = None
+
+class ClassifyAspectsInput(BaseModel):
+    requisitos: typing.List["ConsolidatedRequirement"]
+    caracterizacoes: typing.List["CharacterizedRequirement"]
+    classificacoes_existentes: typing.List["AspectClassification"]
 
 class ComplementaryInput(BaseModel):
     problema: typing.Optional["ExplainabilityProblem"] = None
@@ -49,6 +87,16 @@ class ComplementaryRequirement(BaseModel):
 
 class ComplementaryRequirementsArtifact(BaseModel):
     requisitos: typing.List["ComplementaryRequirement"]
+
+class ConflictsArtifact(BaseModel):
+    conflitos: typing.List["RequirementConflict"]
+
+class ConflictsInput(BaseModel):
+    requisitos: typing.List["ConsolidatedRequirement"]
+    aspectos: typing.List["AspectClassification"]
+    tipos: typing.List["ExplanationTypeMapping"]
+    pares_candidatos: typing.List["RequirementPair"]
+    conflitos_existentes: typing.List["RequirementConflict"]
 
 class ConsolidateInput(BaseModel):
     requisitos: typing.List["ExplainabilityRequirement"]
@@ -83,6 +131,23 @@ class CreateGlossaryInput(BaseModel):
 
 class DefineProblemInput(BaseModel):
     documento_escopo: typing.Optional[str] = None
+
+class DependenciesArtifact(BaseModel):
+    dependencias: typing.List["DependencyAnalysis"]
+
+class DependenciesInput(BaseModel):
+    requisitos: typing.List["ConsolidatedRequirement"]
+    caracterizacoes: typing.List["CharacterizedRequirement"]
+    indice: typing.List["RequirementIndexEntry"] = Field(description='Todos os requisitos do projeto, para referência')
+    dependencias_existentes: typing.List["DependencyAnalysis"]
+
+class DependencyAnalysis(BaseModel):
+    id: typing.Optional[str] = Field(default=None, description='DEP-n existente; null se novo')
+    req_id: typing.Optional[str] = None
+    depende_de: typing.List[str] = Field(description='REQ-n dos quais este depende (use o índice)')
+    restricoes: typing.List["RequirementConstraint"]
+    impacto: typing.Optional[str] = Field(default=None, description='Impacto das restrições sobre o requisito')
+    lacunas: typing.List["Lacuna"]
 
 class DigestInput(BaseModel):
     documento: typing.Optional[str] = Field(default=None, description='Documento aprovado da fase, em Markdown')
@@ -175,12 +240,47 @@ class ExplainabilityRequirement(BaseModel):
 class ExplainabilityRequirementsArtifact(BaseModel):
     requisitos: typing.List["ExplainabilityRequirement"]
 
+class ExplanationTypeMapping(BaseModel):
+    id: typing.Optional[str] = Field(default=None, description='MAP-n existente; null se novo')
+    req_id: typing.Optional[str] = None
+    tipos: typing.List[types.ExplanationType]
+    justificativa: typing.Optional[str] = Field(default=None, description='Por que esses tipos atendem ao perfil, ao contexto e ao objetivo')
+    evidencias: typing.List["EvidenceRef"] = Field(description='Opcional: trechos da base de referência que sustentam o mapeamento')
+    lacunas: typing.List["Lacuna"]
+
+class ExplanationTypesArtifact(BaseModel):
+    mapeamentos: typing.List["ExplanationTypeMapping"]
+
 class ExtractNeedsInput(BaseModel):
     stakeholder: typing.Optional["Stakeholder"] = None
     plano: typing.Optional["ElicitationPlanItem"] = None
     solicitacoes_visao: typing.List["StakeholderNeed"] = Field(description='Solicitações deste stakeholder registradas na Visão (1.1.3)')
     necessidades_visao: typing.List["ExplainabilityNeed"]
     necessidades_existentes: typing.List["ElicitedNeed"]
+
+class FeasibilityArtifact(BaseModel):
+    avaliacoes: typing.List["FeasibilityAssessment"]
+
+class FeasibilityAssessment(BaseModel):
+    id: typing.Optional[str] = Field(default=None, description='FEA-n existente; null se novo')
+    req_id: typing.Optional[str] = None
+    criterios: typing.List["FeasibilityItem"] = Field(description='Os quatro critérios: TECNICA, REGULATORIA, OPERACIONAL, ECONOMICA')
+    riscos: typing.List[str]
+    premissas: typing.List[str]
+    lacunas: typing.List["Lacuna"]
+
+class FeasibilityInput(BaseModel):
+    requisitos: typing.List["ConsolidatedRequirement"]
+    caracterizacoes: typing.List["CharacterizedRequirement"]
+    tipos: typing.List["ExplanationTypeMapping"]
+    dependencias: typing.List["DependencyAnalysis"]
+    conflitos: typing.List["RequirementConflict"]
+    avaliacoes_existentes: typing.List["FeasibilityAssessment"]
+
+class FeasibilityItem(BaseModel):
+    criterio: typing.Optional[types.FeasibilityCriterion] = None
+    situacao: typing.Optional[types.FeasibilityStatus] = None
+    observacao: typing.Optional[str] = None
 
 class GlossaryArtifact(BaseModel):
     termos: typing.List["GlossaryTerm"]
@@ -234,6 +334,12 @@ class LimitsInput(BaseModel):
     requisitos_complementares: typing.List["ComplementaryRequirement"]
     checklist: typing.List["ChecklistQuestion"]
 
+class MapTypesInput(BaseModel):
+    requisitos: typing.List["ConsolidatedRequirement"]
+    caracterizacoes: typing.List["CharacterizedRequirement"]
+    aspectos: typing.List["AspectClassification"]
+    mapeamentos_existentes: typing.List["ExplanationTypeMapping"]
+
 class OrigemRef(BaseModel):
     referencia: typing.Optional[str] = Field(default=None, description='ID de item de entrada (ex.: STK-02, NEED-01) ou \'escopo\'')
     relacao: typing.Optional[str] = Field(default=None, description='Como a saída decorre desta entrada')
@@ -286,6 +392,19 @@ class PositioningInput(BaseModel):
     necessidades: typing.List["ExplainabilityNeed"]
     posicionamentos_existentes: typing.List["Positioning"]
 
+class PrioritiesArtifact(BaseModel):
+    prioridades: typing.List["PriorityAssignment"]
+
+class PrioritizeInput(BaseModel):
+    requisitos: typing.List["RequirementAnalysisSummary"]
+    prioridades_existentes: typing.List["PriorityAssignment"]
+
+class PriorityAssignment(BaseModel):
+    id: typing.Optional[str] = Field(default=None, description='PRI-n existente; null se novo')
+    req_id: typing.Optional[str] = None
+    prioridade: typing.Optional[types.MoSCoW] = None
+    justificativa: typing.Optional[str] = None
+
 class ProblemStatement(BaseModel):
     o_problema_da: typing.Optional[str] = Field(default=None, description='Template §2.1 — \'O problema da\'')
     afeta: typing.List[str] = Field(description='Template §2.1 — \'afeta\' (nomes literais da entrada)')
@@ -305,6 +424,38 @@ class RefineComplementaryInput(BaseModel):
     requisitos: typing.List["ExplainabilityRequirement"]
     requisitos_complementares_visao: typing.List["ComplementaryRequirement"]
     requisitos_existentes: typing.List["PhaseComplementaryRequirement"]
+
+class RequirementAnalysisSummary(BaseModel):
+    id: typing.Optional[str] = None
+    enunciado: typing.Optional[str] = None
+    tipo: typing.Optional[str] = None
+    aspecto_predominante: typing.Optional[str] = None
+    risco_decisao: typing.Optional[str] = None
+    viabilidade: typing.Optional[str] = Field(default=None, description='Resumo dos quatro critérios, ex.: TECNICA=SIM REGULATORIA=NAO_AVALIADO')
+    conflitos: typing.List[str] = Field(description='CNF-n em que o requisito aparece')
+    depende_de: typing.List[str]
+
+class RequirementConflict(BaseModel):
+    id: typing.Optional[str] = Field(default=None, description='CNF-n existente; null se novo')
+    req_ids: typing.List[str] = Field(description='Dois ou mais REQ-n em conflito')
+    tipo: typing.Optional[types.ConflictKind] = None
+    descricao: typing.Optional[str] = None
+    stakeholder_ids: typing.List[str]
+    alternativas_resolucao: typing.List[str] = Field(description='Alternativas propostas; a decisão é dos stakeholders')
+
+class RequirementConstraint(BaseModel):
+    tipo: typing.Optional[types.ConstraintKind] = None
+    descricao: typing.Optional[str] = None
+    evidencias: typing.List["EvidenceRef"] = Field(description='Trechos da base de referência (ex.: lei) que impõem a restrição')
+
+class RequirementIndexEntry(BaseModel):
+    id: typing.Optional[str] = None
+    enunciado: typing.Optional[str] = None
+
+class RequirementPair(BaseModel):
+    a: typing.Optional[str] = None
+    b: typing.Optional[str] = None
+    motivo: typing.Optional[str] = Field(default=None, description='Por que o par foi selecionado para verificação')
 
 class SimilarPair(BaseModel):
     a: typing.Optional[str] = None
@@ -338,23 +489,34 @@ class StakeholdersArtifact(BaseModel):
 
 
 # #########################################################################
-# Model rebuilds (55)
+# Model rebuilds (81)
 # #########################################################################
 # Resolve string forward references now that every model above is defined so
 # class declaration order never breaks Pydantic construction (issue #793).
 # Recursive models are intentionally omitted (Pydantic resolves those lazily;
 # eagerly rebuilding them can recurse).
+AspectClassification.model_rebuild()
+AspectsArtifact.model_rebuild()
 CaptureTermsInput.model_rebuild()
+CharacterizeInput.model_rebuild()
+CharacterizedRequirement.model_rebuild()
+CharacterizedRequirementsArtifact.model_rebuild()
 ChecklistQuestion.model_rebuild()
+ClassifyAspectsInput.model_rebuild()
 ComplementaryInput.model_rebuild()
 ComplementaryRequirement.model_rebuild()
 ComplementaryRequirementsArtifact.model_rebuild()
+ConflictsArtifact.model_rebuild()
+ConflictsInput.model_rebuild()
 ConsolidateInput.model_rebuild()
 ConsolidatedRequirement.model_rebuild()
 ConsolidatedRequirementsArtifact.model_rebuild()
 ContextItem.model_rebuild()
 CreateGlossaryInput.model_rebuild()
 DefineProblemInput.model_rebuild()
+DependenciesArtifact.model_rebuild()
+DependenciesInput.model_rebuild()
+DependencyAnalysis.model_rebuild()
 DigestInput.model_rebuild()
 DiscardedItem.model_rebuild()
 DomainTerm.model_rebuild()
@@ -371,7 +533,13 @@ ExplainabilityNeedsArtifact.model_rebuild()
 ExplainabilityProblem.model_rebuild()
 ExplainabilityRequirement.model_rebuild()
 ExplainabilityRequirementsArtifact.model_rebuild()
+ExplanationTypeMapping.model_rebuild()
+ExplanationTypesArtifact.model_rebuild()
 ExtractNeedsInput.model_rebuild()
+FeasibilityArtifact.model_rebuild()
+FeasibilityAssessment.model_rebuild()
+FeasibilityInput.model_rebuild()
+FeasibilityItem.model_rebuild()
 GlossaryArtifact.model_rebuild()
 GlossaryTerm.model_rebuild()
 IdentifyNeedsInput.model_rebuild()
@@ -381,6 +549,7 @@ IdentifyStakeholdersInput.model_rebuild()
 Lacuna.model_rebuild()
 LimitAnswer.model_rebuild()
 LimitsInput.model_rebuild()
+MapTypesInput.model_rebuild()
 OrigemRef.model_rebuild()
 PhaseComplementaryArtifact.model_rebuild()
 PhaseComplementaryRequirement.model_rebuild()
@@ -390,10 +559,18 @@ PlanQueriesInput.model_rebuild()
 Positioning.model_rebuild()
 PositioningArtifact.model_rebuild()
 PositioningInput.model_rebuild()
+PrioritiesArtifact.model_rebuild()
+PrioritizeInput.model_rebuild()
+PriorityAssignment.model_rebuild()
 ProblemStatement.model_rebuild()
 ReferenceQuery.model_rebuild()
 ReferenceQueryPlan.model_rebuild()
 RefineComplementaryInput.model_rebuild()
+RequirementAnalysisSummary.model_rebuild()
+RequirementConflict.model_rebuild()
+RequirementConstraint.model_rebuild()
+RequirementIndexEntry.model_rebuild()
+RequirementPair.model_rebuild()
 SimilarPair.model_rebuild()
 Stakeholder.model_rebuild()
 StakeholderNeed.model_rebuild()

@@ -121,9 +121,7 @@ async def _read_item(
             origin="required", ref=f"source_document:{doc.id}", artifact=read.artifact,
             content=doc.texto or "", reason="entrada declarada no manifesto (documento de escopo)",
         )
-    version = await store.current_version(session, run.id, read.artifact)
-    if version is None and run.base_run_id:
-        version = await store.current_version(session, run.base_run_id, read.artifact)
+    version = await store.lineage_version(session, run, read.artifact)
     if version is None:
         return None
     return PackageItem(
@@ -171,16 +169,15 @@ async def _feedback_items(session: AsyncSession, run: Run) -> list[PackageItem]:
 
 
 async def _digest_items(session: AsyncSession, run: Run) -> list[PackageItem]:
-    if not run.base_run_id:
-        return []
     out = []
-    for atype, version in (await store.current_versions(session, run.base_run_id)).items():
-        if atype.startswith("digest.") and version.status == "approved":
-            out.append(PackageItem(
-                origin="digest", ref=f"artifact_version:{version.id}", artifact=atype,
-                version_id=str(version.id), content=version.content.get("resumo", ""),
-                reason="digest de fase aprovada (contexto auxiliar)",
-            ))
+    for base_id in await store.lineage(session, run):
+        for atype, version in (await store.current_versions(session, base_id)).items():
+            if atype.startswith("digest.") and version.status == "approved":
+                out.append(PackageItem(
+                    origin="digest", ref=f"artifact_version:{version.id}", artifact=atype,
+                    version_id=str(version.id), content=version.content.get("resumo", ""),
+                    reason="digest de fase aprovada (contexto auxiliar)",
+                ))
     return out
 
 

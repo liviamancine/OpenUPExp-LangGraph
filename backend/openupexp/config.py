@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+psycopg://openupexp:openupexp@localhost:5433/openupexp"
     data_dir: Path = _BACKEND_DIR.parent / "data"
     process_dir: Path = _BACKEND_DIR.parent / "process"
-    manifest_version: str = "0.2.0"
+    manifest_version: str = "0.3.0"
 
     jwt_secret: str = "dev-secret-change-me"
     jwt_ttl_hours: int = 12

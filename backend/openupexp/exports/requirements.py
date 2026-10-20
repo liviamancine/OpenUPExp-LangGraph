@@ -66,8 +66,14 @@ async def consensus_records(session: AsyncSession, run: Run) -> list[dict]:
             else:
                 decision = resp
         fechamento = (req.payload or {}).get("fechamento", {})
-        resultado = {"close": "consenso encerrado", "revisit_2_2": "retorno a 2.2"}.get(
-            decision.decision if decision else "", decision.decision if decision else "—")
+        if decision is None:
+            resultado = "—"
+        elif decision.decision == "close":
+            resultado = "consenso encerrado"
+        elif decision.decision.startswith("revisit_"):
+            resultado = "retorno a " + decision.decision.removeprefix("revisit_").replace("_", ".")
+        else:
+            resultado = decision.decision
         if fechamento.get("override"):
             resultado += " com objeções registradas"
         out.append({"iteracao": req.iteracao, "resultado": resultado,
@@ -77,6 +83,9 @@ async def consensus_records(session: AsyncSession, run: Run) -> list[dict]:
 
 
 async def base_contents(session: AsyncSession, run: Run) -> dict[str, dict]:
-    if not run.base_run_id:
-        return {}
-    return {t: v.content for t, v in (await store.current_versions(session, run.base_run_id)).items()}
+    """Conteúdo atual das execuções de base; a base mais próxima prevalece."""
+    out: dict[str, dict] = {}
+    for base_id in await store.lineage(session, run):
+        for t, v in (await store.current_versions(session, base_id)).items():
+            out.setdefault(t, v.content)
+    return out

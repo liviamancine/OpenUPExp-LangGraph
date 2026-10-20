@@ -62,6 +62,28 @@ ARTIFACT_TYPES: dict[str, ArtifactType] = {
         ArtifactType("requirements.review_report", None, title="Checklist de pré-revisão"),
         ArtifactType("requirements.draft", None, title="Documento de Requisitos de Explicabilidade"),
         ArtifactType("digest.requirements", T.PhaseDigest, title="Digest dos Requisitos"),
+        # Fase 3 — taxonomias de tarefas/analisar-requisito.md; RER provisório (A-14)
+        ArtifactType("analysis.baseline", None, title="Requisitos aprovados (linha de base)"),
+        ArtifactType("analysis.characterized", T.CharacterizedRequirementsArtifact, "caracterizacoes",
+                     T.CharacterizedRequirement, "RER", lambda i: i.get("req_id") or "",
+                     "Requisitos caracterizados (RER)"),
+        ArtifactType("analysis.aspects", T.AspectsArtifact, "classificacoes", T.AspectClassification, "ASP",
+                     lambda i: i.get("req_id") or "", "Aspectos explicativos"),
+        ArtifactType("analysis.explanation_types", T.ExplanationTypesArtifact, "mapeamentos",
+                     T.ExplanationTypeMapping, "MAP", lambda i: i.get("req_id") or "",
+                     "Mapeamento para tipos de explicação"),
+        ArtifactType("analysis.conflicts", T.ConflictsArtifact, "conflitos", T.RequirementConflict, "CNF",
+                     lambda i: f"{' '.join(i.get('req_ids') or [])} {i.get('descricao')}",
+                     "Conflitos e alternativas de resolução"),
+        ArtifactType("analysis.dependencies", T.DependenciesArtifact, "dependencias", T.DependencyAnalysis, "DEP",
+                     lambda i: i.get("req_id") or "", "Dependências e restrições"),
+        ArtifactType("analysis.feasibility", T.FeasibilityArtifact, "avaliacoes", T.FeasibilityAssessment, "FEA",
+                     lambda i: i.get("req_id") or "", "Avaliação de viabilidade"),
+        ArtifactType("analysis.priorities", T.PrioritiesArtifact, "prioridades", T.PriorityAssignment, "PRI",
+                     lambda i: i.get("req_id") or "", "Prioridades MoSCoW"),
+        ArtifactType("analysis.review_report", None, title="Checklist de pré-revisão"),
+        ArtifactType("analysis.draft", None, title="Documento de Requisitos de Explicabilidade"),
+        ArtifactType("digest.analysis", T.PhaseDigest, title="Digest da Análise"),
     ]
 }
 
@@ -86,10 +108,21 @@ REQUIREMENTS_EDITABLE = [
     "requirements.consolidated",
 ]
 
+ANALYSIS_EDITABLE = [
+    "analysis.characterized",
+    "analysis.aspects",
+    "analysis.explanation_types",
+    "analysis.conflicts",
+    "analysis.dependencies",
+    "analysis.feasibility",
+    "analysis.priorities",
+]
+
 # Por fase: seções editáveis (em ordem), documento da fase e checklist de pré-revisão.
-PHASE_EDITABLE = {"1": VISION_EDITABLE, "2": REQUIREMENTS_EDITABLE}
-PHASE_DOCUMENT = {"1": "vision.draft", "2": "requirements.draft"}
-PHASE_REVIEW_REPORT = {"1": "vision.review_report", "2": "requirements.review_report"}
+PHASE_EDITABLE = {"1": VISION_EDITABLE, "2": REQUIREMENTS_EDITABLE, "3": ANALYSIS_EDITABLE}
+PHASE_DOCUMENT = {"1": "vision.draft", "2": "requirements.draft", "3": "analysis.draft"}
+PHASE_REVIEW_REPORT = {"1": "vision.review_report", "2": "requirements.review_report",
+                       "3": "analysis.review_report"}
 
 
 def items_from_content(artifact_type: str, content: dict) -> list[tuple[str, dict]]:

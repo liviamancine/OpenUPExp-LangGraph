@@ -16,11 +16,29 @@ from . import stream_types
 
 type_map = {
 
+    "types.AspectClassification": types.AspectClassification,
+    "stream_types.AspectClassification": stream_types.AspectClassification,
+
+    "types.AspectsArtifact": types.AspectsArtifact,
+    "stream_types.AspectsArtifact": stream_types.AspectsArtifact,
+
     "types.CaptureTermsInput": types.CaptureTermsInput,
     "stream_types.CaptureTermsInput": stream_types.CaptureTermsInput,
 
+    "types.CharacterizeInput": types.CharacterizeInput,
+    "stream_types.CharacterizeInput": stream_types.CharacterizeInput,
+
+    "types.CharacterizedRequirement": types.CharacterizedRequirement,
+    "stream_types.CharacterizedRequirement": stream_types.CharacterizedRequirement,
+
+    "types.CharacterizedRequirementsArtifact": types.CharacterizedRequirementsArtifact,
+    "stream_types.CharacterizedRequirementsArtifact": stream_types.CharacterizedRequirementsArtifact,
+
     "types.ChecklistQuestion": types.ChecklistQuestion,
     "stream_types.ChecklistQuestion": stream_types.ChecklistQuestion,
+
+    "types.ClassifyAspectsInput": types.ClassifyAspectsInput,
+    "stream_types.ClassifyAspectsInput": stream_types.ClassifyAspectsInput,
 
     "types.ComplementaryInput": types.ComplementaryInput,
     "stream_types.ComplementaryInput": stream_types.ComplementaryInput,
@@ -30,6 +48,12 @@ type_map = {
 
     "types.ComplementaryRequirementsArtifact": types.ComplementaryRequirementsArtifact,
     "stream_types.ComplementaryRequirementsArtifact": stream_types.ComplementaryRequirementsArtifact,
+
+    "types.ConflictsArtifact": types.ConflictsArtifact,
+    "stream_types.ConflictsArtifact": stream_types.ConflictsArtifact,
+
+    "types.ConflictsInput": types.ConflictsInput,
+    "stream_types.ConflictsInput": stream_types.ConflictsInput,
 
     "types.ConsolidateInput": types.ConsolidateInput,
     "stream_types.ConsolidateInput": stream_types.ConsolidateInput,
@@ -48,6 +72,15 @@ type_map = {
 
     "types.DefineProblemInput": types.DefineProblemInput,
     "stream_types.DefineProblemInput": stream_types.DefineProblemInput,
+
+    "types.DependenciesArtifact": types.DependenciesArtifact,
+    "stream_types.DependenciesArtifact": stream_types.DependenciesArtifact,
+
+    "types.DependenciesInput": types.DependenciesInput,
+    "stream_types.DependenciesInput": stream_types.DependenciesInput,
+
+    "types.DependencyAnalysis": types.DependencyAnalysis,
+    "stream_types.DependencyAnalysis": stream_types.DependencyAnalysis,
 
     "types.DigestInput": types.DigestInput,
     "stream_types.DigestInput": stream_types.DigestInput,
@@ -97,8 +130,26 @@ type_map = {
     "types.ExplainabilityRequirementsArtifact": types.ExplainabilityRequirementsArtifact,
     "stream_types.ExplainabilityRequirementsArtifact": stream_types.ExplainabilityRequirementsArtifact,
 
+    "types.ExplanationTypeMapping": types.ExplanationTypeMapping,
+    "stream_types.ExplanationTypeMapping": stream_types.ExplanationTypeMapping,
+
+    "types.ExplanationTypesArtifact": types.ExplanationTypesArtifact,
+    "stream_types.ExplanationTypesArtifact": stream_types.ExplanationTypesArtifact,
+
     "types.ExtractNeedsInput": types.ExtractNeedsInput,
     "stream_types.ExtractNeedsInput": stream_types.ExtractNeedsInput,
+
+    "types.FeasibilityArtifact": types.FeasibilityArtifact,
+    "stream_types.FeasibilityArtifact": stream_types.FeasibilityArtifact,
+
+    "types.FeasibilityAssessment": types.FeasibilityAssessment,
+    "stream_types.FeasibilityAssessment": stream_types.FeasibilityAssessment,
+
+    "types.FeasibilityInput": types.FeasibilityInput,
+    "stream_types.FeasibilityInput": stream_types.FeasibilityInput,
+
+    "types.FeasibilityItem": types.FeasibilityItem,
+    "stream_types.FeasibilityItem": stream_types.FeasibilityItem,
 
     "types.GlossaryArtifact": types.GlossaryArtifact,
     "stream_types.GlossaryArtifact": stream_types.GlossaryArtifact,
@@ -127,6 +178,9 @@ type_map = {
     "types.LimitsInput": types.LimitsInput,
     "stream_types.LimitsInput": stream_types.LimitsInput,
 
+    "types.MapTypesInput": types.MapTypesInput,
+    "stream_types.MapTypesInput": stream_types.MapTypesInput,
+
     "types.OrigemRef": types.OrigemRef,
     "stream_types.OrigemRef": stream_types.OrigemRef,
 
@@ -154,6 +208,15 @@ type_map = {
     "types.PositioningInput": types.PositioningInput,
     "stream_types.PositioningInput": stream_types.PositioningInput,
 
+    "types.PrioritiesArtifact": types.PrioritiesArtifact,
+    "stream_types.PrioritiesArtifact": stream_types.PrioritiesArtifact,
+
+    "types.PrioritizeInput": types.PrioritizeInput,
+    "stream_types.PrioritizeInput": stream_types.PrioritizeInput,
+
+    "types.PriorityAssignment": types.PriorityAssignment,
+    "stream_types.PriorityAssignment": stream_types.PriorityAssignment,
+
     "types.ProblemStatement": types.ProblemStatement,
     "stream_types.ProblemStatement": stream_types.ProblemStatement,
 
@@ -165,6 +228,21 @@ type_map = {
 
     "types.RefineComplementaryInput": types.RefineComplementaryInput,
     "stream_types.RefineComplementaryInput": stream_types.RefineComplementaryInput,
+
+    "types.RequirementAnalysisSummary": types.RequirementAnalysisSummary,
+    "stream_types.RequirementAnalysisSummary": stream_types.RequirementAnalysisSummary,
+
+    "types.RequirementConflict": types.RequirementConflict,
+    "stream_types.RequirementConflict": stream_types.RequirementConflict,
+
+    "types.RequirementConstraint": types.RequirementConstraint,
+    "stream_types.RequirementConstraint": stream_types.RequirementConstraint,
+
+    "types.RequirementIndexEntry": types.RequirementIndexEntry,
+    "stream_types.RequirementIndexEntry": stream_types.RequirementIndexEntry,
+
+    "types.RequirementPair": types.RequirementPair,
+    "stream_types.RequirementPair": stream_types.RequirementPair,
 
     "types.SimilarPair": types.SimilarPair,
     "stream_types.SimilarPair": stream_types.SimilarPair,
@@ -184,11 +262,27 @@ type_map = {
 
     "types.ComplementaryCategory": types.ComplementaryCategory,
 
+    "types.ConflictKind": types.ConflictKind,
+
+    "types.ConstraintKind": types.ConstraintKind,
+
+    "types.DecisionRisk": types.DecisionRisk,
+
     "types.ElicitationTechnique": types.ElicitationTechnique,
 
     "types.EvidenceKind": types.EvidenceKind,
 
     "types.ExplanationGoal": types.ExplanationGoal,
+
+    "types.ExplanationType": types.ExplanationType,
+
+    "types.ExplanatoryAspect": types.ExplanatoryAspect,
+
+    "types.FeasibilityCriterion": types.FeasibilityCriterion,
+
+    "types.FeasibilityStatus": types.FeasibilityStatus,
+
+    "types.MoSCoW": types.MoSCoW,
 
     "types.RequirementKind": types.RequirementKind,
 

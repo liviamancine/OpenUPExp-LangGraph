@@ -35,7 +35,7 @@ export default function RunPage() {
         <div className="grow">
           <div className="small"><Link to={`/projetos/${r.project_id}`}>← projeto</Link></div>
           <h1>Fase {r.phase} — {PHASE_NAMES[r.phase] ?? ""} · execução <span className="mono">{r.id.slice(0, 8)}</span></h1>
-          {r.base_run_id && <div className="small muted">Visão de base: <Link to={`/execucoes/${r.base_run_id}`} className="mono">{r.base_run_id.slice(0, 8)}</Link></div>}
+          {r.base_run_id && <div className="small muted">Execução de base: <Link to={`/execucoes/${r.base_run_id}`} className="mono">{r.base_run_id.slice(0, 8)}</Link></div>}
           <div className="row small muted">
             <Status value={r.status} />
             {r.current_task && <span>tarefa atual: {r.current_task}</span>}

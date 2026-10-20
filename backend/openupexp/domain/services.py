@@ -285,6 +285,9 @@ async def human_edit(
             raise DomainError(f"Cada item precisa de um ID único com prefixo {at.prefix}-.", 422)
 
     _drop_filled_gaps(validated)
+    # campos de sistema fora do contrato (ex.: cobertura de pares em 3.2.3) são preservados
+    for key, value in base.content.items():
+        validated.setdefault(key, value)
     deps = await session.execute(
         select(store.ArtifactDependency.depends_on_version_id, store.ArtifactDependency.via_read)
         .where(store.ArtifactDependency.version_id == base.id)

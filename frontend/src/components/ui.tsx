@@ -12,7 +12,7 @@ const LABELS: Record<string, string> = {
   approval: "aprovação", consensus: "consenso", input: "entrada de material",
 };
 
-export const PHASE_NAMES: Record<string, string> = { "1": "Visão", "2": "Elicitação" };
+export const PHASE_NAMES: Record<string, string> = { "1": "Visão", "2": "Elicitação", "3": "Análise" };
 
 export const DECISION_LABEL: Record<string, string> = {
   approve: "Aprovar",
@@ -20,6 +20,8 @@ export const DECISION_LABEL: Record<string, string> = {
   revisit_1_2: "Revisitar 1.2 Develop Explainability Vision",
   revisit_2_1: "Revisitar 2.1 Prepare Explainability Elicitation",
   revisit_2_2: "Revisitar 2.2 Elicit Explainability Requirements",
+  revisit_3_1: "Revisitar 3.1 Prepare Explainability Analysis",
+  revisit_3_2: "Revisitar 3.2 Analyze Explainability Requirements",
   submit: "Material enviado: prosseguir com a extração",
   no_material: "Prosseguir sem material de elicitação (justifique)",
   close: "Encerrar o consenso",
@@ -61,7 +63,11 @@ export function fmtDate(iso: string | null | undefined): string {
 
 export function show(value: unknown): string {
   if (value === null || value === undefined || value === "") return "—";
-  if (Array.isArray(value)) return value.length ? value.map(show).join(", ") : "—";
-  if (typeof value === "object") return JSON.stringify(value);
+  if (Array.isArray(value)) return value.length ? value.map(show).join(value.some((v) => typeof v === "object") ? " · " : ", ") : "—";
+  if (typeof value === "object") {
+    return Object.entries(value as Record<string, unknown>)
+      .filter(([k, v]) => v !== null && v !== undefined && !(Array.isArray(v) && !v.length) && k !== "verificacao")
+      .map(([k, v]) => `${k}: ${show(v)}`).join("; ");
+  }
   return String(value);
 }

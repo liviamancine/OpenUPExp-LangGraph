@@ -94,6 +94,62 @@ class BamlSyncClient:
     def parse_stream(self):
       return self.__llm_stream_parser
 
+    def AnalyzeConflicts(self, entrada: types.ConflictsInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> types.ConflictsArtifact:
+        # Check if on_tick is provided
+        if 'on_tick' in baml_options:
+            __stream__ = self.stream.AnalyzeConflicts(entrada=entrada,contexto=contexto,
+                baml_options=baml_options)
+            return __stream__.get_final_response()
+        else:
+            # Original non-streaming code
+            __result__ = self.__options.merge_options(baml_options).call_function_sync(function_name="AnalyzeConflicts", args={
+                "entrada": entrada,"contexto": contexto,
+            })
+            return typing.cast(types.ConflictsArtifact, __result__.cast_to(types, types, stream_types, False, __runtime__))
+    def AnalyzeDependencies(self, entrada: types.DependenciesInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> types.DependenciesArtifact:
+        # Check if on_tick is provided
+        if 'on_tick' in baml_options:
+            __stream__ = self.stream.AnalyzeDependencies(entrada=entrada,contexto=contexto,
+                baml_options=baml_options)
+            return __stream__.get_final_response()
+        else:
+            # Original non-streaming code
+            __result__ = self.__options.merge_options(baml_options).call_function_sync(function_name="AnalyzeDependencies", args={
+                "entrada": entrada,"contexto": contexto,
+            })
+            return typing.cast(types.DependenciesArtifact, __result__.cast_to(types, types, stream_types, False, __runtime__))
+    def AssessFeasibility(self, entrada: types.FeasibilityInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> types.FeasibilityArtifact:
+        # Check if on_tick is provided
+        if 'on_tick' in baml_options:
+            __stream__ = self.stream.AssessFeasibility(entrada=entrada,contexto=contexto,
+                baml_options=baml_options)
+            return __stream__.get_final_response()
+        else:
+            # Original non-streaming code
+            __result__ = self.__options.merge_options(baml_options).call_function_sync(function_name="AssessFeasibility", args={
+                "entrada": entrada,"contexto": contexto,
+            })
+            return typing.cast(types.FeasibilityArtifact, __result__.cast_to(types, types, stream_types, False, __runtime__))
+    def AssociateExplanationTypes(self, entrada: types.MapTypesInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> types.ExplanationTypesArtifact:
+        # Check if on_tick is provided
+        if 'on_tick' in baml_options:
+            __stream__ = self.stream.AssociateExplanationTypes(entrada=entrada,contexto=contexto,
+                baml_options=baml_options)
+            return __stream__.get_final_response()
+        else:
+            # Original non-streaming code
+            __result__ = self.__options.merge_options(baml_options).call_function_sync(function_name="AssociateExplanationTypes", args={
+                "entrada": entrada,"contexto": contexto,
+            })
+            return typing.cast(types.ExplanationTypesArtifact, __result__.cast_to(types, types, stream_types, False, __runtime__))
     def BuildPhaseDigest(self, entrada: types.DigestInput,contexto: typing.List["types.ContextItem"],
         baml_options: BamlCallOptions = {},
     ) -> types.PhaseDigest:
@@ -122,6 +178,34 @@ class BamlSyncClient:
                 "entrada": entrada,"contexto": contexto,
             })
             return typing.cast(types.DomainTermsArtifact, __result__.cast_to(types, types, stream_types, False, __runtime__))
+    def CharacterizeRequirement(self, entrada: types.CharacterizeInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> types.CharacterizedRequirement:
+        # Check if on_tick is provided
+        if 'on_tick' in baml_options:
+            __stream__ = self.stream.CharacterizeRequirement(entrada=entrada,contexto=contexto,
+                baml_options=baml_options)
+            return __stream__.get_final_response()
+        else:
+            # Original non-streaming code
+            __result__ = self.__options.merge_options(baml_options).call_function_sync(function_name="CharacterizeRequirement", args={
+                "entrada": entrada,"contexto": contexto,
+            })
+            return typing.cast(types.CharacterizedRequirement, __result__.cast_to(types, types, stream_types, False, __runtime__))
+    def ClassifyExplainabilityAspects(self, entrada: types.ClassifyAspectsInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> types.AspectsArtifact:
+        # Check if on_tick is provided
+        if 'on_tick' in baml_options:
+            __stream__ = self.stream.ClassifyExplainabilityAspects(entrada=entrada,contexto=contexto,
+                baml_options=baml_options)
+            return __stream__.get_final_response()
+        else:
+            # Original non-streaming code
+            __result__ = self.__options.merge_options(baml_options).call_function_sync(function_name="ClassifyExplainabilityAspects", args={
+                "entrada": entrada,"contexto": contexto,
+            })
+            return typing.cast(types.AspectsArtifact, __result__.cast_to(types, types, stream_types, False, __runtime__))
     def ConsolidateRequirements(self, entrada: types.ConsolidateInput,contexto: typing.List["types.ContextItem"],
         baml_options: BamlCallOptions = {},
     ) -> types.ConsolidatedRequirementsArtifact:
@@ -304,6 +388,20 @@ class BamlSyncClient:
                 "entrada": entrada,"contexto": contexto,
             })
             return typing.cast(types.ReferenceQueryPlan, __result__.cast_to(types, types, stream_types, False, __runtime__))
+    def PrioritizeRequirements(self, entrada: types.PrioritizeInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> types.PrioritiesArtifact:
+        # Check if on_tick is provided
+        if 'on_tick' in baml_options:
+            __stream__ = self.stream.PrioritizeRequirements(entrada=entrada,contexto=contexto,
+                baml_options=baml_options)
+            return __stream__.get_final_response()
+        else:
+            # Original non-streaming code
+            __result__ = self.__options.merge_options(baml_options).call_function_sync(function_name="PrioritizeRequirements", args={
+                "entrada": entrada,"contexto": contexto,
+            })
+            return typing.cast(types.PrioritiesArtifact, __result__.cast_to(types, types, stream_types, False, __runtime__))
     def RefineComplementaryRequirements(self, entrada: types.RefineComplementaryInput,contexto: typing.List["types.ContextItem"],
         baml_options: BamlCallOptions = {},
     ) -> types.PhaseComplementaryArtifact:
@@ -327,6 +425,54 @@ class BamlStreamClient:
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
 
+    def AnalyzeConflicts(self, entrada: types.ConflictsInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.BamlSyncStream[stream_types.ConflictsArtifact, types.ConflictsArtifact]:
+        __ctx__, __result__ = self.__options.merge_options(baml_options).create_sync_stream(function_name="AnalyzeConflicts", args={
+            "entrada": entrada,"contexto": contexto,
+        })
+        return baml_py.BamlSyncStream[stream_types.ConflictsArtifact, types.ConflictsArtifact](
+          __result__,
+          lambda x: typing.cast(stream_types.ConflictsArtifact, x.cast_to(types, types, stream_types, True, __runtime__)),
+          lambda x: typing.cast(types.ConflictsArtifact, x.cast_to(types, types, stream_types, False, __runtime__)),
+          __ctx__,
+        )
+    def AnalyzeDependencies(self, entrada: types.DependenciesInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.BamlSyncStream[stream_types.DependenciesArtifact, types.DependenciesArtifact]:
+        __ctx__, __result__ = self.__options.merge_options(baml_options).create_sync_stream(function_name="AnalyzeDependencies", args={
+            "entrada": entrada,"contexto": contexto,
+        })
+        return baml_py.BamlSyncStream[stream_types.DependenciesArtifact, types.DependenciesArtifact](
+          __result__,
+          lambda x: typing.cast(stream_types.DependenciesArtifact, x.cast_to(types, types, stream_types, True, __runtime__)),
+          lambda x: typing.cast(types.DependenciesArtifact, x.cast_to(types, types, stream_types, False, __runtime__)),
+          __ctx__,
+        )
+    def AssessFeasibility(self, entrada: types.FeasibilityInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.BamlSyncStream[stream_types.FeasibilityArtifact, types.FeasibilityArtifact]:
+        __ctx__, __result__ = self.__options.merge_options(baml_options).create_sync_stream(function_name="AssessFeasibility", args={
+            "entrada": entrada,"contexto": contexto,
+        })
+        return baml_py.BamlSyncStream[stream_types.FeasibilityArtifact, types.FeasibilityArtifact](
+          __result__,
+          lambda x: typing.cast(stream_types.FeasibilityArtifact, x.cast_to(types, types, stream_types, True, __runtime__)),
+          lambda x: typing.cast(types.FeasibilityArtifact, x.cast_to(types, types, stream_types, False, __runtime__)),
+          __ctx__,
+        )
+    def AssociateExplanationTypes(self, entrada: types.MapTypesInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.BamlSyncStream[stream_types.ExplanationTypesArtifact, types.ExplanationTypesArtifact]:
+        __ctx__, __result__ = self.__options.merge_options(baml_options).create_sync_stream(function_name="AssociateExplanationTypes", args={
+            "entrada": entrada,"contexto": contexto,
+        })
+        return baml_py.BamlSyncStream[stream_types.ExplanationTypesArtifact, types.ExplanationTypesArtifact](
+          __result__,
+          lambda x: typing.cast(stream_types.ExplanationTypesArtifact, x.cast_to(types, types, stream_types, True, __runtime__)),
+          lambda x: typing.cast(types.ExplanationTypesArtifact, x.cast_to(types, types, stream_types, False, __runtime__)),
+          __ctx__,
+        )
     def BuildPhaseDigest(self, entrada: types.DigestInput,contexto: typing.List["types.ContextItem"],
         baml_options: BamlCallOptions = {},
     ) -> baml_py.BamlSyncStream[stream_types.PhaseDigest, types.PhaseDigest]:
@@ -349,6 +495,30 @@ class BamlStreamClient:
           __result__,
           lambda x: typing.cast(stream_types.DomainTermsArtifact, x.cast_to(types, types, stream_types, True, __runtime__)),
           lambda x: typing.cast(types.DomainTermsArtifact, x.cast_to(types, types, stream_types, False, __runtime__)),
+          __ctx__,
+        )
+    def CharacterizeRequirement(self, entrada: types.CharacterizeInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.BamlSyncStream[stream_types.CharacterizedRequirement, types.CharacterizedRequirement]:
+        __ctx__, __result__ = self.__options.merge_options(baml_options).create_sync_stream(function_name="CharacterizeRequirement", args={
+            "entrada": entrada,"contexto": contexto,
+        })
+        return baml_py.BamlSyncStream[stream_types.CharacterizedRequirement, types.CharacterizedRequirement](
+          __result__,
+          lambda x: typing.cast(stream_types.CharacterizedRequirement, x.cast_to(types, types, stream_types, True, __runtime__)),
+          lambda x: typing.cast(types.CharacterizedRequirement, x.cast_to(types, types, stream_types, False, __runtime__)),
+          __ctx__,
+        )
+    def ClassifyExplainabilityAspects(self, entrada: types.ClassifyAspectsInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.BamlSyncStream[stream_types.AspectsArtifact, types.AspectsArtifact]:
+        __ctx__, __result__ = self.__options.merge_options(baml_options).create_sync_stream(function_name="ClassifyExplainabilityAspects", args={
+            "entrada": entrada,"contexto": contexto,
+        })
+        return baml_py.BamlSyncStream[stream_types.AspectsArtifact, types.AspectsArtifact](
+          __result__,
+          lambda x: typing.cast(stream_types.AspectsArtifact, x.cast_to(types, types, stream_types, True, __runtime__)),
+          lambda x: typing.cast(types.AspectsArtifact, x.cast_to(types, types, stream_types, False, __runtime__)),
           __ctx__,
         )
     def ConsolidateRequirements(self, entrada: types.ConsolidateInput,contexto: typing.List["types.ContextItem"],
@@ -507,6 +677,18 @@ class BamlStreamClient:
           lambda x: typing.cast(types.ReferenceQueryPlan, x.cast_to(types, types, stream_types, False, __runtime__)),
           __ctx__,
         )
+    def PrioritizeRequirements(self, entrada: types.PrioritizeInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.BamlSyncStream[stream_types.PrioritiesArtifact, types.PrioritiesArtifact]:
+        __ctx__, __result__ = self.__options.merge_options(baml_options).create_sync_stream(function_name="PrioritizeRequirements", args={
+            "entrada": entrada,"contexto": contexto,
+        })
+        return baml_py.BamlSyncStream[stream_types.PrioritiesArtifact, types.PrioritiesArtifact](
+          __result__,
+          lambda x: typing.cast(stream_types.PrioritiesArtifact, x.cast_to(types, types, stream_types, True, __runtime__)),
+          lambda x: typing.cast(types.PrioritiesArtifact, x.cast_to(types, types, stream_types, False, __runtime__)),
+          __ctx__,
+        )
     def RefineComplementaryRequirements(self, entrada: types.RefineComplementaryInput,contexto: typing.List["types.ContextItem"],
         baml_options: BamlCallOptions = {},
     ) -> baml_py.BamlSyncStream[stream_types.PhaseComplementaryArtifact, types.PhaseComplementaryArtifact]:
@@ -527,6 +709,34 @@ class BamlHttpRequestClient:
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
 
+    def AnalyzeConflicts(self, entrada: types.ConflictsInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        __result__ = self.__options.merge_options(baml_options).create_http_request_sync(function_name="AnalyzeConflicts", args={
+            "entrada": entrada,"contexto": contexto,
+        }, mode="request")
+        return __result__
+    def AnalyzeDependencies(self, entrada: types.DependenciesInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        __result__ = self.__options.merge_options(baml_options).create_http_request_sync(function_name="AnalyzeDependencies", args={
+            "entrada": entrada,"contexto": contexto,
+        }, mode="request")
+        return __result__
+    def AssessFeasibility(self, entrada: types.FeasibilityInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        __result__ = self.__options.merge_options(baml_options).create_http_request_sync(function_name="AssessFeasibility", args={
+            "entrada": entrada,"contexto": contexto,
+        }, mode="request")
+        return __result__
+    def AssociateExplanationTypes(self, entrada: types.MapTypesInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        __result__ = self.__options.merge_options(baml_options).create_http_request_sync(function_name="AssociateExplanationTypes", args={
+            "entrada": entrada,"contexto": contexto,
+        }, mode="request")
+        return __result__
     def BuildPhaseDigest(self, entrada: types.DigestInput,contexto: typing.List["types.ContextItem"],
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
@@ -538,6 +748,20 @@ class BamlHttpRequestClient:
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
         __result__ = self.__options.merge_options(baml_options).create_http_request_sync(function_name="CaptureDomainTerminology", args={
+            "entrada": entrada,"contexto": contexto,
+        }, mode="request")
+        return __result__
+    def CharacterizeRequirement(self, entrada: types.CharacterizeInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        __result__ = self.__options.merge_options(baml_options).create_http_request_sync(function_name="CharacterizeRequirement", args={
+            "entrada": entrada,"contexto": contexto,
+        }, mode="request")
+        return __result__
+    def ClassifyExplainabilityAspects(self, entrada: types.ClassifyAspectsInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        __result__ = self.__options.merge_options(baml_options).create_http_request_sync(function_name="ClassifyExplainabilityAspects", args={
             "entrada": entrada,"contexto": contexto,
         }, mode="request")
         return __result__
@@ -629,6 +853,13 @@ class BamlHttpRequestClient:
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
         __result__ = self.__options.merge_options(baml_options).create_http_request_sync(function_name="PlanReferenceQueries", args={
+            "entrada": entrada,"contexto": contexto,
+        }, mode="request")
+        return __result__
+    def PrioritizeRequirements(self, entrada: types.PrioritizeInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        __result__ = self.__options.merge_options(baml_options).create_http_request_sync(function_name="PrioritizeRequirements", args={
             "entrada": entrada,"contexto": contexto,
         }, mode="request")
         return __result__
@@ -647,6 +878,34 @@ class BamlHttpStreamRequestClient:
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
 
+    def AnalyzeConflicts(self, entrada: types.ConflictsInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        __result__ = self.__options.merge_options(baml_options).create_http_request_sync(function_name="AnalyzeConflicts", args={
+            "entrada": entrada,"contexto": contexto,
+        }, mode="stream")
+        return __result__
+    def AnalyzeDependencies(self, entrada: types.DependenciesInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        __result__ = self.__options.merge_options(baml_options).create_http_request_sync(function_name="AnalyzeDependencies", args={
+            "entrada": entrada,"contexto": contexto,
+        }, mode="stream")
+        return __result__
+    def AssessFeasibility(self, entrada: types.FeasibilityInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        __result__ = self.__options.merge_options(baml_options).create_http_request_sync(function_name="AssessFeasibility", args={
+            "entrada": entrada,"contexto": contexto,
+        }, mode="stream")
+        return __result__
+    def AssociateExplanationTypes(self, entrada: types.MapTypesInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        __result__ = self.__options.merge_options(baml_options).create_http_request_sync(function_name="AssociateExplanationTypes", args={
+            "entrada": entrada,"contexto": contexto,
+        }, mode="stream")
+        return __result__
     def BuildPhaseDigest(self, entrada: types.DigestInput,contexto: typing.List["types.ContextItem"],
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
@@ -658,6 +917,20 @@ class BamlHttpStreamRequestClient:
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
         __result__ = self.__options.merge_options(baml_options).create_http_request_sync(function_name="CaptureDomainTerminology", args={
+            "entrada": entrada,"contexto": contexto,
+        }, mode="stream")
+        return __result__
+    def CharacterizeRequirement(self, entrada: types.CharacterizeInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        __result__ = self.__options.merge_options(baml_options).create_http_request_sync(function_name="CharacterizeRequirement", args={
+            "entrada": entrada,"contexto": contexto,
+        }, mode="stream")
+        return __result__
+    def ClassifyExplainabilityAspects(self, entrada: types.ClassifyAspectsInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        __result__ = self.__options.merge_options(baml_options).create_http_request_sync(function_name="ClassifyExplainabilityAspects", args={
             "entrada": entrada,"contexto": contexto,
         }, mode="stream")
         return __result__
@@ -749,6 +1022,13 @@ class BamlHttpStreamRequestClient:
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
         __result__ = self.__options.merge_options(baml_options).create_http_request_sync(function_name="PlanReferenceQueries", args={
+            "entrada": entrada,"contexto": contexto,
+        }, mode="stream")
+        return __result__
+    def PrioritizeRequirements(self, entrada: types.PrioritizeInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        __result__ = self.__options.merge_options(baml_options).create_http_request_sync(function_name="PrioritizeRequirements", args={
             "entrada": entrada,"contexto": contexto,
         }, mode="stream")
         return __result__

@@ -306,3 +306,108 @@ def ConsolidateRequirements(entrada: T.ConsolidateInput, contexto) -> T.Consolid
             justificativa_agrupamento=None, lacunas=[],
         ))
     return T.ConsolidatedRequirementsArtifact(requisitos=out, descartados=[])
+
+
+# ---------------------------------------------------------------------------
+# Fase 3 — Análise
+# ---------------------------------------------------------------------------
+
+_GOAL_TO_ASPECT = {"COMPREENSAO": "COMPREENSAO", "JUSTIFICATIVA": "JUSTIFICATIVA", "CONFIANCA": "CONFIANCA",
+                   "AUDITORIA": "AUDITORIA", "RASTREABILIDADE": "AUDITORIA",
+                   "CONFORMIDADE_REGULATORIA": "AUDITORIA", "TRANSPARENCIA": "COMPREENSAO"}
+_ASPECT_TO_TYPES = {"COMPREENSAO": ["LOCAL"], "JUSTIFICATIVA": ["FEATURE_IMPORTANCE", "LOCAL"],
+                    "AUDITORIA": ["GLOBAL", "RULE_BASED"], "CONTESTACAO": ["COUNTERFACTUAL"],
+                    "CONFIANCA": ["EXAMPLE_BASED"], "APRENDIZADO": ["GLOBAL"]}
+
+
+def CharacterizeRequirement(entrada: T.CharacterizeInput, contexto) -> T.CharacterizedRequirement:
+    r = entrada.requisito
+    regs = [c.id or "" for c in entrada.requisitos_complementares if c.categoria == T.ComplementaryCategory.NORMAS_REGULAMENTOS]
+    return T.CharacterizedRequirement(
+        id=entrada.caracterizacao_existente.id if entrada.caracterizacao_existente else None,
+        req_id=r.id or "", contexto_uso=None, usuarios_explicacao=list(r.stakeholder_ids),
+        decisao_apoiada=None, risco_decisao=None,
+        objetivo_principal=r.objetivo.value if r.objetivo else None, obrigacao_regulatoria=None,
+        requisitos_regulatorios=regs,
+        lacunas=[_lacuna("decisao_apoiada", "Qual decisão do sistema este requisito explica?"),
+                 _lacuna("risco_decisao", "Qual o risco associado a essa decisão?")],
+    )
+
+
+def ClassifyExplainabilityAspects(entrada: T.ClassifyAspectsInput, contexto) -> T.AspectsArtifact:
+    out = []
+    for r in entrada.requisitos:
+        aspect = T.ExplanatoryAspect(_GOAL_TO_ASPECT.get(r.objetivo.value if r.objetivo else "", "COMPREENSAO"))
+        out.append(T.AspectClassification(id=None, req_id=r.id or "", aspectos=[aspect], predominante=aspect,
+                                          justificativa=f"Derivado do objetivo declarado ({r.objetivo}).", lacunas=[]))
+    return T.AspectsArtifact(classificacoes=out)
+
+
+def AssociateExplanationTypes(entrada: T.MapTypesInput, contexto) -> T.ExplanationTypesArtifact:
+    aspects = {a.req_id: a.predominante.value for a in entrada.aspectos}
+    retrieved = _retrieved(contexto)
+    out = []
+    for i, r in enumerate(entrada.requisitos):
+        types = [T.ExplanationType(t) for t in _ASPECT_TO_TYPES.get(aspects.get(r.id or "", ""), ["LOCAL"])]
+        evid = []
+        if i < len(retrieved):
+            ref, _, body = retrieved[i]
+            evid = [T.EvidenceRef(chunk_ref=ref, citacao=body.strip().split("\n")[0][:160],
+                                  tipo=T.EvidenceKind.RECOMENDACAO_TECNICA)]
+        out.append(T.ExplanationTypeMapping(id=None, req_id=r.id or "", tipos=types,
+                                            justificativa="Tipo associado ao aspecto predominante.",
+                                            evidencias=evid, lacunas=[]))
+    return T.ExplanationTypesArtifact(mapeamentos=out)
+
+
+def AnalyzeConflicts(entrada: T.ConflictsInput, contexto) -> T.ConflictsArtifact:
+    kinds = {r.id: r.tipo for r in entrada.requisitos}
+    stk = {r.id: set(r.stakeholder_ids) for r in entrada.requisitos}
+    out = []
+    for p in entrada.pares_candidatos:
+        # conflito simulado: requisito de explicabilidade × norma (transparência × privacidade)
+        if {kinds.get(p.a), kinds.get(p.b)} == {T.RequirementKind.EXPLICABILIDADE, T.RequirementKind.COMPLEMENTAR}:
+            out.append(T.RequirementConflict(
+                id=None, req_ids=[p.a, p.b], tipo=T.ConflictKind.TRANSPARENCIA_PRIVACIDADE,
+                descricao="O detalhamento da explicação pode expor dados protegidos pela norma.",
+                stakeholder_ids=sorted(stk.get(p.a, set()) | stk.get(p.b, set())),
+                alternativas_resolucao=["Explicar critérios sem expor dados pessoais de terceiros."]))
+            break
+    return T.ConflictsArtifact(conflitos=out)
+
+
+def AnalyzeDependencies(entrada: T.DependenciesInput, contexto) -> T.DependenciesArtifact:
+    retrieved = [x for x in _retrieved(contexto) if ":art" in x[0]]
+    out = []
+    for r in entrada.requisitos:
+        restr = []
+        if retrieved:
+            ref, header, body = retrieved[0]
+            restr = [T.RequirementConstraint(tipo=T.ConstraintKind.REGULATORIA,
+                                             descricao=f"Restrição normativa de {header.replace('Fonte: ', '')}.",
+                                             evidencias=[T.EvidenceRef(chunk_ref=ref, citacao=body.strip().split("\n")[0][:160],
+                                                                       tipo=T.EvidenceKind.OBRIGACAO_NORMATIVA)])]
+        out.append(T.DependencyAnalysis(id=None, req_id=r.id or "", depende_de=[], restricoes=restr,
+                                        impacto=None, lacunas=[]))
+    return T.DependenciesArtifact(dependencias=out)
+
+
+def AssessFeasibility(entrada: T.FeasibilityInput, contexto) -> T.FeasibilityArtifact:
+    out = [T.FeasibilityAssessment(
+        id=None, req_id=r.id or "",
+        criterios=[T.FeasibilityItem(criterio=T.FeasibilityCriterion.REGULATORIA, situacao=T.FeasibilityStatus.SIM,
+                                     observacao="Sem impedimento regulatório nas entradas."),
+                   T.FeasibilityItem(criterio=T.FeasibilityCriterion.TECNICA, situacao=T.FeasibilityStatus.NAO_AVALIADO,
+                                     observacao=None)],
+        riscos=[], premissas=[], lacunas=[_lacuna("criterios.TECNICA", "O modelo suporta este tipo de explicação?")],
+    ) for r in entrada.requisitos]
+    return T.FeasibilityArtifact(avaliacoes=out)
+
+
+def PrioritizeRequirements(entrada: T.PrioritizeInput, contexto) -> T.PrioritiesArtifact:
+    out = []
+    for r in entrada.requisitos:
+        level = T.MoSCoW.MUST if r.conflitos or (r.aspecto_predominante or "") == "AUDITORIA" else T.MoSCoW.SHOULD
+        out.append(T.PriorityAssignment(id=None, req_id=r.id, prioridade=level,
+                                        justificativa="Sugestão simulada a partir de conflitos e aspecto."))
+    return T.PrioritiesArtifact(prioridades=out)

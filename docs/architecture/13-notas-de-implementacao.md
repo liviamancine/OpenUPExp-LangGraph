@@ -1,4 +1,4 @@
-# 13 — Notas de implementação (M0–M3 e Fase 2)
+# 13 — Notas de implementação (M0–M3, Fases 2 e 3)
 
 Este capítulo registra o que foi implementado e onde a implementação se afastou dos
 capítulos anteriores, ou os detalhou. Todo o conteúdo aqui é **[IMPLEMENTADO]**, salvo
@@ -111,4 +111,29 @@ flowchart LR
 - Prazo do consenso (`due_days`) é registrado, mas não há lembrete nem encerramento automático.
 - Não há atualização do Glossário na Fase 2 (cap. 12 §12.4).
 - Validado com agentes simulados; o comportamento com LLM real ainda não foi medido.
+
+## 13.5 Fase 3 — Análise (manifesto 0.3.0)
+
+A Fase 3 parte de uma execução da Fase 2 concluída e aprovada. Interpretações em cap. 12 §12.5.
+
+- **Cadeia de execuções.** `store.lineage()` percorre `base_run_id` (Fase 3 → 2 → 1): as
+  entradas declaradas vêm da execução mais próxima que tenha o artefato, e os digests de
+  **todas** as fases aprovadas entram como contexto auxiliar (estratégia D).
+- **Map em lotes.** 3.1.2 roda uma chamada por requisito; 3.2.1, 3.2.2, 3.2.4 e 3.2.5 rodam em
+  lotes de 6, cada lote só com os artefatos dos próprios requisitos (e, em 3.2.2/3.2.4, só
+  os trechos recuperados para eles). `_per_requirement` garante uma saída por requisito,
+  com nova tentativa para os faltantes, e preserva os IDs entre iterações.
+- **Reduce.** 3.2.6 recebe uma visão compacta de todos os requisitos (aspecto, risco,
+  viabilidade, conflitos, dependências) — é a única tarefa que precisa ver o conjunto.
+- **Rastreabilidade.** Novos tipos de link: `refines` (análise → REQ), `conflicts_with`,
+  `depends_on`.
+
+| # | Decisão | Motivo |
+|---|---|---|
+| D-19 | Edição humana preserva campos de sistema fora do contrato (ex.: `cobertura_pares`, `sugestao_ia`) | Antes, editar o artefato apagava esses registros e quebrava o checklist |
+| D-20 | Artefatos por requisito usam `req_id` como chave de correspondência entre iterações | IDs estáveis sem depender de similaridade de texto entre "REQ-01" e "REQ-02" |
+
+Validação: fluxo completo coberto por teste (objeção → retorno a 3.2 com feedback → consenso →
+aprovação → ERD com as três partes) e executado na interface com agentes simulados
+(execução `519abefa`). Comportamento com LLM real ainda não medido.
 

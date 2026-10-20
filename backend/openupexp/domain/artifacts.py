@@ -18,6 +18,7 @@ from openupexp.db.models import (
     ArtifactItem,
     ArtifactVersion,
     Evidence,
+    Run,
     TraceLink,
 )
 
@@ -58,6 +59,29 @@ async def current_versions(session: AsyncSession, run_id: uuid.UUID) -> dict[str
         .ext(distinct_on(Artifact.artifact_type))
     )
     return {t: v for t, v in rows.all()}
+
+
+async def lineage(session: AsyncSession, run: Run) -> list[uuid.UUID]:
+    """Execuções de base, da mais próxima à mais antiga (ex.: Fase 3 → Fase 2 → Fase 1)."""
+    out: list[uuid.UUID] = []
+    current = run.base_run_id
+    while current is not None and current not in out and len(out) < 10:
+        out.append(current)
+        base = await session.get(Run, current)
+        current = base.base_run_id if base else None
+    return out
+
+
+async def lineage_version(session: AsyncSession, run: Run, artifact_type: str) -> ArtifactVersion | None:
+    """Versão atual do artefato na própria execução ou, se ausente, na base mais próxima que o tenha."""
+    version = await current_version(session, run.id, artifact_type)
+    if version is not None:
+        return version
+    for base_id in await lineage(session, run):
+        version = await current_version(session, base_id, artifact_type)
+        if version is not None:
+            return version
+    return None
 
 
 async def items_of(session: AsyncSession, version_id: uuid.UUID) -> dict[str, dict]:

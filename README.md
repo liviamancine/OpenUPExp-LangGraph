@@ -4,7 +4,7 @@ Engenharia de requisitos de explicabilidade orientada ao processo **OpenUPExp**,
 (LangGraph + BAML), validação humana nos pontos de decisão do BPMN, rastreabilidade e gestão de contexto.
 
 - **Arquitetura e decisões:** [`docs/architecture/`](docs/architecture/README.md)
-- **Manifesto do processo (BPMN → execução):** [`process/manifest/openupexp-0.2.0.yaml`](process/manifest/openupexp-0.2.0.yaml)
+- **Manifesto do processo (BPMN → execução):** [`process/manifest/openupexp-0.3.0.yaml`](process/manifest/openupexp-0.3.0.yaml)
 - **BPMN de referência** (cópia fixada do repositório teórico): [`process/bpmn/`](process/bpmn/)
 - **Estudo de caso INPI** (escopo e base de referência): [`experiments/cases/inpi/`](experiments/cases/inpi/)
 - **Protótipo original** (6 workers, linha de base experimental): [`legacy/`](legacy/README.md)
@@ -19,7 +19,7 @@ Engenharia de requisitos de explicabilidade orientada ao processo **OpenUPExp**,
 | M3 Frontend (BPMN com status, decisões, edição, evidências, métricas) | implementado (MVP) |
 | M4 Experimentos (estratégia B, harness, gabaritos, avaliação) | pendente |
 | M5 Fase 2 + consenso | implementado com formatos provisórios (manifesto 0.2.0; ver cap. 12 §12.4) |
-| M6 Fases 3–4 | pendente — depende dos templates da teoria |
+| M6 Fases 3–4 | Fase 3 implementada (manifesto 0.3.0; cap. 12 §12.5); Fase 4 pendente |
 
 As interpretações de trabalho adotadas para as decisões pendentes da autora estão em
 [`docs/architecture/12-decisoes-pendentes.md`](docs/architecture/12-decisoes-pendentes.md).
@@ -72,7 +72,7 @@ CLI útil sem a interface: `openupexp start <projeto> --gateway fake`, `openupex
 backend/
   baml_src/            contratos e prompts dos agentes (fonte única)
   openupexp/
-    agents/            grafo LangGraph por fase, handlers da Fase 1 e 2, gateway BAML/simulado
+    agents/            grafo LangGraph por fase, handlers das Fases 1–3, gateway BAML/simulado
     context/           ContextBuilder (estratégias A, C, D; B no M4)
     retrieval/         ingestão, chunking estrutural, embeddings, busca híbrida, citações
     domain/            artefatos versionados, invalidação, serviços, eventos, diff

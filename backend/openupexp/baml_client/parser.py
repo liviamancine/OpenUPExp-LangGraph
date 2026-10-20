@@ -23,6 +23,30 @@ class LlmResponseParser:
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
 
+    def AnalyzeConflicts(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> types.ConflictsArtifact:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="AnalyzeConflicts", llm_response=llm_response, mode="request")
+        return typing.cast(types.ConflictsArtifact, __result__)
+
+    def AnalyzeDependencies(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> types.DependenciesArtifact:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="AnalyzeDependencies", llm_response=llm_response, mode="request")
+        return typing.cast(types.DependenciesArtifact, __result__)
+
+    def AssessFeasibility(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> types.FeasibilityArtifact:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="AssessFeasibility", llm_response=llm_response, mode="request")
+        return typing.cast(types.FeasibilityArtifact, __result__)
+
+    def AssociateExplanationTypes(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> types.ExplanationTypesArtifact:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="AssociateExplanationTypes", llm_response=llm_response, mode="request")
+        return typing.cast(types.ExplanationTypesArtifact, __result__)
+
     def BuildPhaseDigest(
         self, llm_response: str, baml_options: BamlCallOptions = {},
     ) -> types.PhaseDigest:
@@ -34,6 +58,18 @@ class LlmResponseParser:
     ) -> types.DomainTermsArtifact:
         __result__ = self.__options.merge_options(baml_options).parse_response(function_name="CaptureDomainTerminology", llm_response=llm_response, mode="request")
         return typing.cast(types.DomainTermsArtifact, __result__)
+
+    def CharacterizeRequirement(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> types.CharacterizedRequirement:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="CharacterizeRequirement", llm_response=llm_response, mode="request")
+        return typing.cast(types.CharacterizedRequirement, __result__)
+
+    def ClassifyExplainabilityAspects(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> types.AspectsArtifact:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="ClassifyExplainabilityAspects", llm_response=llm_response, mode="request")
+        return typing.cast(types.AspectsArtifact, __result__)
 
     def ConsolidateRequirements(
         self, llm_response: str, baml_options: BamlCallOptions = {},
@@ -113,6 +149,12 @@ class LlmResponseParser:
         __result__ = self.__options.merge_options(baml_options).parse_response(function_name="PlanReferenceQueries", llm_response=llm_response, mode="request")
         return typing.cast(types.ReferenceQueryPlan, __result__)
 
+    def PrioritizeRequirements(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> types.PrioritiesArtifact:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="PrioritizeRequirements", llm_response=llm_response, mode="request")
+        return typing.cast(types.PrioritiesArtifact, __result__)
+
     def RefineComplementaryRequirements(
         self, llm_response: str, baml_options: BamlCallOptions = {},
     ) -> types.PhaseComplementaryArtifact:
@@ -127,6 +169,30 @@ class LlmStreamParser:
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
 
+    def AnalyzeConflicts(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> stream_types.ConflictsArtifact:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="AnalyzeConflicts", llm_response=llm_response, mode="stream")
+        return typing.cast(stream_types.ConflictsArtifact, __result__)
+
+    def AnalyzeDependencies(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> stream_types.DependenciesArtifact:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="AnalyzeDependencies", llm_response=llm_response, mode="stream")
+        return typing.cast(stream_types.DependenciesArtifact, __result__)
+
+    def AssessFeasibility(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> stream_types.FeasibilityArtifact:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="AssessFeasibility", llm_response=llm_response, mode="stream")
+        return typing.cast(stream_types.FeasibilityArtifact, __result__)
+
+    def AssociateExplanationTypes(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> stream_types.ExplanationTypesArtifact:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="AssociateExplanationTypes", llm_response=llm_response, mode="stream")
+        return typing.cast(stream_types.ExplanationTypesArtifact, __result__)
+
     def BuildPhaseDigest(
         self, llm_response: str, baml_options: BamlCallOptions = {},
     ) -> stream_types.PhaseDigest:
@@ -138,6 +204,18 @@ class LlmStreamParser:
     ) -> stream_types.DomainTermsArtifact:
         __result__ = self.__options.merge_options(baml_options).parse_response(function_name="CaptureDomainTerminology", llm_response=llm_response, mode="stream")
         return typing.cast(stream_types.DomainTermsArtifact, __result__)
+
+    def CharacterizeRequirement(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> stream_types.CharacterizedRequirement:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="CharacterizeRequirement", llm_response=llm_response, mode="stream")
+        return typing.cast(stream_types.CharacterizedRequirement, __result__)
+
+    def ClassifyExplainabilityAspects(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> stream_types.AspectsArtifact:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="ClassifyExplainabilityAspects", llm_response=llm_response, mode="stream")
+        return typing.cast(stream_types.AspectsArtifact, __result__)
 
     def ConsolidateRequirements(
         self, llm_response: str, baml_options: BamlCallOptions = {},
@@ -216,6 +294,12 @@ class LlmStreamParser:
     ) -> stream_types.ReferenceQueryPlan:
         __result__ = self.__options.merge_options(baml_options).parse_response(function_name="PlanReferenceQueries", llm_response=llm_response, mode="stream")
         return typing.cast(stream_types.ReferenceQueryPlan, __result__)
+
+    def PrioritizeRequirements(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> stream_types.PrioritiesArtifact:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="PrioritizeRequirements", llm_response=llm_response, mode="stream")
+        return typing.cast(stream_types.PrioritiesArtifact, __result__)
 
     def RefineComplementaryRequirements(
         self, llm_response: str, baml_options: BamlCallOptions = {},

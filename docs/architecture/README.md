@@ -43,7 +43,7 @@ arquiteturais nunca devem ser lidas como definições originais do modelo OpenUP
 | 10 | [Interface web](10-interface-web.md) | autora, equipe |
 | 11 | [Roadmap, testes e riscos](11-roadmap-testes-riscos.md) | equipe, orientador |
 | 12 | [Decisões pendentes](12-decisoes-pendentes.md) | todos |
-| 13 | [Notas de implementação (M0–M3 e Fase 2)](13-notas-de-implementacao.md) | equipe |
+| 13 | [Notas de implementação (M0–M3, Fases 2 e 3)](13-notas-de-implementacao.md) | equipe |
 
 Para gerar uma versão PDF única para discussão (sem criar documentos divergentes):
 

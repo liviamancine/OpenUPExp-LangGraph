@@ -20,18 +20,30 @@ from .globals import DO_NOT_USE_DIRECTLY_UNLESS_YOU_KNOW_WHAT_YOURE_DOING_RUNTIM
 class TypeBuilder(type_builder.TypeBuilder):
     def __init__(self):
         super().__init__(classes=set(
-          ["CaptureTermsInput","ChecklistQuestion","ComplementaryInput","ComplementaryRequirement","ComplementaryRequirementsArtifact","ConsolidateInput","ConsolidatedRequirement","ConsolidatedRequirementsArtifact","ContextItem","CreateGlossaryInput","DefineProblemInput","DigestInput","DiscardedItem","DomainTerm","DomainTermsArtifact","ElicitationEvidence","ElicitationPlanArtifact","ElicitationPlanItem","ElicitedNeed","ElicitedNeedsArtifact","EvidenceRef","ExplainabilityLimitsArtifact","ExplainabilityNeed","ExplainabilityNeedsArtifact","ExplainabilityProblem","ExplainabilityRequirement","ExplainabilityRequirementsArtifact","ExtractNeedsInput","GlossaryArtifact","GlossaryTerm","IdentifyNeedsInput","IdentifyRequirementsInput","IdentifyStakeholderNeedsInput","IdentifyStakeholdersInput","Lacuna","LimitAnswer","LimitsInput","OrigemRef","PhaseComplementaryArtifact","PhaseComplementaryRequirement","PhaseDigest","PlanElicitationInput","PlanQueriesInput","Positioning","PositioningArtifact","PositioningInput","ProblemStatement","ReferenceQuery","ReferenceQueryPlan","RefineComplementaryInput","SimilarPair","Stakeholder","StakeholderNeed","StakeholderNeedsArtifact","StakeholdersArtifact",]
+          ["AspectClassification","AspectsArtifact","CaptureTermsInput","CharacterizeInput","CharacterizedRequirement","CharacterizedRequirementsArtifact","ChecklistQuestion","ClassifyAspectsInput","ComplementaryInput","ComplementaryRequirement","ComplementaryRequirementsArtifact","ConflictsArtifact","ConflictsInput","ConsolidateInput","ConsolidatedRequirement","ConsolidatedRequirementsArtifact","ContextItem","CreateGlossaryInput","DefineProblemInput","DependenciesArtifact","DependenciesInput","DependencyAnalysis","DigestInput","DiscardedItem","DomainTerm","DomainTermsArtifact","ElicitationEvidence","ElicitationPlanArtifact","ElicitationPlanItem","ElicitedNeed","ElicitedNeedsArtifact","EvidenceRef","ExplainabilityLimitsArtifact","ExplainabilityNeed","ExplainabilityNeedsArtifact","ExplainabilityProblem","ExplainabilityRequirement","ExplainabilityRequirementsArtifact","ExplanationTypeMapping","ExplanationTypesArtifact","ExtractNeedsInput","FeasibilityArtifact","FeasibilityAssessment","FeasibilityInput","FeasibilityItem","GlossaryArtifact","GlossaryTerm","IdentifyNeedsInput","IdentifyRequirementsInput","IdentifyStakeholderNeedsInput","IdentifyStakeholdersInput","Lacuna","LimitAnswer","LimitsInput","MapTypesInput","OrigemRef","PhaseComplementaryArtifact","PhaseComplementaryRequirement","PhaseDigest","PlanElicitationInput","PlanQueriesInput","Positioning","PositioningArtifact","PositioningInput","PrioritiesArtifact","PrioritizeInput","PriorityAssignment","ProblemStatement","ReferenceQuery","ReferenceQueryPlan","RefineComplementaryInput","RequirementAnalysisSummary","RequirementConflict","RequirementConstraint","RequirementIndexEntry","RequirementPair","SimilarPair","Stakeholder","StakeholderNeed","StakeholderNeedsArtifact","StakeholdersArtifact",]
         ), enums=set(
-          ["ComplementaryCategory","ElicitationTechnique","EvidenceKind","ExplanationGoal","RequirementKind",]
+          ["ComplementaryCategory","ConflictKind","ConstraintKind","DecisionRisk","ElicitationTechnique","EvidenceKind","ExplanationGoal","ExplanationType","ExplanatoryAspect","FeasibilityCriterion","FeasibilityStatus","MoSCoW","RequirementKind",]
         ), runtime=DO_NOT_USE_DIRECTLY_UNLESS_YOU_KNOW_WHAT_YOURE_DOING_RUNTIME)
 
     # #########################################################################
-    # Generated enums 5
+    # Generated enums 13
     # #########################################################################
 
     @property
     def ComplementaryCategory(self) -> "ComplementaryCategoryViewer":
         return ComplementaryCategoryViewer(self)
+
+    @property
+    def ConflictKind(self) -> "ConflictKindViewer":
+        return ConflictKindViewer(self)
+
+    @property
+    def ConstraintKind(self) -> "ConstraintKindViewer":
+        return ConstraintKindViewer(self)
+
+    @property
+    def DecisionRisk(self) -> "DecisionRiskViewer":
+        return DecisionRiskViewer(self)
 
     @property
     def ElicitationTechnique(self) -> "ElicitationTechniqueViewer":
@@ -46,21 +58,65 @@ class TypeBuilder(type_builder.TypeBuilder):
         return ExplanationGoalViewer(self)
 
     @property
+    def ExplanationType(self) -> "ExplanationTypeViewer":
+        return ExplanationTypeViewer(self)
+
+    @property
+    def ExplanatoryAspect(self) -> "ExplanatoryAspectViewer":
+        return ExplanatoryAspectViewer(self)
+
+    @property
+    def FeasibilityCriterion(self) -> "FeasibilityCriterionViewer":
+        return FeasibilityCriterionViewer(self)
+
+    @property
+    def FeasibilityStatus(self) -> "FeasibilityStatusViewer":
+        return FeasibilityStatusViewer(self)
+
+    @property
+    def MoSCoW(self) -> "MoSCoWViewer":
+        return MoSCoWViewer(self)
+
+    @property
     def RequirementKind(self) -> "RequirementKindViewer":
         return RequirementKindViewer(self)
 
 
     # #########################################################################
-    # Generated classes 55
+    # Generated classes 81
     # #########################################################################
+
+    @property
+    def AspectClassification(self) -> "AspectClassificationViewer":
+        return AspectClassificationViewer(self)
+
+    @property
+    def AspectsArtifact(self) -> "AspectsArtifactViewer":
+        return AspectsArtifactViewer(self)
 
     @property
     def CaptureTermsInput(self) -> "CaptureTermsInputViewer":
         return CaptureTermsInputViewer(self)
 
     @property
+    def CharacterizeInput(self) -> "CharacterizeInputViewer":
+        return CharacterizeInputViewer(self)
+
+    @property
+    def CharacterizedRequirement(self) -> "CharacterizedRequirementViewer":
+        return CharacterizedRequirementViewer(self)
+
+    @property
+    def CharacterizedRequirementsArtifact(self) -> "CharacterizedRequirementsArtifactViewer":
+        return CharacterizedRequirementsArtifactViewer(self)
+
+    @property
     def ChecklistQuestion(self) -> "ChecklistQuestionViewer":
         return ChecklistQuestionViewer(self)
+
+    @property
+    def ClassifyAspectsInput(self) -> "ClassifyAspectsInputViewer":
+        return ClassifyAspectsInputViewer(self)
 
     @property
     def ComplementaryInput(self) -> "ComplementaryInputViewer":
@@ -73,6 +129,14 @@ class TypeBuilder(type_builder.TypeBuilder):
     @property
     def ComplementaryRequirementsArtifact(self) -> "ComplementaryRequirementsArtifactViewer":
         return ComplementaryRequirementsArtifactViewer(self)
+
+    @property
+    def ConflictsArtifact(self) -> "ConflictsArtifactViewer":
+        return ConflictsArtifactViewer(self)
+
+    @property
+    def ConflictsInput(self) -> "ConflictsInputViewer":
+        return ConflictsInputViewer(self)
 
     @property
     def ConsolidateInput(self) -> "ConsolidateInputViewer":
@@ -97,6 +161,18 @@ class TypeBuilder(type_builder.TypeBuilder):
     @property
     def DefineProblemInput(self) -> "DefineProblemInputViewer":
         return DefineProblemInputViewer(self)
+
+    @property
+    def DependenciesArtifact(self) -> "DependenciesArtifactViewer":
+        return DependenciesArtifactViewer(self)
+
+    @property
+    def DependenciesInput(self) -> "DependenciesInputViewer":
+        return DependenciesInputViewer(self)
+
+    @property
+    def DependencyAnalysis(self) -> "DependencyAnalysisViewer":
+        return DependencyAnalysisViewer(self)
 
     @property
     def DigestInput(self) -> "DigestInputViewer":
@@ -163,8 +239,32 @@ class TypeBuilder(type_builder.TypeBuilder):
         return ExplainabilityRequirementsArtifactViewer(self)
 
     @property
+    def ExplanationTypeMapping(self) -> "ExplanationTypeMappingViewer":
+        return ExplanationTypeMappingViewer(self)
+
+    @property
+    def ExplanationTypesArtifact(self) -> "ExplanationTypesArtifactViewer":
+        return ExplanationTypesArtifactViewer(self)
+
+    @property
     def ExtractNeedsInput(self) -> "ExtractNeedsInputViewer":
         return ExtractNeedsInputViewer(self)
+
+    @property
+    def FeasibilityArtifact(self) -> "FeasibilityArtifactViewer":
+        return FeasibilityArtifactViewer(self)
+
+    @property
+    def FeasibilityAssessment(self) -> "FeasibilityAssessmentViewer":
+        return FeasibilityAssessmentViewer(self)
+
+    @property
+    def FeasibilityInput(self) -> "FeasibilityInputViewer":
+        return FeasibilityInputViewer(self)
+
+    @property
+    def FeasibilityItem(self) -> "FeasibilityItemViewer":
+        return FeasibilityItemViewer(self)
 
     @property
     def GlossaryArtifact(self) -> "GlossaryArtifactViewer":
@@ -203,6 +303,10 @@ class TypeBuilder(type_builder.TypeBuilder):
         return LimitsInputViewer(self)
 
     @property
+    def MapTypesInput(self) -> "MapTypesInputViewer":
+        return MapTypesInputViewer(self)
+
+    @property
     def OrigemRef(self) -> "OrigemRefViewer":
         return OrigemRefViewer(self)
 
@@ -239,6 +343,18 @@ class TypeBuilder(type_builder.TypeBuilder):
         return PositioningInputViewer(self)
 
     @property
+    def PrioritiesArtifact(self) -> "PrioritiesArtifactViewer":
+        return PrioritiesArtifactViewer(self)
+
+    @property
+    def PrioritizeInput(self) -> "PrioritizeInputViewer":
+        return PrioritizeInputViewer(self)
+
+    @property
+    def PriorityAssignment(self) -> "PriorityAssignmentViewer":
+        return PriorityAssignmentViewer(self)
+
+    @property
     def ProblemStatement(self) -> "ProblemStatementViewer":
         return ProblemStatementViewer(self)
 
@@ -253,6 +369,26 @@ class TypeBuilder(type_builder.TypeBuilder):
     @property
     def RefineComplementaryInput(self) -> "RefineComplementaryInputViewer":
         return RefineComplementaryInputViewer(self)
+
+    @property
+    def RequirementAnalysisSummary(self) -> "RequirementAnalysisSummaryViewer":
+        return RequirementAnalysisSummaryViewer(self)
+
+    @property
+    def RequirementConflict(self) -> "RequirementConflictViewer":
+        return RequirementConflictViewer(self)
+
+    @property
+    def RequirementConstraint(self) -> "RequirementConstraintViewer":
+        return RequirementConstraintViewer(self)
+
+    @property
+    def RequirementIndexEntry(self) -> "RequirementIndexEntryViewer":
+        return RequirementIndexEntryViewer(self)
+
+    @property
+    def RequirementPair(self) -> "RequirementPairViewer":
+        return RequirementPairViewer(self)
 
     @property
     def SimilarPair(self) -> "SimilarPairViewer":
@@ -277,7 +413,7 @@ class TypeBuilder(type_builder.TypeBuilder):
 
 
 # #########################################################################
-# Generated enums 5
+# Generated enums 13
 # #########################################################################
 
 class ComplementaryCategoryAst:
@@ -330,6 +466,156 @@ class ComplementaryCategoryValues:
     @property
     def DOCUMENTACAO_SUPORTE(self) -> type_builder.EnumValueViewer:
         return type_builder.EnumValueViewer(self.__bldr.value("DOCUMENTACAO_SUPORTE"))
+    
+    
+
+
+class ConflictKindAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.enum("ConflictKind")
+        self._values: typing.Set[str] = set([  "ENTRE_STAKEHOLDERS",  "TRANSPARENCIA_PRIVACIDADE",  "DETALHAMENTO_DESEMPENHO",  "OUTRO",  ])
+        self._vals = ConflictKindValues(self._bldr, self._values)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def values(self) -> "ConflictKindValues":
+        return self._vals
+
+
+class ConflictKindViewer(ConflictKindAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_values(self) -> typing.List[typing.Tuple[str, type_builder.EnumValueViewer]]:
+        return [(name, type_builder.EnumValueViewer(self._bldr.value(name))) for name in self._values]
+    
+
+class ConflictKindValues:
+    def __init__(self, enum_bldr: baml_py.EnumBuilder, values: typing.Set[str]):
+        self.__bldr = enum_bldr
+        self.__values = values # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def ENTRE_STAKEHOLDERS(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("ENTRE_STAKEHOLDERS"))
+    
+    @property
+    def TRANSPARENCIA_PRIVACIDADE(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("TRANSPARENCIA_PRIVACIDADE"))
+    
+    @property
+    def DETALHAMENTO_DESEMPENHO(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("DETALHAMENTO_DESEMPENHO"))
+    
+    @property
+    def OUTRO(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("OUTRO"))
+    
+    
+
+
+class ConstraintKindAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.enum("ConstraintKind")
+        self._values: typing.Set[str] = set([  "REGULATORIA",  "ETICA",  "TECNICA",  "ORGANIZACIONAL",  "OUTRA",  ])
+        self._vals = ConstraintKindValues(self._bldr, self._values)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def values(self) -> "ConstraintKindValues":
+        return self._vals
+
+
+class ConstraintKindViewer(ConstraintKindAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_values(self) -> typing.List[typing.Tuple[str, type_builder.EnumValueViewer]]:
+        return [(name, type_builder.EnumValueViewer(self._bldr.value(name))) for name in self._values]
+    
+
+class ConstraintKindValues:
+    def __init__(self, enum_bldr: baml_py.EnumBuilder, values: typing.Set[str]):
+        self.__bldr = enum_bldr
+        self.__values = values # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def REGULATORIA(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("REGULATORIA"))
+    
+    @property
+    def ETICA(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("ETICA"))
+    
+    @property
+    def TECNICA(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("TECNICA"))
+    
+    @property
+    def ORGANIZACIONAL(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("ORGANIZACIONAL"))
+    
+    @property
+    def OUTRA(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("OUTRA"))
+    
+    
+
+
+class DecisionRiskAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.enum("DecisionRisk")
+        self._values: typing.Set[str] = set([  "ALTO",  "MEDIO",  "BAIXO",  ])
+        self._vals = DecisionRiskValues(self._bldr, self._values)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def values(self) -> "DecisionRiskValues":
+        return self._vals
+
+
+class DecisionRiskViewer(DecisionRiskAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_values(self) -> typing.List[typing.Tuple[str, type_builder.EnumValueViewer]]:
+        return [(name, type_builder.EnumValueViewer(self._bldr.value(name))) for name in self._values]
+    
+
+class DecisionRiskValues:
+    def __init__(self, enum_bldr: baml_py.EnumBuilder, values: typing.Set[str]):
+        self.__bldr = enum_bldr
+        self.__values = values # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def ALTO(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("ALTO"))
+    
+    @property
+    def MEDIO(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("MEDIO"))
+    
+    @property
+    def BAIXO(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("BAIXO"))
     
     
 
@@ -504,6 +790,276 @@ class ExplanationGoalValues:
     
 
 
+class ExplanationTypeAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.enum("ExplanationType")
+        self._values: typing.Set[str] = set([  "FEATURE_IMPORTANCE",  "LOCAL",  "GLOBAL",  "EXAMPLE_BASED",  "RULE_BASED",  "COUNTERFACTUAL",  "OUTRO",  ])
+        self._vals = ExplanationTypeValues(self._bldr, self._values)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def values(self) -> "ExplanationTypeValues":
+        return self._vals
+
+
+class ExplanationTypeViewer(ExplanationTypeAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_values(self) -> typing.List[typing.Tuple[str, type_builder.EnumValueViewer]]:
+        return [(name, type_builder.EnumValueViewer(self._bldr.value(name))) for name in self._values]
+    
+
+class ExplanationTypeValues:
+    def __init__(self, enum_bldr: baml_py.EnumBuilder, values: typing.Set[str]):
+        self.__bldr = enum_bldr
+        self.__values = values # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def FEATURE_IMPORTANCE(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("FEATURE_IMPORTANCE"))
+    
+    @property
+    def LOCAL(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("LOCAL"))
+    
+    @property
+    def GLOBAL(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("GLOBAL"))
+    
+    @property
+    def EXAMPLE_BASED(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("EXAMPLE_BASED"))
+    
+    @property
+    def RULE_BASED(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("RULE_BASED"))
+    
+    @property
+    def COUNTERFACTUAL(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("COUNTERFACTUAL"))
+    
+    @property
+    def OUTRO(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("OUTRO"))
+    
+    
+
+
+class ExplanatoryAspectAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.enum("ExplanatoryAspect")
+        self._values: typing.Set[str] = set([  "COMPREENSAO",  "JUSTIFICATIVA",  "CONFIANCA",  "AUDITORIA",  "CONTESTACAO",  "APRENDIZADO",  "OUTRO",  ])
+        self._vals = ExplanatoryAspectValues(self._bldr, self._values)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def values(self) -> "ExplanatoryAspectValues":
+        return self._vals
+
+
+class ExplanatoryAspectViewer(ExplanatoryAspectAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_values(self) -> typing.List[typing.Tuple[str, type_builder.EnumValueViewer]]:
+        return [(name, type_builder.EnumValueViewer(self._bldr.value(name))) for name in self._values]
+    
+
+class ExplanatoryAspectValues:
+    def __init__(self, enum_bldr: baml_py.EnumBuilder, values: typing.Set[str]):
+        self.__bldr = enum_bldr
+        self.__values = values # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def COMPREENSAO(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("COMPREENSAO"))
+    
+    @property
+    def JUSTIFICATIVA(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("JUSTIFICATIVA"))
+    
+    @property
+    def CONFIANCA(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("CONFIANCA"))
+    
+    @property
+    def AUDITORIA(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("AUDITORIA"))
+    
+    @property
+    def CONTESTACAO(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("CONTESTACAO"))
+    
+    @property
+    def APRENDIZADO(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("APRENDIZADO"))
+    
+    @property
+    def OUTRO(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("OUTRO"))
+    
+    
+
+
+class FeasibilityCriterionAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.enum("FeasibilityCriterion")
+        self._values: typing.Set[str] = set([  "TECNICA",  "REGULATORIA",  "OPERACIONAL",  "ECONOMICA",  ])
+        self._vals = FeasibilityCriterionValues(self._bldr, self._values)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def values(self) -> "FeasibilityCriterionValues":
+        return self._vals
+
+
+class FeasibilityCriterionViewer(FeasibilityCriterionAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_values(self) -> typing.List[typing.Tuple[str, type_builder.EnumValueViewer]]:
+        return [(name, type_builder.EnumValueViewer(self._bldr.value(name))) for name in self._values]
+    
+
+class FeasibilityCriterionValues:
+    def __init__(self, enum_bldr: baml_py.EnumBuilder, values: typing.Set[str]):
+        self.__bldr = enum_bldr
+        self.__values = values # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def TECNICA(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("TECNICA"))
+    
+    @property
+    def REGULATORIA(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("REGULATORIA"))
+    
+    @property
+    def OPERACIONAL(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("OPERACIONAL"))
+    
+    @property
+    def ECONOMICA(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("ECONOMICA"))
+    
+    
+
+
+class FeasibilityStatusAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.enum("FeasibilityStatus")
+        self._values: typing.Set[str] = set([  "SIM",  "NAO",  "NAO_AVALIADO",  ])
+        self._vals = FeasibilityStatusValues(self._bldr, self._values)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def values(self) -> "FeasibilityStatusValues":
+        return self._vals
+
+
+class FeasibilityStatusViewer(FeasibilityStatusAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_values(self) -> typing.List[typing.Tuple[str, type_builder.EnumValueViewer]]:
+        return [(name, type_builder.EnumValueViewer(self._bldr.value(name))) for name in self._values]
+    
+
+class FeasibilityStatusValues:
+    def __init__(self, enum_bldr: baml_py.EnumBuilder, values: typing.Set[str]):
+        self.__bldr = enum_bldr
+        self.__values = values # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def SIM(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("SIM"))
+    
+    @property
+    def NAO(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("NAO"))
+    
+    @property
+    def NAO_AVALIADO(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("NAO_AVALIADO"))
+    
+    
+
+
+class MoSCoWAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.enum("MoSCoW")
+        self._values: typing.Set[str] = set([  "MUST",  "SHOULD",  "COULD",  "WONT",  ])
+        self._vals = MoSCoWValues(self._bldr, self._values)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def values(self) -> "MoSCoWValues":
+        return self._vals
+
+
+class MoSCoWViewer(MoSCoWAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_values(self) -> typing.List[typing.Tuple[str, type_builder.EnumValueViewer]]:
+        return [(name, type_builder.EnumValueViewer(self._bldr.value(name))) for name in self._values]
+    
+
+class MoSCoWValues:
+    def __init__(self, enum_bldr: baml_py.EnumBuilder, values: typing.Set[str]):
+        self.__bldr = enum_bldr
+        self.__values = values # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def MUST(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("MUST"))
+    
+    @property
+    def SHOULD(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("SHOULD"))
+    
+    @property
+    def COULD(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("COULD"))
+    
+    @property
+    def WONT(self) -> type_builder.EnumValueViewer:
+        return type_builder.EnumValueViewer(self.__bldr.value("WONT"))
+    
+    
+
+
 class RequirementKindAst:
     def __init__(self, tb: type_builder.TypeBuilder):
         _tb = tb._tb # type: ignore (we know how to use this private attribute)
@@ -548,8 +1104,106 @@ class RequirementKindValues:
 
 
 # #########################################################################
-# Generated classes 55
+# Generated classes 81
 # #########################################################################
+
+class AspectClassificationAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("AspectClassification")
+        self._properties: typing.Set[str] = set([  "id",  "req_id",  "aspectos",  "predominante",  "justificativa",  "lacunas",  ])
+        self._props = AspectClassificationProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "AspectClassificationProperties":
+        return self._props
+
+
+class AspectClassificationViewer(AspectClassificationAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class AspectClassificationProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def id(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("id"))
+    
+    @property
+    def req_id(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("req_id"))
+    
+    @property
+    def aspectos(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("aspectos"))
+    
+    @property
+    def predominante(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("predominante"))
+    
+    @property
+    def justificativa(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("justificativa"))
+    
+    @property
+    def lacunas(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("lacunas"))
+    
+    
+
+
+class AspectsArtifactAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("AspectsArtifact")
+        self._properties: typing.Set[str] = set([  "classificacoes",  ])
+        self._props = AspectsArtifactProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "AspectsArtifactProperties":
+        return self._props
+
+
+class AspectsArtifactViewer(AspectsArtifactAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class AspectsArtifactProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def classificacoes(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("classificacoes"))
+    
+    
+
 
 class CaptureTermsInputAst:
     def __init__(self, tb: type_builder.TypeBuilder):
@@ -594,6 +1248,175 @@ class CaptureTermsInputProperties:
     
 
 
+class CharacterizeInputAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("CharacterizeInput")
+        self._properties: typing.Set[str] = set([  "requisito",  "stakeholders",  "necessidades",  "requisitos_complementares",  "caracterizacao_existente",  ])
+        self._props = CharacterizeInputProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "CharacterizeInputProperties":
+        return self._props
+
+
+class CharacterizeInputViewer(CharacterizeInputAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class CharacterizeInputProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def requisito(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("requisito"))
+    
+    @property
+    def stakeholders(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("stakeholders"))
+    
+    @property
+    def necessidades(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("necessidades"))
+    
+    @property
+    def requisitos_complementares(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("requisitos_complementares"))
+    
+    @property
+    def caracterizacao_existente(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("caracterizacao_existente"))
+    
+    
+
+
+class CharacterizedRequirementAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("CharacterizedRequirement")
+        self._properties: typing.Set[str] = set([  "id",  "req_id",  "contexto_uso",  "usuarios_explicacao",  "decisao_apoiada",  "risco_decisao",  "objetivo_principal",  "obrigacao_regulatoria",  "requisitos_regulatorios",  "lacunas",  ])
+        self._props = CharacterizedRequirementProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "CharacterizedRequirementProperties":
+        return self._props
+
+
+class CharacterizedRequirementViewer(CharacterizedRequirementAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class CharacterizedRequirementProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def id(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("id"))
+    
+    @property
+    def req_id(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("req_id"))
+    
+    @property
+    def contexto_uso(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("contexto_uso"))
+    
+    @property
+    def usuarios_explicacao(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("usuarios_explicacao"))
+    
+    @property
+    def decisao_apoiada(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("decisao_apoiada"))
+    
+    @property
+    def risco_decisao(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("risco_decisao"))
+    
+    @property
+    def objetivo_principal(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("objetivo_principal"))
+    
+    @property
+    def obrigacao_regulatoria(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("obrigacao_regulatoria"))
+    
+    @property
+    def requisitos_regulatorios(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("requisitos_regulatorios"))
+    
+    @property
+    def lacunas(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("lacunas"))
+    
+    
+
+
+class CharacterizedRequirementsArtifactAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("CharacterizedRequirementsArtifact")
+        self._properties: typing.Set[str] = set([  "caracterizacoes",  ])
+        self._props = CharacterizedRequirementsArtifactProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "CharacterizedRequirementsArtifactProperties":
+        return self._props
+
+
+class CharacterizedRequirementsArtifactViewer(CharacterizedRequirementsArtifactAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class CharacterizedRequirementsArtifactProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def caracterizacoes(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("caracterizacoes"))
+    
+    
+
+
 class ChecklistQuestionAst:
     def __init__(self, tb: type_builder.TypeBuilder):
         _tb = tb._tb # type: ignore (we know how to use this private attribute)
@@ -633,6 +1456,53 @@ class ChecklistQuestionProperties:
     @property
     def pergunta(self) -> type_builder.ClassPropertyViewer:
         return type_builder.ClassPropertyViewer(self.__bldr.property("pergunta"))
+    
+    
+
+
+class ClassifyAspectsInputAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("ClassifyAspectsInput")
+        self._properties: typing.Set[str] = set([  "requisitos",  "caracterizacoes",  "classificacoes_existentes",  ])
+        self._props = ClassifyAspectsInputProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "ClassifyAspectsInputProperties":
+        return self._props
+
+
+class ClassifyAspectsInputViewer(ClassifyAspectsInputAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class ClassifyAspectsInputProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def requisitos(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("requisitos"))
+    
+    @property
+    def caracterizacoes(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("caracterizacoes"))
+    
+    @property
+    def classificacoes_existentes(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("classificacoes_existentes"))
     
     
 
@@ -778,6 +1648,100 @@ class ComplementaryRequirementsArtifactProperties:
     @property
     def requisitos(self) -> type_builder.ClassPropertyViewer:
         return type_builder.ClassPropertyViewer(self.__bldr.property("requisitos"))
+    
+    
+
+
+class ConflictsArtifactAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("ConflictsArtifact")
+        self._properties: typing.Set[str] = set([  "conflitos",  ])
+        self._props = ConflictsArtifactProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "ConflictsArtifactProperties":
+        return self._props
+
+
+class ConflictsArtifactViewer(ConflictsArtifactAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class ConflictsArtifactProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def conflitos(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("conflitos"))
+    
+    
+
+
+class ConflictsInputAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("ConflictsInput")
+        self._properties: typing.Set[str] = set([  "requisitos",  "aspectos",  "tipos",  "pares_candidatos",  "conflitos_existentes",  ])
+        self._props = ConflictsInputProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "ConflictsInputProperties":
+        return self._props
+
+
+class ConflictsInputViewer(ConflictsInputAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class ConflictsInputProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def requisitos(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("requisitos"))
+    
+    @property
+    def aspectos(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("aspectos"))
+    
+    @property
+    def tipos(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("tipos"))
+    
+    @property
+    def pares_candidatos(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("pares_candidatos"))
+    
+    @property
+    def conflitos_existentes(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("conflitos_existentes"))
     
     
 
@@ -1076,6 +2040,155 @@ class DefineProblemInputProperties:
     @property
     def documento_escopo(self) -> type_builder.ClassPropertyViewer:
         return type_builder.ClassPropertyViewer(self.__bldr.property("documento_escopo"))
+    
+    
+
+
+class DependenciesArtifactAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("DependenciesArtifact")
+        self._properties: typing.Set[str] = set([  "dependencias",  ])
+        self._props = DependenciesArtifactProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "DependenciesArtifactProperties":
+        return self._props
+
+
+class DependenciesArtifactViewer(DependenciesArtifactAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class DependenciesArtifactProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def dependencias(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("dependencias"))
+    
+    
+
+
+class DependenciesInputAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("DependenciesInput")
+        self._properties: typing.Set[str] = set([  "requisitos",  "caracterizacoes",  "indice",  "dependencias_existentes",  ])
+        self._props = DependenciesInputProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "DependenciesInputProperties":
+        return self._props
+
+
+class DependenciesInputViewer(DependenciesInputAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class DependenciesInputProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def requisitos(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("requisitos"))
+    
+    @property
+    def caracterizacoes(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("caracterizacoes"))
+    
+    @property
+    def indice(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("indice"))
+    
+    @property
+    def dependencias_existentes(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("dependencias_existentes"))
+    
+    
+
+
+class DependencyAnalysisAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("DependencyAnalysis")
+        self._properties: typing.Set[str] = set([  "id",  "req_id",  "depende_de",  "restricoes",  "impacto",  "lacunas",  ])
+        self._props = DependencyAnalysisProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "DependencyAnalysisProperties":
+        return self._props
+
+
+class DependencyAnalysisViewer(DependencyAnalysisAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class DependencyAnalysisProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def id(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("id"))
+    
+    @property
+    def req_id(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("req_id"))
+    
+    @property
+    def depende_de(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("depende_de"))
+    
+    @property
+    def restricoes(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("restricoes"))
+    
+    @property
+    def impacto(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("impacto"))
+    
+    @property
+    def lacunas(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("lacunas"))
     
     
 
@@ -1876,6 +2989,104 @@ class ExplainabilityRequirementsArtifactProperties:
     
 
 
+class ExplanationTypeMappingAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("ExplanationTypeMapping")
+        self._properties: typing.Set[str] = set([  "id",  "req_id",  "tipos",  "justificativa",  "evidencias",  "lacunas",  ])
+        self._props = ExplanationTypeMappingProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "ExplanationTypeMappingProperties":
+        return self._props
+
+
+class ExplanationTypeMappingViewer(ExplanationTypeMappingAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class ExplanationTypeMappingProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def id(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("id"))
+    
+    @property
+    def req_id(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("req_id"))
+    
+    @property
+    def tipos(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("tipos"))
+    
+    @property
+    def justificativa(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("justificativa"))
+    
+    @property
+    def evidencias(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("evidencias"))
+    
+    @property
+    def lacunas(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("lacunas"))
+    
+    
+
+
+class ExplanationTypesArtifactAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("ExplanationTypesArtifact")
+        self._properties: typing.Set[str] = set([  "mapeamentos",  ])
+        self._props = ExplanationTypesArtifactProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "ExplanationTypesArtifactProperties":
+        return self._props
+
+
+class ExplanationTypesArtifactViewer(ExplanationTypesArtifactAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class ExplanationTypesArtifactProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def mapeamentos(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("mapeamentos"))
+    
+    
+
+
 class ExtractNeedsInputAst:
     def __init__(self, tb: type_builder.TypeBuilder):
         _tb = tb._tb # type: ignore (we know how to use this private attribute)
@@ -1927,6 +3138,210 @@ class ExtractNeedsInputProperties:
     @property
     def necessidades_existentes(self) -> type_builder.ClassPropertyViewer:
         return type_builder.ClassPropertyViewer(self.__bldr.property("necessidades_existentes"))
+    
+    
+
+
+class FeasibilityArtifactAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("FeasibilityArtifact")
+        self._properties: typing.Set[str] = set([  "avaliacoes",  ])
+        self._props = FeasibilityArtifactProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "FeasibilityArtifactProperties":
+        return self._props
+
+
+class FeasibilityArtifactViewer(FeasibilityArtifactAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class FeasibilityArtifactProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def avaliacoes(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("avaliacoes"))
+    
+    
+
+
+class FeasibilityAssessmentAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("FeasibilityAssessment")
+        self._properties: typing.Set[str] = set([  "id",  "req_id",  "criterios",  "riscos",  "premissas",  "lacunas",  ])
+        self._props = FeasibilityAssessmentProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "FeasibilityAssessmentProperties":
+        return self._props
+
+
+class FeasibilityAssessmentViewer(FeasibilityAssessmentAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class FeasibilityAssessmentProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def id(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("id"))
+    
+    @property
+    def req_id(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("req_id"))
+    
+    @property
+    def criterios(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("criterios"))
+    
+    @property
+    def riscos(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("riscos"))
+    
+    @property
+    def premissas(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("premissas"))
+    
+    @property
+    def lacunas(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("lacunas"))
+    
+    
+
+
+class FeasibilityInputAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("FeasibilityInput")
+        self._properties: typing.Set[str] = set([  "requisitos",  "caracterizacoes",  "tipos",  "dependencias",  "conflitos",  "avaliacoes_existentes",  ])
+        self._props = FeasibilityInputProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "FeasibilityInputProperties":
+        return self._props
+
+
+class FeasibilityInputViewer(FeasibilityInputAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class FeasibilityInputProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def requisitos(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("requisitos"))
+    
+    @property
+    def caracterizacoes(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("caracterizacoes"))
+    
+    @property
+    def tipos(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("tipos"))
+    
+    @property
+    def dependencias(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("dependencias"))
+    
+    @property
+    def conflitos(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("conflitos"))
+    
+    @property
+    def avaliacoes_existentes(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("avaliacoes_existentes"))
+    
+    
+
+
+class FeasibilityItemAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("FeasibilityItem")
+        self._properties: typing.Set[str] = set([  "criterio",  "situacao",  "observacao",  ])
+        self._props = FeasibilityItemProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "FeasibilityItemProperties":
+        return self._props
+
+
+class FeasibilityItemViewer(FeasibilityItemAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class FeasibilityItemProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def criterio(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("criterio"))
+    
+    @property
+    def situacao(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("situacao"))
+    
+    @property
+    def observacao(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("observacao"))
     
     
 
@@ -2382,6 +3797,57 @@ class LimitsInputProperties:
     
 
 
+class MapTypesInputAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("MapTypesInput")
+        self._properties: typing.Set[str] = set([  "requisitos",  "caracterizacoes",  "aspectos",  "mapeamentos_existentes",  ])
+        self._props = MapTypesInputProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "MapTypesInputProperties":
+        return self._props
+
+
+class MapTypesInputViewer(MapTypesInputAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class MapTypesInputProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def requisitos(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("requisitos"))
+    
+    @property
+    def caracterizacoes(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("caracterizacoes"))
+    
+    @property
+    def aspectos(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("aspectos"))
+    
+    @property
+    def mapeamentos_existentes(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("mapeamentos_existentes"))
+    
+    
+
+
 class OrigemRefAst:
     def __init__(self, tb: type_builder.TypeBuilder):
         _tb = tb._tb # type: ignore (we know how to use this private attribute)
@@ -2833,6 +4299,139 @@ class PositioningInputProperties:
     
 
 
+class PrioritiesArtifactAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("PrioritiesArtifact")
+        self._properties: typing.Set[str] = set([  "prioridades",  ])
+        self._props = PrioritiesArtifactProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "PrioritiesArtifactProperties":
+        return self._props
+
+
+class PrioritiesArtifactViewer(PrioritiesArtifactAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class PrioritiesArtifactProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def prioridades(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("prioridades"))
+    
+    
+
+
+class PrioritizeInputAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("PrioritizeInput")
+        self._properties: typing.Set[str] = set([  "requisitos",  "prioridades_existentes",  ])
+        self._props = PrioritizeInputProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "PrioritizeInputProperties":
+        return self._props
+
+
+class PrioritizeInputViewer(PrioritizeInputAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class PrioritizeInputProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def requisitos(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("requisitos"))
+    
+    @property
+    def prioridades_existentes(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("prioridades_existentes"))
+    
+    
+
+
+class PriorityAssignmentAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("PriorityAssignment")
+        self._properties: typing.Set[str] = set([  "id",  "req_id",  "prioridade",  "justificativa",  ])
+        self._props = PriorityAssignmentProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "PriorityAssignmentProperties":
+        return self._props
+
+
+class PriorityAssignmentViewer(PriorityAssignmentAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class PriorityAssignmentProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def id(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("id"))
+    
+    @property
+    def req_id(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("req_id"))
+    
+    @property
+    def prioridade(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("prioridade"))
+    
+    @property
+    def justificativa(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("justificativa"))
+    
+    
+
+
 class ProblemStatementAst:
     def __init__(self, tb: type_builder.TypeBuilder):
         _tb = tb._tb # type: ignore (we know how to use this private attribute)
@@ -3017,6 +4616,269 @@ class RefineComplementaryInputProperties:
     @property
     def requisitos_existentes(self) -> type_builder.ClassPropertyViewer:
         return type_builder.ClassPropertyViewer(self.__bldr.property("requisitos_existentes"))
+    
+    
+
+
+class RequirementAnalysisSummaryAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("RequirementAnalysisSummary")
+        self._properties: typing.Set[str] = set([  "id",  "enunciado",  "tipo",  "aspecto_predominante",  "risco_decisao",  "viabilidade",  "conflitos",  "depende_de",  ])
+        self._props = RequirementAnalysisSummaryProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "RequirementAnalysisSummaryProperties":
+        return self._props
+
+
+class RequirementAnalysisSummaryViewer(RequirementAnalysisSummaryAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class RequirementAnalysisSummaryProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def id(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("id"))
+    
+    @property
+    def enunciado(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("enunciado"))
+    
+    @property
+    def tipo(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("tipo"))
+    
+    @property
+    def aspecto_predominante(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("aspecto_predominante"))
+    
+    @property
+    def risco_decisao(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("risco_decisao"))
+    
+    @property
+    def viabilidade(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("viabilidade"))
+    
+    @property
+    def conflitos(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("conflitos"))
+    
+    @property
+    def depende_de(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("depende_de"))
+    
+    
+
+
+class RequirementConflictAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("RequirementConflict")
+        self._properties: typing.Set[str] = set([  "id",  "req_ids",  "tipo",  "descricao",  "stakeholder_ids",  "alternativas_resolucao",  ])
+        self._props = RequirementConflictProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "RequirementConflictProperties":
+        return self._props
+
+
+class RequirementConflictViewer(RequirementConflictAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class RequirementConflictProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def id(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("id"))
+    
+    @property
+    def req_ids(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("req_ids"))
+    
+    @property
+    def tipo(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("tipo"))
+    
+    @property
+    def descricao(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("descricao"))
+    
+    @property
+    def stakeholder_ids(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("stakeholder_ids"))
+    
+    @property
+    def alternativas_resolucao(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("alternativas_resolucao"))
+    
+    
+
+
+class RequirementConstraintAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("RequirementConstraint")
+        self._properties: typing.Set[str] = set([  "tipo",  "descricao",  "evidencias",  ])
+        self._props = RequirementConstraintProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "RequirementConstraintProperties":
+        return self._props
+
+
+class RequirementConstraintViewer(RequirementConstraintAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class RequirementConstraintProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def tipo(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("tipo"))
+    
+    @property
+    def descricao(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("descricao"))
+    
+    @property
+    def evidencias(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("evidencias"))
+    
+    
+
+
+class RequirementIndexEntryAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("RequirementIndexEntry")
+        self._properties: typing.Set[str] = set([  "id",  "enunciado",  ])
+        self._props = RequirementIndexEntryProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "RequirementIndexEntryProperties":
+        return self._props
+
+
+class RequirementIndexEntryViewer(RequirementIndexEntryAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class RequirementIndexEntryProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def id(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("id"))
+    
+    @property
+    def enunciado(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("enunciado"))
+    
+    
+
+
+class RequirementPairAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("RequirementPair")
+        self._properties: typing.Set[str] = set([  "a",  "b",  "motivo",  ])
+        self._props = RequirementPairProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "RequirementPairProperties":
+        return self._props
+
+
+class RequirementPairViewer(RequirementPairAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class RequirementPairProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def a(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("a"))
+    
+    @property
+    def b(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("b"))
+    
+    @property
+    def motivo(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("motivo"))
     
     
 
