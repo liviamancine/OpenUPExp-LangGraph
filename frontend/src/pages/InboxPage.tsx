@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api/client";
 import type { HitlRequest } from "../api/types";
+import { taskName } from "../bpmn/names";
 import Icon, { type IconName } from "../components/Icon";
 import { Empty, ErrorBox, Loading, PhaseChip, Status, Tabs, fmtDate } from "../components/ui";
 
@@ -39,7 +40,7 @@ export default function InboxPage() {
                   <div className="strong">{k.title} <span className="muted small">· {r.projeto?.nome}</span></div>
                   <div className="muted small">{k.text}</div>
                   <div className="row tiny muted" style={{ marginTop: 4, gap: 8 }}>
-                    <PhaseChip phase={phase} /><span>{r.payload.name ?? r.task_id}</span>
+                    <PhaseChip phase={phase} /><span>{taskName(r.task_id, r.payload.name)}</span>
                     {r.iteracao > 1 && <span>· {r.iteracao}ª rodada</span>}<span>· desde {fmtDate(r.created_at)}</span>
                   </div>
                 </span>

@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "../api/client";
 import type { Manifest, PackageItem, TaskDetail, TaskExec } from "../api/types";
 import { taskByElement } from "../bpmn/status";
+import { taskName } from "../bpmn/names";
 import Icon from "./Icon";
 import { ErrorBox, Loading, MECHANISM, Status, fmtDate, show } from "./ui";
 
@@ -27,8 +28,8 @@ export default function TaskPanel({ elementId, manifest, tasks }: {
       <div>
         <div className="card-head">
           {spec && <span className={`mech ${spec.mechanism}`}><Icon name={MECHANISM[spec.mechanism]?.icon ?? "zap"} size={16} /></span>}
-          <span className="grow"><h2>{spec ? spec.name : elementId}</h2>
-            {spec && <div className="muted small">{spec.id} · feita por: {MECHANISM[spec.mechanism]?.label ?? spec.mechanism}</div>}</span>
+          <span className="grow"><h2>{spec ? taskName(spec.id, spec.name) : elementId}</h2>
+            {spec && <div className="muted small">{spec.id} · no processo: <em>{spec.name}</em> · feita por: {MECHANISM[spec.mechanism]?.label ?? spec.mechanism}</div>}</span>
         </div>
         {spec && (
           <details className="advanced">
@@ -44,7 +45,7 @@ export default function TaskPanel({ elementId, manifest, tasks }: {
         )}
         {anchored.length > 0 && (
           <div className="alert info small" style={{ marginTop: 8 }}>
-            Também acontece neste bloco: {anchored.map((a) => `${a.id} ${a.name}`).join(", ")}
+            Também acontece neste bloco: {anchored.map((a) => `${a.id} ${taskName(a.id, a.name)}`).join(", ")}
           </div>
         )}
       </div>

@@ -4,6 +4,7 @@ import "bpmn-js/dist/assets/diagram-js.css";
 import "bpmn-js/dist/assets/bpmn-js.css";
 import { api } from "../api/client";
 import type { Manifest, TaskExec } from "../api/types";
+import { translateBpmn } from "../bpmn/names";
 import { drillTarget, iterationsByElement, statusesForFile, taskByElement, type Level } from "../bpmn/status";
 
 interface Props {
@@ -37,14 +38,14 @@ export default function BpmnNavigator({ manifest, tasks, selected, onSelect }: P
     api.get<string>(`/process/bpmn/${encodeURIComponent(current.file)}`)
       .then(async (xml) => {
         if (cancelled) return;
-        const result = await viewer.current.importXML(xml);
+        const result = await viewer.current.importXML(translateBpmn(xml, manifest));
         if (result.warnings?.length) console.warn("BPMN", current.file, result.warnings);
         viewer.current.get("canvas").zoom("fit-viewport", "auto");
         setLoadedFile(current.file);
       })
       .catch((e) => setError(`Não foi possível exibir ${current.file}: ${e.message ?? e}`));
     return () => { cancelled = true; };
-  }, [current.file]);
+  }, [current.file, manifest]);
 
   // clique: call activity → desce um nível; tarefa/gateway → seleciona
   useEffect(() => {

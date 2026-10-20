@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { api, downloadUrl } from "../api/client";
 import type { ArtifactSummary, Manifest, Metrics, RunDetail, TaskExec, TaskSpec } from "../api/types";
+import { taskName } from "../bpmn/names";
 import BpmnNavigator from "../components/BpmnNavigator";
 import Icon from "../components/Icon";
 import TaskPanel from "../components/TaskPanel";
@@ -94,7 +95,7 @@ export default function RunPage() {
         <div className="banner running">
           <span className="banner-icon"><span className="spinner" /></span>
           <div className="grow"><div className="banner-title">A IA está trabalhando…</div>
-            <div className="muted">{current ? <>Agora: <strong>{current.name}</strong> ({MECHANISM[current.mechanism]?.label ?? current.mechanism})</> : "Preparando."}
+            <div className="muted">{current ? <>Agora: <strong>{taskName(current.id, current.name)}</strong> ({MECHANISM[current.mechanism]?.label ?? current.mechanism})</> : "Preparando."}
               {" "}A página se atualiza sozinha.</div></div>
         </div>
       )}
@@ -146,7 +147,7 @@ function StepByStep({ tasks, specs, onSelect, lastEvent }: {
             <div key={t.id} className="list-item" onClick={() => t.bpmn_element_id && onSelect(t.bpmn_element_id)}>
               <span className={`mech ${mech}`} title={m?.label}><Icon name={m?.icon ?? "zap"} size={15} /></span>
               <span className="grow">
-                <div className="small strong">{spec?.name ?? t.task_id}</div>
+                <div className="small strong">{taskName(t.task_id, spec?.name)}</div>
                 <div className="tiny muted">{t.task_id}{t.iteracao > 1 ? ` · ${t.iteracao}ª vez` : ""} · {fmtDate(t.inicio)}</div>
               </span>
               <Status value={t.status} />

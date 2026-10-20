@@ -1,4 +1,5 @@
 import type { Manifest, TaskExec, TaskSpec } from "../api/types";
+import { taskName } from "./names";
 
 export type ElementStatus = "completed" | "running" | "waiting_human" | "failed" | "stale";
 
@@ -77,9 +78,9 @@ export function statusesForFile(file: string, manifest: Manifest, tasks: TaskExe
 /** Para onde leva o clique num call activity (fase → arquivo da fase; subprocesso → arquivo do subprocesso). */
 export function drillTarget(elementId: string, manifest: Manifest): Level | null {
   for (const ph of manifest.phases) {
-    if (ph.bpmn_element === elementId) return { file: ph.bpmn_file, label: `${ph.id} ${ph.name}` };
+    if (ph.bpmn_element === elementId) return { file: ph.bpmn_file, label: `${ph.id} ${taskName(ph.id, ph.name)}` };
     for (const sp of ph.subprocesses) {
-      if (sp.bpmn_element === elementId) return { file: sp.bpmn_file, label: `${sp.id} ${sp.name ?? ""}` };
+      if (sp.bpmn_element === elementId) return { file: sp.bpmn_file, label: `${sp.id} ${taskName(sp.id, sp.name)}` };
     }
   }
   return null;

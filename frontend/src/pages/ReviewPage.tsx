@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../api/client";
 import type { ArtifactSummary, HitlDetail, ItemComment } from "../api/types";
+import { taskName } from "../bpmn/names";
 import ArtifactView from "../components/ArtifactView";
 import Icon, { type IconName } from "../components/Icon";
 import { ErrorBox, Hint, Loading, Markdown, PHASES, PhaseIcon, Status, decisionHelp, decisionLabel, fmtDate } from "../components/ui";
@@ -67,7 +68,7 @@ export default function ReviewPage() {
           <PhaseIcon phase={phase} size={26} />
           <div className="grow">
             <h1>{intro.title}</h1>
-            <div className="subtitle">Etapa {phase} · {PHASES[phase]?.titulo} · {r.payload.name ?? r.task_id}
+            <div className="subtitle">Etapa {phase} · {PHASES[phase]?.titulo} · {taskName(r.task_id, r.payload.name)}
               {r.iteracao > 1 && <> · {r.iteracao}ª rodada</>} · desde {fmtDate(r.created_at)}
               {r.due_at && <> · prazo {fmtDate(r.due_at)}</>}</div>
           </div>
