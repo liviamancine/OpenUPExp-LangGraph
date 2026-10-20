@@ -3,12 +3,12 @@
 Ver docs/architecture/02-mapeamento-fase-1-visao.md.
 """
 
+from openupexp.agents.evidence import verify_item_evidences
 from openupexp.agents.registry import ARTIFACT_TYPES, VISION_EDITABLE
 from openupexp.agents.runtime import TaskContext, WriteResult
 from openupexp.baml_client import types as T
 from openupexp.context.builder import PackageItem
 from openupexp.exports.vision import render_vision_markdown
-from openupexp.retrieval.citations import verify_quote
 from openupexp.retrieval.search import hybrid_search
 
 # Checklist "Limite da Explicabilidade" — OpenUPExp/artefatos/DRE.md
@@ -173,25 +173,7 @@ async def t_1_2_2(ctx: TaskContext) -> list[WriteResult]:
         requisitos_existentes=_models(T.ComplementaryRequirement, prev)))
 
     raw = _dump_list(out.requisitos)
-    pending_evidence: list[tuple[int, dict]] = []
-    for idx, req in enumerate(raw):
-        verified_any = False
-        for ev in req.get("evidencias", []):
-            ref = (ev.get("chunk_ref") or "").split()[0] if ev.get("chunk_ref") else ""
-            if ref and not ref.startswith("chunk:"):
-                ref = f"chunk:{ref}"
-            hit = by_ref.get(ref)
-            if hit is None:
-                verification = "source_not_provided"
-            elif verify_quote(ev.get("citacao", ""), hit.texto):
-                verification = "verified"
-                verified_any = True
-            else:
-                verification = "unverified_quote"
-            ev["chunk_ref"] = ref or ev.get("chunk_ref")
-            ev["verificacao"] = verification
-            pending_evidence.append((idx, dict(ev, chunk_id=hit.id if hit else None)))
-        req["fundamentacao_verificada"] = verified_any
+    pending_evidence = verify_item_evidences(raw, {ref: (h.texto, h.id) for ref, h in by_ref.items()})
 
     return [
         WriteResult("vision.reference_queries", plan.model_dump(mode="json")),

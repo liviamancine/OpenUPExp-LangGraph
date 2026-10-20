@@ -1,4 +1,4 @@
-# 13 — Notas de implementação (M0–M3)
+# 13 — Notas de implementação (M0–M3 e Fase 2)
 
 Este capítulo registra o que foi implementado e onde a implementação se afastou dos
 capítulos anteriores, ou os detalhou. Todo o conteúdo aqui é **[IMPLEMENTADO]**, salvo
@@ -51,3 +51,64 @@ indicação em contrário.
 - **Bundle do frontend:** cerca de 610 KB (bpmn-js). A divisão de código pode vir depois.
 - **Avisos do bpmn-js:** os arquivos com referências quebradas (I-02) renderizam, mas geram
   avisos de importação no console do navegador.
+
+## 13.4 Fase 2 — Elicitação (manifesto 0.2.0)
+
+A Fase 2 é executável a partir de uma execução da Fase 1 **concluída e aprovada**
+(`run.base_run_id`). Os formatos dos artefatos são provisórios (cap. 12 §12.4).
+
+```mermaid
+flowchart LR
+  B[(Visão aprovada<br/>execução de base)] --> T211[2.1.1 linha de base<br/>DET]
+  T211 --> T212[2.1.2 plano<br/>1 item por STK]
+  T212 --> IN{{entrada humana:<br/>material de elicitação}}
+  IN --> T221[2.2.1 map por STK<br/>busca híbrida no material]
+  T221 --> T222[2.2.2 map por NEED] --> T223[2.2.3 refina CR<br/>busca na base de referência]
+  T223 --> T224[2.2.4 consolidação<br/>pares por similaridade]
+  T224 --> C{{2.2.5 consenso<br/>posições + encerramento}}
+  C -- revisit_2_2 --> IN
+  C -- close --> T231[2.3.1 checklist] --> G{2.3 aprovado?}
+  G -- revisit_2_1 / revisit_2_2 --> T211
+  G -- approve --> T232[2.3.2 ERD + digest]
+```
+
+### Como a Fase 2 trata o problema de contexto
+
+- **Material de elicitação indexado por execução.** Em 2.2.1, os documentos `elicitacao` do
+  projeto viram um `corpus_version` próprio (`purpose = elicitation`, `run_id`), separado da
+  base de referência. Cada stakeholder recebe **só** os trechos recuperados para ele
+  (consulta = nome + perguntas do plano), em vez das transcrições inteiras.
+- **Map por item.** 2.2.1 roda uma chamada por stakeholder e 2.2.2 uma por necessidade da
+  Visão (mais uma para necessidades novas). `TaskContext.call(..., retrieved=refs)` filtra os
+  trechos entregues a cada chamada; o pacote de contexto registra todos, com o motivo.
+- **Joins determinísticos.** Toda RN precisa sustentar algum RI (2.2.2), e todo RI/RC precisa
+  ser consolidado ou descartado com motivo (2.2.4). Faltas geram uma nova chamada só com os
+  itens faltantes; se persistirem, a tarefa falha de forma visível.
+- **Citações verificadas** contra o trecho do material ou contra a solicitação SN-n da Visão
+  (`agents/evidence.py`, compartilhado com 1.2.2).
+
+### Pontos de interação humana
+
+| Tipo | Onde | Quem | Retoma o grafo? |
+|---|---|---|---|
+| `input` | antes de 2.2.1 (`2.2.1.in`) | Engenheiro envia material ou prossegue sem, justificando | sim |
+| `consensus` | 2.2.5 | participantes registram posição; o Engenheiro encerra ou pede retorno | só o encerramento ou o retorno |
+| `approval` | 2.3.gate | Engenheiro: aprovar, revisitar 2.1 ou 2.2 | sim |
+
+### Decisões adicionais
+
+| # | Decisão | Motivo | Capítulo afetado |
+|---|---|---|---|
+| D-14 | Manifesto **0.2.0**; execuções antigas continuam com o manifesto em que foram criadas (`get_manifest(run.manifest_version)`) | Reprodutibilidade: a Fase 1 não muda entre 0.1.0 e 0.2.0, mas isso não pode ser pressuposto | 04, 06 |
+| D-15 | Entrada humana modelada como `human_input` da tarefa (nó de interrupção antes dela), e não como tarefa extra no manifesto | A conformidade com o BPMN continua 1:1; o BPMN mostra 2.2.1 "aguardando humano" | 07 |
+| D-16 | Posições de consenso são `hitl_response` com `decision` = `concordo`/`ressalvas`/`objecao`; vale a última posição de cada pessoa. O encerramento grava a contagem em `hitl_request.payload.fechamento` | Sem tabela nova; histórico preservado | 06, 07 |
+| D-17 | Em retornos, os comentários das posições de consenso entram no feedback entregue aos agentes | O BPMN não diz como o consenso realimenta 2.2; sem isso, a objeção se perderia | 05, 07 |
+| D-18 | O ERD exportado em 2.3.2 inclui a Visão aprovada como Parte 1 | Interpretação de A-12; o digest cobre só a Parte 2 | 02, 08 |
+
+### Limitações da Fase 2
+
+- Formatos provisórios (A-14): mudanças da autora exigem novo manifesto e novos contratos BAML.
+- Prazo do consenso (`due_days`) é registrado, mas não há lembrete nem encerramento automático.
+- Não há atualização do Glossário na Fase 2 (cap. 12 §12.4).
+- Validado com agentes simulados; o comportamento com LLM real ainda não foi medido.
+

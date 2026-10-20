@@ -36,7 +36,7 @@ class WriteSpec(BaseModel):
 
 
 class RetrievalSpec(BaseModel):
-    store: Literal["reference_base"] = "reference_base"
+    store: Literal["reference_base", "elicitation"] = "reference_base"
     planner: str | None = None
     mode: Literal["hybrid", "lexical", "vector"] = "hybrid"
     top_k: int = 12
@@ -46,6 +46,23 @@ class RetrievalSpec(BaseModel):
 class Outcome(BaseModel):
     next: str
     comment_required: bool = False
+
+
+class HumanInputSpec(BaseModel):
+    """Entrada humana exigida antes de uma tarefa (ex.: material de elicitação em 2.2.1)."""
+
+    kind: str
+    name: str
+    decided_by_role: str = "requirements_engineer"
+    outcomes: dict[str, Outcome] = Field(default_factory=dict)
+
+
+class ConsensusPolicy(BaseModel):
+    """Regra provisória de consenso (A-13): fecha sem objeção bloqueante; o Engenheiro encerra."""
+
+    participant_roles: list[str] = Field(default_factory=lambda: ["participant", "requirements_engineer"])
+    rule: Literal["no_blocking_objection"] = "no_blocking_objection"
+    due_days: int | None = None
 
 
 class TaskSpec(BaseModel):
@@ -66,6 +83,9 @@ class TaskSpec(BaseModel):
     decided_by_role: str | None = None
     reviews: str | None = None
     outcomes: dict[str, Outcome] = Field(default_factory=dict)
+    human_input: HumanInputSpec | None = None
+    consensus: ConsensusPolicy | None = None
+    similarity_threshold: float | None = None
 
 
 class SubprocessSpec(BaseModel):
@@ -82,6 +102,7 @@ class PhaseSpec(BaseModel):
     name: str
     openup_phase: str
     implemented: bool = False
+    requires_phase: str | None = None  # fase cuja execução aprovada é a base desta
     bpmn_file: str
     bpmn_element: str
     subprocesses: list[SubprocessSpec]
@@ -138,8 +159,11 @@ def load_manifest(path: Path | None = None) -> Manifest:
 
 
 @lru_cache
-def get_manifest() -> Manifest:
-    return load_manifest()
+def get_manifest(version: str | None = None) -> Manifest:
+    """Manifesto vigente, ou o de uma versão específica (execuções antigas)."""
+    if version is None:
+        return load_manifest()
+    return load_manifest(get_settings().process_dir / "manifest" / f"openupexp-{version}.yaml")
 
 
 def bpmn_source_commit() -> str | None:

@@ -20,8 +20,8 @@ async def _project_and_run(s) -> tuple[Project, Run]:
     p = Project(nome="t")
     s.add(p)
     await s.flush()
-    await ensure_manifest(s)
-    r = Run(project_id=p.id, manifest_version="0.1.0", phase="1", thread_id=f"t-{uuid.uuid4()}")
+    manifest = await ensure_manifest(s)
+    r = Run(project_id=p.id, manifest_version=manifest.version, phase="1", thread_id=f"t-{uuid.uuid4()}")
     s.add(r)
     await s.flush()
     return p, r

@@ -33,6 +33,32 @@ def test_phase1_tasks_have_handlers_and_inputs_are_produced_before_use():
         produced |= {w.artifact for w in t.writes}
 
 
+def test_phase2_tasks_have_handlers_and_read_phase1_or_earlier_outputs():
+    from openupexp.agents.phase2 import HANDLERS as P2
+
+    manifest = load_manifest()
+    phase = manifest.phase("2")
+    assert phase.implemented and phase.requires_phase == "1"
+    produced = {w.artifact for t in manifest.phase("1").tasks() for w in t.writes}
+    for t in phase.tasks():
+        if t.mechanism in ("agent", "deterministic"):
+            assert t.id in P2, f"tarefa {t.id} sem handler"
+        for r in t.reads:
+            if r.required:
+                assert r.artifact in produced, f"{t.id} lê {r.artifact} antes de ser produzido"
+        produced |= {w.artifact for w in t.writes}
+
+
+def test_phase2_human_points():
+    m = load_manifest()
+    assert set(m.task("2.3.gate").outcomes) == {"approve", "revisit_2_1", "revisit_2_2"}
+    consensus = m.task("2.2.5")
+    assert consensus.mechanism == "hitl_consensus" and set(consensus.outcomes) == {"close", "revisit_2_2"}
+    assert consensus.consensus.rule == "no_blocking_objection"
+    elicitation = m.task("2.2.1").human_input
+    assert elicitation.kind == "elicitation_material" and elicitation.outcomes["no_material"].comment_required
+
+
 def test_gate_outcomes_follow_bpmn_annotation():
     gate = load_manifest().task("1.3.gate")
     assert set(gate.outcomes) == {"approve", "revisit_1_1", "revisit_1_2"}
@@ -106,3 +132,17 @@ async def test_prompt_renders_feedback_without_llm():
     content = str(req.body.json())
     assert "ESCOPO X" in content and "faltou o regulador" in content and "FEEDBACK DO REVISOR" in content
     assert "NÃO INVENÇÃO" in content
+
+
+async def test_phase2_prompt_renders_only_given_context():
+    from openupexp.baml_client import types as T
+    from openupexp.baml_client.async_client import b
+
+    stk = T.Stakeholder(id="STK-01", nome="Pessoa A", descricao="d", origem=[], lacunas=[])
+    req = await b.request.ExtractElicitedNeeds(
+        T.ExtractNeedsInput(stakeholder=stk, plano=None, solicitacoes_visao=[], necessidades_visao=[],
+                            necessidades_existentes=[]),
+        [T.ContextItem(origem="retrieved", referencia="chunk:entrevista:p1:c0", conteudo="trecho da entrevista")],
+    )
+    content = str(req.body.json())
+    assert "Pessoa A" in content and "chunk:entrevista:p1:c0" in content and "UM stakeholder" in content

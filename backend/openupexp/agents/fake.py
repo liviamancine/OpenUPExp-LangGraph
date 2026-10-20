@@ -200,3 +200,109 @@ def BuildPhaseDigest(entrada: T.DigestInput, contexto) -> T.PhaseDigest:
         resumo="Resumo simulado da fase aprovada. Itens: " + ", ".join(entrada.ids_obrigatorios),
         ids_cobertos=list(entrada.ids_obrigatorios),
     )
+
+
+# ---------------------------------------------------------------------------
+# Fase 2 — Elicitação
+# ---------------------------------------------------------------------------
+
+_PERGUNTAS_PADRAO = [
+    "Quais decisões do sistema afetam o seu trabalho ou os seus direitos?",
+    "Em que situação você precisa de uma explicação sobre essas decisões?",
+    "O que uma boa explicação deveria permitir que você fizesse?",
+]
+
+
+def PlanElicitation(entrada: T.PlanElicitationInput, contexto) -> T.ElicitationPlanArtifact:
+    existing = {p.stakeholder_id: p.id for p in entrada.plano_existente}
+    out = []
+    for s in entrada.stakeholders:
+        alvo = [lac for lac in entrada.lacunas_visao if s.id and s.id in lac][:2]
+        out.append(T.ElicitationPlanItem(
+            id=existing.get(s.id), stakeholder_id=s.id or "",
+            objetivo=f"Compreender quais decisões do sistema {s.nome} precisa ver explicadas e por quê.",
+            tecnicas=[T.ElicitationTechnique.ENTREVISTA], perguntas=list(_PERGUNTAS_PADRAO),
+            need_ids=[n.id or "" for n in entrada.necessidades if s.id in n.stakeholder_ids],
+            lacunas_alvo=alvo, lacunas=[],
+        ))
+    return T.ElicitationPlanArtifact(itens=out)
+
+
+def ExtractElicitedNeeds(entrada: T.ExtractNeedsInput, contexto) -> T.ElicitedNeedsArtifact:
+    s = entrada.stakeholder
+    needs = [n.id or "" for n in entrada.necessidades_visao if s.id in n.stakeholder_ids][:1]
+    existing = [n.id for n in entrada.necessidades_existentes]
+    found: list[tuple[str, str]] = []
+    for ref, _, body in _retrieved(contexto):
+        sentence = _find_sentence(body, s.nome)
+        if sentence:
+            found.append((ref, sentence))
+    if not found:
+        found = [(sn.id or "", sn.solicitacao) for sn in entrada.solicitacoes_visao if sn.id]
+    out = []
+    for i, (ref, quote) in enumerate(found[:2]):
+        out.append(T.ElicitedNeed(
+            id=existing[i] if i < len(existing) else None, stakeholder_id=s.id or "",
+            necessidade=f"{s.nome} precisa entender o motivo das decisões descritas em: {quote[:160]}",
+            decisao_alvo=None, objetivo=T.ExplanationGoal.COMPREENSAO, need_ids=needs,
+            evidencias=[T.ElicitationEvidence(fonte_ref=ref, citacao=quote)],
+            lacunas=[_lacuna("decisao_alvo", f"Qual decisão do sistema {s.nome} precisa ver explicada?")],
+        ))
+    return T.ElicitedNeedsArtifact(necessidades=out)
+
+
+def IdentifyExplainabilityRequirements(entrada: T.IdentifyRequirementsInput, contexto) -> T.ExplainabilityRequirementsArtifact:
+    names = {s.id: s.nome for s in entrada.stakeholders}
+    existing = {tuple(r.rn_ids): r.id for r in entrada.requisitos_existentes}
+    out = []
+    for rn in entrada.necessidades_elicitadas:
+        nome = names.get(rn.stakeholder_id, rn.stakeholder_id)
+        out.append(T.ExplainabilityRequirement(
+            id=existing.get((rn.id,)),
+            enunciado=f"O sistema deve explicar a {nome} os fatores considerados nas decisões que o afetam.",
+            stakeholder_ids=[rn.stakeholder_id], need_ids=list(rn.need_ids), rn_ids=[rn.id or ""],
+            objetivo=rn.objetivo or T.ExplanationGoal.COMPREENSAO, decisao_alvo=rn.decisao_alvo,
+            contexto_de_uso=None, lacunas=[],
+        ))
+    return T.ExplainabilityRequirementsArtifact(requisitos=out)
+
+
+def RefineComplementaryRequirements(entrada: T.RefineComplementaryInput, contexto) -> T.PhaseComplementaryArtifact:
+    ri = [entrada.requisitos[0].id or ""] if entrada.requisitos else []
+    existing = {tuple(r.cr_ids): r.id for r in entrada.requisitos_existentes}
+    out = [T.PhaseComplementaryRequirement(
+        id=existing.get((cr.id,)), categoria=cr.categoria, requisito=cr.requisito,
+        justificativa=f"Refina {cr.id} à luz dos requisitos elicitados.", ri_ids=ri, cr_ids=[cr.id or ""],
+        evidencias=list(cr.evidencias),
+    ) for cr in entrada.requisitos_complementares_visao]
+    return T.PhaseComplementaryArtifact(requisitos=out)
+
+
+def ConsolidateRequirements(entrada: T.ConsolidateInput, contexto) -> T.ConsolidatedRequirementsArtifact:
+    existing = {tuple(r.origem_ids): r.id for r in entrada.consolidados_existentes}
+    merged_into: dict[str, str] = {}
+    ri_ids = {r.id for r in entrada.requisitos}
+    for p in entrada.pares_similares:
+        if p.a in ri_ids and p.b in ri_ids and p.b not in merged_into and p.a not in merged_into:
+            merged_into[p.b] = p.a
+    out = []
+    for r in entrada.requisitos:
+        if r.id in merged_into:
+            continue
+        group = [r] + [x for x in entrada.requisitos if merged_into.get(x.id) == r.id]
+        origem = [x.id or "" for x in group]
+        out.append(T.ConsolidatedRequirement(
+            id=existing.get(tuple(origem)), enunciado=r.enunciado, tipo=T.RequirementKind.EXPLICABILIDADE,
+            objetivo=r.objetivo, categoria=None,
+            stakeholder_ids=sorted({s for x in group for s in x.stakeholder_ids}),
+            need_ids=sorted({n for x in group for n in x.need_ids}), origem_ids=origem,
+            justificativa_agrupamento="Requisitos equivalentes (similaridade alta)." if len(group) > 1 else None,
+            lacunas=[],
+        ))
+    for c in entrada.complementares:
+        out.append(T.ConsolidatedRequirement(
+            id=existing.get((c.id,)), enunciado=c.requisito, tipo=T.RequirementKind.COMPLEMENTAR, objetivo=None,
+            categoria=c.categoria, stakeholder_ids=[], need_ids=[], origem_ids=[c.id or ""],
+            justificativa_agrupamento=None, lacunas=[],
+        ))
+    return T.ConsolidatedRequirementsArtifact(requisitos=out, descartados=[])

@@ -53,3 +53,27 @@ Cada decisão da autora vira:
 3. a atualização da linha correspondente nesta tabela, com data e referência.
 
 As decisões da equipe viram ADRs (cap. 11 §11.4).
+
+## 12.4 Interpretações provisórias adotadas na Fase 2 [PROPOSTA]
+
+A Fase 2 foi implementada no manifesto 0.2.0 **antes** das definições da autora, para
+permitir testar o processo e a gestão de contexto. Cada linha abaixo é uma escolha de
+engenharia, **não** uma definição do OpenUPExp, e deve ser substituída quando a decisão
+correspondente for tomada. Onde vive no código: `backend/baml_src/requirements_2_*.baml`,
+`backend/openupexp/agents/phase2.py`, `process/manifest/openupexp-0.2.0.yaml`.
+
+| Pendência | Interpretação provisória | Base na teoria |
+|---|---|---|
+| A-14 — Plano de Elicitação (2.1.2) | Um item por stakeholder: objetivo, técnicas, roteiro de perguntas, necessidades da Visão a aprofundar e lacunas da Visão visadas (`EP-n`) | Passo 1 de `encontrar-descrever-requisitos.md`; anotação BPMN "Explainability Elicitation Strategy" |
+| A-14 — Técnicas de elicitação | Lista fechada `ENTREVISTA`, `WORKSHOP`, `OBSERVACAO`, `ANALISE_DOCUMENTAL`, `PROTOTIPO`, `OUTRA` | Passo 1 ("entrevistas, workshops, observação, análise documental, protótipos ou outras") |
+| Fontes de elicitação (2.2.1) | O Engenheiro envia o material (transcrições, atas) como fonte `elicitacao`; a execução pausa em 2.2.1 até o envio. Sem material, pode prosseguir **com justificativa**, e as necessidades vêm só das solicitações da Visão | Passo 1 ("a elicitação pode ser realizada por meio de…") — quem conduz é humano |
+| A-14 — Necessidade elicitada | `RN-n`: stakeholder, necessidade, decisão a explicar, objetivo, NEED-n relacionadas e **citação literal verificada** do material | Passos 3 e 4 |
+| A-14 / A-15 — Objetivo da explicação | Lista `COMPREENSAO`, `JUSTIFICATIVA`, `TRANSPARENCIA`, `RASTREABILIDADE`, `AUDITORIA`, `CONFORMIDADE_REGULATORIA`, `CONFIANCA`, `OUTRO` | Passo 3 (lista de objetivos citada no texto) |
+| A-14 — Requisito de explicabilidade | `RI-n` com enunciado "O sistema deve…" (o quê, para quem, em que situação; **não** o como), stakeholders, NEED-n e RN-n de origem | Objetivo da tarefa: nível estratégico; detalhes ficam para fases posteriores |
+| A-18 — 2.2.3 × 1.2.2 | 2.2.3 **refina** os CR-n da Visão à luz dos RI-n (`RC-n`, com `cr_ids`), consultando a base de referência pelos requisitos elicitados | Mesmo nome de tarefa; passo 5 |
+| Consolidação (2.2.4) | `REQ-n` com origem em RI/RC; fusão só de itens equivalentes, sugeridos por similaridade semântica (limiar 0,9); descartes com motivo; nenhum RI/RC pode sumir (verificação determinística) | "Organize and Consolidate Requirements" |
+| A-13 — Reach Consensus (2.2.5) | Participantes = membros com papel `participant` ou `requirements_engineer`. Cada um registra **concordo**, **ressalvas** ou **objeção** (as duas últimas com comentário). O Engenheiro encerra; com objeção (ou sem nenhuma posição), encerrar exige justificativa, registrada no ERD. Ou pede retorno a 2.2, e as posições viram feedback para os agentes | Passo 6 ("Engenheiro de Requisitos, Stakeholders, Equipe do Projeto") |
+| A-01 — Retorno do gateway 2.3 | Revisitar 2.1 ou 2.2, com comentário obrigatório | Anotação BPMN: "decides whether to revisit subprocess 2.1 or 2.2" |
+| A-12 — Composição do ERD | ERD da Fase 2 = Parte 1 (Visão aprovada, com Glossário) + Parte 2 (plano, material, necessidades, requisitos, complementares, rastreabilidade NEED→REQ, consenso, lacunas) | Anotação BPMN em 2.3.2: "Create Explainability Requirement Document (ERD)" |
+| Glossário na Fase 2 | **Não implementado**: o passo 2 (capturar termos) não tem tarefa BPMN própria na Fase 2; o glossário da Visão é usado como entrada | Passo 2; saídas da tarefa citam o Glossário |
+| A-19 — Lista de Itens de Trabalho | Fora do escopo (passo 7) | Marcada "VAMOS TER???" |

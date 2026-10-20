@@ -31,6 +31,15 @@ type_map = {
     "types.ComplementaryRequirementsArtifact": types.ComplementaryRequirementsArtifact,
     "stream_types.ComplementaryRequirementsArtifact": stream_types.ComplementaryRequirementsArtifact,
 
+    "types.ConsolidateInput": types.ConsolidateInput,
+    "stream_types.ConsolidateInput": stream_types.ConsolidateInput,
+
+    "types.ConsolidatedRequirement": types.ConsolidatedRequirement,
+    "stream_types.ConsolidatedRequirement": stream_types.ConsolidatedRequirement,
+
+    "types.ConsolidatedRequirementsArtifact": types.ConsolidatedRequirementsArtifact,
+    "stream_types.ConsolidatedRequirementsArtifact": stream_types.ConsolidatedRequirementsArtifact,
+
     "types.ContextItem": types.ContextItem,
     "stream_types.ContextItem": stream_types.ContextItem,
 
@@ -43,11 +52,29 @@ type_map = {
     "types.DigestInput": types.DigestInput,
     "stream_types.DigestInput": stream_types.DigestInput,
 
+    "types.DiscardedItem": types.DiscardedItem,
+    "stream_types.DiscardedItem": stream_types.DiscardedItem,
+
     "types.DomainTerm": types.DomainTerm,
     "stream_types.DomainTerm": stream_types.DomainTerm,
 
     "types.DomainTermsArtifact": types.DomainTermsArtifact,
     "stream_types.DomainTermsArtifact": stream_types.DomainTermsArtifact,
+
+    "types.ElicitationEvidence": types.ElicitationEvidence,
+    "stream_types.ElicitationEvidence": stream_types.ElicitationEvidence,
+
+    "types.ElicitationPlanArtifact": types.ElicitationPlanArtifact,
+    "stream_types.ElicitationPlanArtifact": stream_types.ElicitationPlanArtifact,
+
+    "types.ElicitationPlanItem": types.ElicitationPlanItem,
+    "stream_types.ElicitationPlanItem": stream_types.ElicitationPlanItem,
+
+    "types.ElicitedNeed": types.ElicitedNeed,
+    "stream_types.ElicitedNeed": stream_types.ElicitedNeed,
+
+    "types.ElicitedNeedsArtifact": types.ElicitedNeedsArtifact,
+    "stream_types.ElicitedNeedsArtifact": stream_types.ElicitedNeedsArtifact,
 
     "types.EvidenceRef": types.EvidenceRef,
     "stream_types.EvidenceRef": stream_types.EvidenceRef,
@@ -64,6 +91,15 @@ type_map = {
     "types.ExplainabilityProblem": types.ExplainabilityProblem,
     "stream_types.ExplainabilityProblem": stream_types.ExplainabilityProblem,
 
+    "types.ExplainabilityRequirement": types.ExplainabilityRequirement,
+    "stream_types.ExplainabilityRequirement": stream_types.ExplainabilityRequirement,
+
+    "types.ExplainabilityRequirementsArtifact": types.ExplainabilityRequirementsArtifact,
+    "stream_types.ExplainabilityRequirementsArtifact": stream_types.ExplainabilityRequirementsArtifact,
+
+    "types.ExtractNeedsInput": types.ExtractNeedsInput,
+    "stream_types.ExtractNeedsInput": stream_types.ExtractNeedsInput,
+
     "types.GlossaryArtifact": types.GlossaryArtifact,
     "stream_types.GlossaryArtifact": stream_types.GlossaryArtifact,
 
@@ -72,6 +108,9 @@ type_map = {
 
     "types.IdentifyNeedsInput": types.IdentifyNeedsInput,
     "stream_types.IdentifyNeedsInput": stream_types.IdentifyNeedsInput,
+
+    "types.IdentifyRequirementsInput": types.IdentifyRequirementsInput,
+    "stream_types.IdentifyRequirementsInput": stream_types.IdentifyRequirementsInput,
 
     "types.IdentifyStakeholderNeedsInput": types.IdentifyStakeholderNeedsInput,
     "stream_types.IdentifyStakeholderNeedsInput": stream_types.IdentifyStakeholderNeedsInput,
@@ -91,8 +130,17 @@ type_map = {
     "types.OrigemRef": types.OrigemRef,
     "stream_types.OrigemRef": stream_types.OrigemRef,
 
+    "types.PhaseComplementaryArtifact": types.PhaseComplementaryArtifact,
+    "stream_types.PhaseComplementaryArtifact": stream_types.PhaseComplementaryArtifact,
+
+    "types.PhaseComplementaryRequirement": types.PhaseComplementaryRequirement,
+    "stream_types.PhaseComplementaryRequirement": stream_types.PhaseComplementaryRequirement,
+
     "types.PhaseDigest": types.PhaseDigest,
     "stream_types.PhaseDigest": stream_types.PhaseDigest,
+
+    "types.PlanElicitationInput": types.PlanElicitationInput,
+    "stream_types.PlanElicitationInput": stream_types.PlanElicitationInput,
 
     "types.PlanQueriesInput": types.PlanQueriesInput,
     "stream_types.PlanQueriesInput": stream_types.PlanQueriesInput,
@@ -115,6 +163,12 @@ type_map = {
     "types.ReferenceQueryPlan": types.ReferenceQueryPlan,
     "stream_types.ReferenceQueryPlan": stream_types.ReferenceQueryPlan,
 
+    "types.RefineComplementaryInput": types.RefineComplementaryInput,
+    "stream_types.RefineComplementaryInput": stream_types.RefineComplementaryInput,
+
+    "types.SimilarPair": types.SimilarPair,
+    "stream_types.SimilarPair": stream_types.SimilarPair,
+
     "types.Stakeholder": types.Stakeholder,
     "stream_types.Stakeholder": stream_types.Stakeholder,
 
@@ -130,6 +184,12 @@ type_map = {
 
     "types.ComplementaryCategory": types.ComplementaryCategory,
 
+    "types.ElicitationTechnique": types.ElicitationTechnique,
+
     "types.EvidenceKind": types.EvidenceKind,
+
+    "types.ExplanationGoal": types.ExplanationGoal,
+
+    "types.RequirementKind": types.RequirementKind,
 
 }

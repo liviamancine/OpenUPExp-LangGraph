@@ -8,6 +8,21 @@ const LABELS: Record<string, string> = {
   stale: "desatualizada", verified: "citação verificada", unverified_quote: "citação não verificada",
   source_not_provided: "fonte não fornecida", open: "aberta", decided: "decidida", human_edit: "edição humana",
   agent: "agente", deterministic: "determinística", consolidation: "consolidação",
+  concordo: "concordo", ressalvas: "concordo com ressalvas", objecao: "objeção",
+  approval: "aprovação", consensus: "consenso", input: "entrada de material",
+};
+
+export const PHASE_NAMES: Record<string, string> = { "1": "Visão", "2": "Elicitação" };
+
+export const DECISION_LABEL: Record<string, string> = {
+  approve: "Aprovar",
+  revisit_1_1: "Revisitar 1.1 Prepare Explainability Vision",
+  revisit_1_2: "Revisitar 1.2 Develop Explainability Vision",
+  revisit_2_1: "Revisitar 2.1 Prepare Explainability Elicitation",
+  revisit_2_2: "Revisitar 2.2 Elicit Explainability Requirements",
+  submit: "Material enviado: prosseguir com a extração",
+  no_material: "Prosseguir sem material de elicitação (justifique)",
+  close: "Encerrar o consenso",
 };
 
 export function Status({ value }: { value: string }) {

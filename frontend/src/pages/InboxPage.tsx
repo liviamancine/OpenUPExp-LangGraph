@@ -12,7 +12,7 @@ export default function InboxPage() {
     <div className="stack">
       <div>
         <h1>Central de decisões</h1>
-        <div className="muted">Aprovações dos gateways do processo. Consensos entre stakeholders chegam com a Fase 2.</div>
+        <div className="muted">Aprovações dos gateways, rodadas de consenso e pedidos de material de elicitação.</div>
       </div>
       <Tabs value={status} onChange={setStatus} items={[{ id: "open", label: "Pendentes" }, { id: "decided", label: "Decididas" }]} />
       <div className="card">
@@ -22,7 +22,7 @@ export default function InboxPage() {
             <tbody>
               {inbox.data?.map((r) => (
                 <tr key={r.id}>
-                  <td>{r.kind === "approval" ? "Aprovação" : "Consenso"}</td>
+                  <td><Status value={r.kind} /></td>
                   <td><Link to={`/decisoes/${r.id}`}>{r.payload.name ?? r.task_id}</Link></td>
                   <td>{r.projeto?.nome}</td><td>{r.iteracao}{r.iteracao >= 5 && <span className="badge warn">muitas iterações</span>}</td>
                   <td className="muted">{fmtDate(r.created_at)}</td><td><Status value={r.status} /></td>

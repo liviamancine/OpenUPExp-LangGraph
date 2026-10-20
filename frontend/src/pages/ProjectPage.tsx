@@ -3,13 +3,14 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../api/client";
 import type { ProjectDetail, RunSummary, User } from "../api/types";
-import { ErrorBox, Loading, Status, Tabs, fmtDate } from "../components/ui";
+import { ErrorBox, Loading, PHASE_NAMES, Status, Tabs, fmtDate } from "../components/ui";
 
 const KINDS = [
   { id: "escopo", label: "Escopo do projeto" },
   { id: "lei", label: "Lei / norma" },
   { id: "manual", label: "Manual" },
   { id: "academico", label: "Acadêmico / literatura" },
+  { id: "elicitacao", label: "Material de elicitação (entrevistas, workshops…)" },
 ];
 
 const STRATEGIES = [
@@ -29,11 +30,13 @@ export default function ProjectPage() {
   });
   const refresh = () => qc.invalidateQueries({ queryKey: ["project", projectId] });
 
+  const [phase, setPhase] = useState("1");
+  const [baseRun, setBaseRun] = useState("");
   const [strategy, setStrategy] = useState("D");
   const [gateway, setGateway] = useState("baml");
   const start = useMutation({
     mutationFn: () => api.post<RunSummary>(`/projects/${projectId}/runs`,
-      { phase: "1", context_strategy: strategy, agent_gateway: gateway }),
+      { phase, context_strategy: strategy, agent_gateway: gateway, base_run_id: phase === "2" ? baseRun : null }),
     onSuccess: (r) => navigate(`/execucoes/${r.id}`),
   });
 
@@ -59,6 +62,8 @@ export default function ProjectPage() {
   const isEngineer = p.meu_papel === "requirements_engineer" || p.meu_papel === "admin";
   const hasScope = p.fontes.some((f) => f.source_kind === "escopo" && f.ativo);
   const ready = p.corpora.find((c) => c.status === "ready");
+  const approvedVisions = p.execucoes.filter((r) => r.phase === "1" && r.status === "completed");
+  const elicitationDocs = p.fontes.filter((f) => f.source_kind === "elicitacao" && f.ativo).length;
 
   return (
     <div className="stack">
@@ -70,7 +75,7 @@ export default function ProjectPage() {
       </div>
       <Tabs value={tab} onChange={setTab} items={[
         { id: "execucoes", label: `Execuções (${p.execucoes.length})` },
-        { id: "fontes", label: `Escopo e base de referência (${p.fontes.length})` },
+        { id: "fontes", label: `Fontes (${p.fontes.length})` },
         { id: "membros", label: `Membros (${p.membros.length})` },
       ]} />
 
@@ -83,7 +88,7 @@ export default function ProjectPage() {
                 {p.execucoes.map((r) => (
                   <tr key={r.id}>
                     <td><Link to={`/execucoes/${r.id}`} className="mono">{r.id.slice(0, 8)}</Link></td>
-                    <td>{r.phase}</td><td>{r.context_strategy}</td><td>{r.agent_gateway}</td>
+                    <td>{r.phase} {PHASE_NAMES[r.phase] ?? ""}</td><td>{r.context_strategy}</td><td>{r.agent_gateway}</td>
                     <td><Status value={r.status} /> {r.current_task && <span className="muted small">{r.current_task}</span>}</td>
                     <td className="muted">{fmtDate(r.created_at)}</td>
                   </tr>
@@ -94,9 +99,30 @@ export default function ProjectPage() {
           </div>
           {isEngineer && (
             <form className="card stack" onSubmit={(e) => { e.preventDefault(); start.mutate(); }}>
-              <h2>Iniciar Fase 1 — Visão</h2>
+              <h2>Iniciar execução</h2>
+              <label>Fase
+                <select value={phase} onChange={(e) => setPhase(e.target.value)}>
+                  <option value="1">1 — Define Explainability Vision</option>
+                  <option value="2">2 — Elicit Explainability Requirements</option>
+                </select>
+              </label>
+              {phase === "2" && (
+                <>
+                  <label>Visão aprovada de base (execução da Fase 1)
+                    <select value={baseRun} onChange={(e) => setBaseRun(e.target.value)} required>
+                      <option value="">—</option>
+                      {approvedVisions.map((r) => <option key={r.id} value={r.id}>{r.id.slice(0, 8)} · {fmtDate(r.created_at)} · estratégia {r.context_strategy}</option>)}
+                    </select>
+                  </label>
+                  {approvedVisions.length === 0 && <div className="alert warn">Conclua e aprove uma execução da Fase 1 antes.</div>}
+                  <div className="alert info small">
+                    A execução pausa em 2.2.1 para você enviar o material de elicitação (transcrições de entrevistas,
+                    atas de workshops…). {elicitationDocs > 0 ? `${elicitationDocs} documento(s) já enviados.` : "Você pode enviá-lo agora, na aba de fontes, ou quando a plataforma pedir."}
+                  </div>
+                </>
+              )}
               {!hasScope && <div className="alert warn">Envie o documento de escopo antes de iniciar.</div>}
-              {!ready && <div className="alert info">Sem base de referência indexada: a tarefa 1.2.2 não terá evidências.</div>}
+              {!ready && <div className="alert info">Sem base de referência indexada: os requisitos complementares não terão evidências.</div>}
               <label>Estratégia de contexto
                 <select value={strategy} onChange={(e) => setStrategy(e.target.value)}>
                   {STRATEGIES.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
@@ -109,7 +135,7 @@ export default function ProjectPage() {
                 </select>
               </label>
               <ErrorBox error={start.error} />
-              <button className="primary" disabled={!hasScope || start.isPending}>Iniciar</button>
+              <button className="primary" disabled={!hasScope || start.isPending || (phase === "2" && !baseRun)}>Iniciar</button>
             </form>
           )}
         </div>
@@ -160,7 +186,7 @@ export default function ProjectPage() {
               <ErrorBox error={upload.error} />
               <button className="primary" disabled={!files?.length || upload.isPending} onClick={() => upload.mutate()}>Enviar</button>
               <hr style={{ border: 0, borderTop: "1px solid var(--border)", width: "100%" }} />
-              <div className="muted small">Indexar gera uma nova versão do corpus (chunking estrutural e embeddings), reaproveitando trechos inalterados.</div>
+              <div className="muted small">Indexar gera uma nova versão da base de referência (chunking estrutural e embeddings), reaproveitando trechos inalterados. O material de elicitação é indexado pela própria execução, em 2.2.1.</div>
               <ErrorBox error={index.error} />
               <button onClick={() => index.mutate()} disabled={index.isPending}>Indexar base de referência</button>
             </div>

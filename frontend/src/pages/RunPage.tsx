@@ -5,7 +5,7 @@ import { api, downloadUrl } from "../api/client";
 import type { ArtifactSummary, Manifest, Metrics, RunDetail, TaskExec } from "../api/types";
 import BpmnNavigator from "../components/BpmnNavigator";
 import TaskPanel from "../components/TaskPanel";
-import { ErrorBox, Loading, Markdown, Status, Tabs, fmtDate } from "../components/ui";
+import { ErrorBox, Loading, Markdown, PHASE_NAMES, Status, Tabs, fmtDate } from "../components/ui";
 import { useRunEvents } from "../hooks";
 
 type Tab = "processo" | "artefatos" | "documento" | "metricas";
@@ -34,7 +34,8 @@ export default function RunPage() {
       <div className="row">
         <div className="grow">
           <div className="small"><Link to={`/projetos/${r.project_id}`}>← projeto</Link></div>
-          <h1>Fase {r.phase} — Visão · execução <span className="mono">{r.id.slice(0, 8)}</span></h1>
+          <h1>Fase {r.phase} — {PHASE_NAMES[r.phase] ?? ""} · execução <span className="mono">{r.id.slice(0, 8)}</span></h1>
+          {r.base_run_id && <div className="small muted">Visão de base: <Link to={`/execucoes/${r.base_run_id}`} className="mono">{r.base_run_id.slice(0, 8)}</Link></div>}
           <div className="row small muted">
             <Status value={r.status} />
             {r.current_task && <span>tarefa atual: {r.current_task}</span>}
@@ -45,7 +46,7 @@ export default function RunPage() {
             {lastEvent && <span>último evento: {lastEvent}</span>}
           </div>
         </div>
-        {r.pending_hitl && <Link to={`/decisoes/${r.pending_hitl}`}><button className="primary">Revisar e decidir</button></Link>}
+        {r.pending_hitl && <Link to={`/decisoes/${r.pending_hitl}`}><button className="primary">{r.current_task?.endsWith(".in") ? "Enviar material" : "Revisar e decidir"}</button></Link>}
         {r.status === "failed" && <button onClick={() => retry.mutate()} disabled={retry.isPending}>Retomar do último checkpoint</button>}
       </div>
       {r.error && <div className="alert err"><pre>{r.error}</pre></div>}
@@ -53,7 +54,7 @@ export default function RunPage() {
 
       <Tabs value={tab} onChange={setTab} items={[
         { id: "processo", label: "Processo" }, { id: "artefatos", label: "Artefatos" },
-        { id: "documento", label: "Documento de Visão" }, { id: "metricas", label: "Métricas" },
+        { id: "documento", label: r.phase === "1" ? "Documento de Visão" : "Documento (ERD)" }, { id: "metricas", label: "Métricas" },
       ]} />
 
       {tab === "processo" && (
@@ -122,7 +123,7 @@ function Document({ runId }: { runId: string }) {
       <div className="card">{doc.data ? <Markdown>{doc.data}</Markdown> : <Loading />}</div>
       <div className="card stack">
         <h2>Exportações versionadas</h2>
-        <div className="muted small">Geradas na consolidação (1.3.2) a partir dos artefatos aprovados. A prévia ao lado reflete as versões atuais.</div>
+        <div className="muted small">Geradas na consolidação da fase a partir dos artefatos aprovados. A prévia ao lado reflete as versões atuais.</div>
         {exports.data?.map((e) => (
           <a key={e.id} href={downloadUrl(e.id)}>{fmtDate(e.created_at)} · <span className="mono">{e.sha256.slice(0, 10)}</span>.md</a>
         ))}

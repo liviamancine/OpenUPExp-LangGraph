@@ -5,10 +5,19 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from openupexp.agents.registry import ARTIFACT_TYPES, VISION_EDITABLE, json_schema
+from openupexp.agents.registry import ARTIFACT_TYPES, PHASE_DOCUMENT, PHASE_EDITABLE, json_schema
 from openupexp.api.auth import current_user, require_member
 from openupexp.api.deps import get_session
-from openupexp.db.models import AppUser, Artifact, ArtifactDependency, ArtifactVersion, Chunk, Evidence, Run, TraceLink
+from openupexp.db.models import (
+    AppUser,
+    Artifact,
+    ArtifactDependency,
+    ArtifactVersion,
+    Chunk,
+    Evidence,
+    Run,
+    TraceLink,
+)
 from openupexp.domain import artifacts as store
 from openupexp.domain import services
 from openupexp.domain.diff import diff_contents
@@ -40,13 +49,16 @@ async def list_artifacts(run_id: uuid.UUID, user: AppUser = Depends(current_user
         raise HTTPException(404, "Execução inexistente")
     await require_member(session, run.project_id, user)
     cur = await store.current_versions(session, run_id)
-    order = {t: i for i, t in enumerate(VISION_EDITABLE)}
+    editable = PHASE_EDITABLE.get(run.phase, [])
+    order = {t: i for i, t in enumerate(editable)}
     out = []
     for atype, v in sorted(cur.items(), key=lambda kv: (order.get(kv[0], 99), kv[0])):
         at = ARTIFACT_TYPES.get(atype)
         n_items = len(v.content.get(at.list_field, [])) if at and at.list_field else None
         out.append({**_version(v, atype), "title": at.title if at else atype, "itens": n_items,
-                    "editavel": bool(at and at.schema and atype in VISION_EDITABLE)})
+                    "list_field": at.list_field if at else None,
+                    "secao": atype in editable or atype == PHASE_DOCUMENT.get(run.phase),
+                    "editavel": bool(at and at.schema and atype in editable)})
     return out
 
 
@@ -54,6 +66,8 @@ async def list_artifacts(run_id: uuid.UUID, user: AppUser = Depends(current_user
 async def get_version(version_id: uuid.UUID, user: AppUser = Depends(current_user),
                       session: AsyncSession = Depends(get_session)):
     v, a = await _load(session, version_id, user)
+    run = await session.get(Run, a.run_id)
+    at = ARTIFACT_TYPES.get(a.artifact_type)
     history = (await session.scalars(select(ArtifactVersion).where(ArtifactVersion.artifact_id == a.id)
                                      .order_by(ArtifactVersion.version_no))).all()
     deps = (await session.execute(
@@ -66,10 +80,12 @@ async def get_version(version_id: uuid.UUID, user: AppUser = Depends(current_use
         .where(Evidence.artifact_version_id == v.id).order_by(Evidence.item_key))).all()
     return {
         **_version(v, a.artifact_type),
-        "title": ARTIFACT_TYPES[a.artifact_type].title if a.artifact_type in ARTIFACT_TYPES else a.artifact_type,
+        "title": at.title if at else a.artifact_type,
         "run_id": str(a.run_id),
         "content": v.content,
-        "editavel": a.artifact_type in VISION_EDITABLE and v.status in ("draft", "in_review")
+        "list_field": at.list_field if at else None,
+        "documento": a.artifact_type in PHASE_DOCUMENT.values(),
+        "editavel": a.artifact_type in PHASE_EDITABLE.get(run.phase, []) and v.status in ("draft", "in_review")
                     and history[-1].id == v.id,
         "historico": [_version(h, a.artifact_type) for h in history],
         "dependencias": [{"version_id": str(d), "artifact": via, "version_no": n, "status": st}

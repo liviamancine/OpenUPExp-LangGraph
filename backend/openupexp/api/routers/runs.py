@@ -10,6 +10,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sse_starlette.sse import EventSourceResponse
 
+from openupexp.agents.registry import PHASE_DOCUMENT
 from openupexp.api.auth import current_user, require_member
 from openupexp.api.deps import get_session
 from openupexp.api.events import broadcaster
@@ -27,7 +28,7 @@ from openupexp.db.models import (
 from openupexp.db.session import sessionmaker
 from openupexp.domain import artifacts as store
 from openupexp.domain import services
-from openupexp.exports.vision import render_current_document
+from openupexp.exports.documents import render_current_document
 
 router = APIRouter(prefix="/api")
 
@@ -37,6 +38,7 @@ class RunIn(BaseModel):
     context_strategy: str = "D"
     agent_gateway: str | None = None
     model_profile: dict | None = None
+    base_run_id: uuid.UUID | None = None
 
 
 async def _run_for(session: AsyncSession, run_id: uuid.UUID, user: AppUser, roles=None) -> Run:
@@ -52,7 +54,7 @@ async def start_run(project_id: uuid.UUID, body: RunIn, user: AppUser = Depends(
                     session: AsyncSession = Depends(get_session)):
     await require_member(session, project_id, user, ("requirements_engineer", "researcher"))
     run = await services.start_run(session, project_id, body.phase, body.context_strategy, body.agent_gateway,
-                                   body.model_profile, user.id)
+                                   body.model_profile, user.id, base_run_id=body.base_run_id)
     return run_summary(run)
 
 
@@ -150,7 +152,7 @@ async def events(run_id: uuid.UUID, request: Request, user: AppUser = Depends(cu
 async def document(run_id: uuid.UUID, user: AppUser = Depends(current_user),
                    session: AsyncSession = Depends(get_session)):
     run = await _run_for(session, run_id, user)
-    draft = await store.current_version(session, run.id, "vision.draft")
+    draft = await store.current_version(session, run.id, PHASE_DOCUMENT.get(run.phase, "vision.draft"))
     if draft is not None and draft.status == "approved":
         return draft.content.get("markdown", "")
     return await render_current_document(session, run)

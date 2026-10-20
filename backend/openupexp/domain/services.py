@@ -26,6 +26,7 @@ from openupexp.queue.jobs import enqueue
 from openupexp.retrieval.ingest import latest_corpus_version, latest_scope_document
 
 DECIDER_ROLES = {"requirements_engineer"}
+CONSENSUS_POSITIONS = ("concordo", "ressalvas", "objecao")
 
 
 class DomainError(Exception):
@@ -79,10 +80,16 @@ async def start_run(
     model_profile: dict | None = None,
     user_id: uuid.UUID | None = None,
     experiment_id: uuid.UUID | None = None,
+    base_run_id: uuid.UUID | None = None,
 ) -> Run:
     manifest = get_manifest()
-    if not manifest.phase(phase).implemented:
+    spec = manifest.phase(phase)
+    if not spec.implemented:
         raise DomainError(f"Fase {phase} ainda não é executável.", 422)
+    if spec.requires_phase:
+        await _check_base_run(session, project_id, spec.requires_phase, base_run_id)
+    elif base_run_id:
+        raise DomainError(f"A Fase {phase} não parte de outra execução.", 422)
     if context_strategy not in ("A", "C", "D"):
         raise DomainError("Estratégias disponíveis: A, C, D (B prevista para o marco M4).", 422)
     await ensure_manifest(session)
@@ -98,6 +105,7 @@ async def start_run(
         context_strategy=context_strategy, model_profile=model_profile or {},
         agent_gateway=agent_gateway or get_settings().agent_gateway, baml_src_sha=baml_src_sha(),
         thread_id=f"run-{run_id}", status="queued", created_by=user_id, experiment_id=experiment_id,
+        base_run_id=base_run_id,
     )
     session.add(run)
     await session.flush()
@@ -105,6 +113,18 @@ async def start_run(
     await emit(session, run.id, "run_queued", phase=phase, strategy=context_strategy)
     await audit(session, "user", str(user_id) if user_id else None, "start_run", "run", str(run.id))
     return run
+
+
+async def _check_base_run(session: AsyncSession, project_id: uuid.UUID, phase: str,
+                          base_run_id: uuid.UUID | None) -> None:
+    from openupexp.agents.registry import PHASE_DOCUMENT
+
+    base = await session.get(Run, base_run_id) if base_run_id else None
+    if base is None or base.project_id != project_id or base.phase != phase:
+        raise DomainError(f"Escolha uma execução da Fase {phase} deste projeto como base.", 422)
+    doc = await store.current_version(session, base.id, PHASE_DOCUMENT[phase])
+    if base.status != "completed" or doc is None or doc.status != "approved":
+        raise DomainError(f"A execução de base precisa estar concluída, com a Fase {phase} aprovada.", 422)
 
 
 async def retry_run(session: AsyncSession, run: Run, user_id: uuid.UUID | None = None) -> None:
@@ -126,12 +146,10 @@ async def decide(
     item_comments: list[dict] | None = None,
     bypass_role_check: bool = False,
 ) -> HitlResponse:
-    """Registra a decisão de um gateway de aprovação e enfileira a retomada do grafo."""
+    """Registra a decisão do Engenheiro (aprovação, entrada ou encerramento de consenso) e retoma o grafo."""
     req = await session.get(HitlRequest, request_id, with_for_update=True)
     if req is None:
         raise DomainError("Solicitação inexistente.", 404)
-    if req.kind != "approval":
-        raise DomainError("Consenso ainda não implementado (marco M5).", 422)
     if req.status != "open":
         raise DomainError("Esta solicitação já foi decidida.", 409)
     run = await session.get(Run, req.run_id)
@@ -144,12 +162,29 @@ async def decide(
     if decision not in outcomes:
         raise DomainError(f"Decisão inválida. Opções: {sorted(outcomes)}", 422)
     if outcomes[decision].get("comment_required") and not (comentario or "").strip():
-        raise DomainError("Comentário obrigatório para retorno (revisit).", 422)
+        raise DomainError("Comentário obrigatório para esta decisão.", 422)
+    if req.kind == "input" and decision == "submit":
+        from openupexp.db.models import SourceDocument
+        from openupexp.retrieval.ingest import ELICITATION_KINDS
+
+        n = await session.scalar(select(func.count(SourceDocument.id)).where(
+            SourceDocument.project_id == run.project_id, SourceDocument.ativo.is_(True),
+            SourceDocument.source_kind.in_(ELICITATION_KINDS)))
+        if not n:
+            raise DomainError("Envie ao menos um documento de elicitação ou prossiga sem material, justificando.", 422)
     if decision == "approve":
         stale = [t for t, v in (await store.current_versions(session, run.id)).items()
                  if v.status == "stale" and t in ARTIFACT_TYPES]
         if stale:
             raise DomainError(f"Há artefatos desatualizados (stale): {stale}. Solicite retorno.", 409)
+    if req.kind == "consensus" and decision == "close":
+        tally = await consensus_tally(session, req.id)
+        if (tally["objecao"] or not tally["participantes"]) and not (comentario or "").strip():
+            raise DomainError("Há objeções bloqueantes (ou nenhuma posição registrada): "
+                              "justifique o encerramento no comentário ou solicite retorno.", 422)
+        req.payload = {**req.payload, "fechamento": {
+            "objecoes": tally["objecao"], "ressalvas": tally["ressalvas"], "concordancias": tally["concordo"],
+            "override": bool(tally["objecao"] or not tally["participantes"])}}
 
     resp = HitlResponse(hitl_request_id=req.id, user_id=user_id, decision=decision, comentario=comentario,
                         item_comments=item_comments or [], round=req.round)
@@ -162,6 +197,49 @@ async def decide(
     await emit(session, run.id, "hitl_decided", hitl_request_id=req.id, decision=decision)
     await audit(session, "user", str(user_id) if user_id else None, "decide", "hitl_request", str(req.id),
                 decision=decision, comentario=comentario)
+    return resp
+
+
+async def consensus_tally(session: AsyncSession, request_id: uuid.UUID) -> dict:
+    """Última posição de cada participante numa rodada de consenso."""
+    rows = (await session.scalars(
+        select(HitlResponse).where(HitlResponse.hitl_request_id == request_id,
+                                   HitlResponse.decision.in_(CONSENSUS_POSITIONS))
+        .order_by(HitlResponse.created_at))).all()
+    latest = {r.user_id: r.decision for r in rows}
+    counts = {p: sum(1 for v in latest.values() if v == p) for p in CONSENSUS_POSITIONS}
+    return {**counts, "participantes": len(latest)}
+
+
+async def record_position(
+    session: AsyncSession,
+    request_id: uuid.UUID,
+    user_id: uuid.UUID,
+    posicao: str,
+    comentario: str | None = None,
+    item_comments: list[dict] | None = None,
+    role: str | None = None,
+) -> HitlResponse:
+    """Posição de um participante no consenso (não retoma o grafo; o Engenheiro encerra a rodada)."""
+    req = await session.get(HitlRequest, request_id)
+    if req is None or req.kind != "consensus":
+        raise DomainError("Rodada de consenso inexistente.", 404)
+    if req.status != "open":
+        raise DomainError("Esta rodada de consenso já foi encerrada.", 409)
+    if posicao not in CONSENSUS_POSITIONS:
+        raise DomainError(f"Posição inválida. Opções: {list(CONSENSUS_POSITIONS)}", 422)
+    allowed = (req.policy or {}).get("participant_roles") or []
+    if role != "admin" and role not in allowed:
+        raise DomainError("Seu papel no projeto não participa deste consenso.", 403)
+    if posicao != "concordo" and not (comentario or "").strip() and not item_comments:
+        raise DomainError("Explique a ressalva ou a objeção no comentário.", 422)
+    resp = HitlResponse(hitl_request_id=req.id, user_id=user_id, decision=posicao, comentario=comentario,
+                        item_comments=item_comments or [], round=req.round)
+    session.add(resp)
+    await session.flush()
+    await emit(session, req.run_id, "consensus_position", hitl_request_id=req.id, posicao=posicao)
+    await audit(session, "user", str(user_id), "consensus_position", "hitl_request", str(req.id),
+                posicao=posicao, comentario=comentario)
     return resp
 
 

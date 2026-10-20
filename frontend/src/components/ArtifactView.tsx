@@ -11,7 +11,7 @@ const LIST_FIELD: Record<string, string> = {
   glossary: "termos", "vision.explainability_needs": "necessidades", "vision.positioning": "posicionamentos",
   "vision.complementary_requirements": "requisitos", "vision.limits": "respostas", "vision.reference_queries": "consultas",
 };
-const HIDDEN = new Set(["id", "lacunas", "origem", "evidencias", "lacuna", "baseada_em"]);
+const HIDDEN = new Set(["id", "lacunas", "origem", "evidencias", "lacuna", "baseada_em", "descartados"]);
 
 export default function ArtifactView({ versionId, onComment, onNewVersion }: {
   versionId: string; onComment?: (c: ItemComment) => void; onNewVersion?: (id: string) => void;
@@ -36,7 +36,8 @@ export default function ArtifactView({ versionId, onComment, onNewVersion }: {
   if (v.isLoading) return <Loading />;
   if (!v.data) return <ErrorBox error={v.error} />;
   const d = v.data;
-  const field = LIST_FIELD[d.artifact_type];
+  const field = d.list_field ?? LIST_FIELD[d.artifact_type];
+  const discarded = (d.content.descartados as { origem_id: string; motivo: string }[] | undefined) ?? [];
   const items = field ? ((d.content[field] as Record<string, unknown>[]) ?? []) : [];
   const evByItem = new Map<string, Evidence[]>();
   d.evidencias.forEach((e) => evByItem.set(e.item_key, [...(evByItem.get(e.item_key) ?? []), e]));
@@ -61,7 +62,7 @@ export default function ArtifactView({ versionId, onComment, onNewVersion }: {
             <span className="muted small">A edição gera uma versão "edição humana"; a anterior é preservada.</span>
           </div>
         </div>
-      ) : d.artifact_type === "vision.draft" ? (
+      ) : d.documento ? (
         <Markdown>{String(d.content.markdown ?? "")}</Markdown>
       ) : field ? (
         <div className="stack">
@@ -70,6 +71,12 @@ export default function ArtifactView({ versionId, onComment, onNewVersion }: {
             <ItemCard key={String(it.id ?? i)} item={it} evidences={evByItem.get(String(it.id)) ?? []}
               onComment={onComment ? (texto) => onComment({ alvo: `${d.artifact_type}#${it.id ?? i}`, texto }) : undefined} />
           ))}
+          {discarded.length > 0 && (
+            <div className="item-card">
+              <h3>Itens não incorporados</h3>
+              {discarded.map((x) => <div key={x.origem_id} className="small"><span className="badge warn">{x.origem_id}</span> {x.motivo}</div>)}
+            </div>
+          )}
         </div>
       ) : (
         <ObjectView value={d.content} onComment={onComment ? (texto) => onComment({ alvo: d.artifact_type, texto }) : undefined} />
@@ -146,6 +153,7 @@ function CommentButton({ onSubmit }: { onSubmit: (texto: string) => void }) {
 
 const KIND_LABEL: Record<string, string> = {
   OBRIGACAO_NORMATIVA: "obrigação normativa", RECOMENDACAO_TECNICA: "recomendação técnica", DERIVADO_VISAO: "derivado da Visão",
+  ELICITACAO: "material de elicitação", VISAO: "solicitação da Visão",
 };
 
 export function EvidenceCard({ evidence }: { evidence: Evidence }) {

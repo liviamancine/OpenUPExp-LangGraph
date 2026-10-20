@@ -5,7 +5,7 @@ export interface Project { id: string; nome: string; dominio: string | null; des
 export interface RunSummary {
   id: string; phase: string; status: string; context_strategy: string; agent_gateway: string;
   current_task: string | null; error: string | null; manifest_version: string;
-  model_profile: Record<string, unknown>; created_at: string; updated_at: string;
+  model_profile: Record<string, unknown>; created_at: string; updated_at: string; base_run_id: string | null;
 }
 
 export interface Source {
@@ -58,7 +58,9 @@ export interface VersionRef {
   iteracao: number; created_at: string; created_by_user: string | null; supersedes_id: string | null;
 }
 
-export interface ArtifactSummary extends VersionRef { title: string; itens: number | null; editavel: boolean }
+export interface ArtifactSummary extends VersionRef {
+  title: string; itens: number | null; editavel: boolean; list_field: string | null; secao: boolean;
+}
 
 export interface Evidence {
   id: string; item_key: string; chunk_ref: string; citacao: string; kind: string; verification: string; human_status: string;
@@ -67,6 +69,7 @@ export interface Evidence {
 
 export interface VersionDetail extends VersionRef {
   title: string; run_id: string; content: Record<string, unknown>; editavel: boolean;
+  list_field: string | null; documento: boolean;
   historico: VersionRef[]; dependencias: { version_id: string; artifact: string; version_no: number; status: string }[];
   evidencias: Evidence[];
 }
@@ -75,17 +78,24 @@ export interface Outcome { next: string; comment_required: boolean }
 
 export interface HitlRequest {
   id: string; run_id: string; task_id: string; bpmn_element_id: string | null; kind: string; status: string;
-  payload: { reviews?: string; name?: string; outcomes: Record<string, Outcome> };
+  payload: { reviews?: string; name?: string; phase?: string; input_kind?: string; outcomes: Record<string, Outcome> };
   policy: Record<string, unknown>; round: number; iteracao: number; created_at: string; decided_at: string | null;
+  due_at: string | null;
   projeto: { id: string; nome: string } | null; run_status: string | null;
 }
 
 export interface Check { id: string; descricao: string; ok: boolean; detalhes: string[] }
 
 export interface HitlDetail extends HitlRequest {
+  meu_papel: string; phase: string;
   review_report: { checks: Check[]; lacunas_por_artefato: Record<string, number> } | null;
   stale: string[];
-  respostas: { id: string; decision: string; comentario: string | null; item_comments: ItemComment[]; created_at: string }[];
+  consenso?: { concordo: number; ressalvas: number; objecao: number; participantes: number };
+  material?: { id: string; arquivo: string; paginas: number | null }[];
+  respostas: {
+    id: string; user_id: string | null; user_nome: string | null; decision: string; comentario: string | null;
+    item_comments: ItemComment[]; created_at: string;
+  }[];
 }
 
 export interface ItemComment { alvo: string; texto: string }

@@ -114,6 +114,10 @@ class CorpusVersion(Base):
     embedding_model: Mapped[str] = mapped_column(String(200))
     embedding_dim: Mapped[int | None] = mapped_column(Integer)
     chunker_version: Mapped[str] = mapped_column(String(40))
+    # reference: base de referência do projeto · elicitation: material de elicitação de uma execução
+    purpose: Mapped[str] = mapped_column(String(20), default="reference", server_default="reference")
+    run_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("run.id", ondelete="CASCADE", use_alter=True,
+                                                                name="fk_corpus_version_run"))
     status: Mapped[str] = mapped_column(String(20), default="building")  # building | ready | failed
     stats: Mapped[dict] = mapped_column(JSONB, default=dict)
     created_at: Mapped[datetime] = _created()

@@ -23,7 +23,7 @@ class StreamState(BaseModel, typing.Generic[StreamStateValueT]):
     value: StreamStateValueT
     state: typing_extensions.Literal["Pending", "Incomplete", "Complete"]
 # #########################################################################
-# Generated classes (37)
+# Generated classes (55)
 # #########################################################################
 
 class CaptureTermsInput(BaseModel):
@@ -50,6 +50,28 @@ class ComplementaryRequirement(BaseModel):
 class ComplementaryRequirementsArtifact(BaseModel):
     requisitos: typing.List["ComplementaryRequirement"]
 
+class ConsolidateInput(BaseModel):
+    requisitos: typing.List["ExplainabilityRequirement"]
+    complementares: typing.List["PhaseComplementaryRequirement"]
+    pares_similares: typing.List["SimilarPair"] = Field(description='Candidatos a duplicidade calculados por similaridade semântica')
+    consolidados_existentes: typing.List["ConsolidatedRequirement"]
+
+class ConsolidatedRequirement(BaseModel):
+    id: typing.Optional[str] = Field(default=None, description='REQ-n existente; null se novo')
+    enunciado: typing.Optional[str] = None
+    tipo: typing.Optional[types.RequirementKind] = None
+    objetivo: typing.Optional[types.ExplanationGoal] = None
+    categoria: typing.Optional[types.ComplementaryCategory] = Field(default=None, description='Somente para tipo COMPLEMENTAR')
+    stakeholder_ids: typing.List[str]
+    need_ids: typing.List[str]
+    origem_ids: typing.List[str] = Field(description='RI-n e RC-n consolidados neste requisito (obrigatório)')
+    justificativa_agrupamento: typing.Optional[str] = Field(default=None, description='Por que itens foram fundidos; null se não houve fusão')
+    lacunas: typing.List["Lacuna"]
+
+class ConsolidatedRequirementsArtifact(BaseModel):
+    requisitos: typing.List["ConsolidatedRequirement"]
+    descartados: typing.List["DiscardedItem"]
+
 class ContextItem(BaseModel):
     origem: typing.Optional[str] = Field(default=None, description='required | digest | retrieved | related | feedback | document')
     referencia: typing.Optional[str] = Field(default=None, description='Referência estável do material')
@@ -66,6 +88,10 @@ class DigestInput(BaseModel):
     documento: typing.Optional[str] = Field(default=None, description='Documento aprovado da fase, em Markdown')
     ids_obrigatorios: typing.List[str] = Field(description='IDs que DEVEM ser mencionados no resumo')
 
+class DiscardedItem(BaseModel):
+    origem_id: typing.Optional[str] = Field(default=None, description='RI-n ou RC-n não incorporado')
+    motivo: typing.Optional[str] = Field(default=None, description='Ex.: duplicado de REQ-n, fora do escopo da Visão')
+
 class DomainTerm(BaseModel):
     id: typing.Optional[str] = Field(default=None, description='DT-n existente; null se novo')
     termo: typing.Optional[str] = None
@@ -73,6 +99,36 @@ class DomainTerm(BaseModel):
 
 class DomainTermsArtifact(BaseModel):
     termos: typing.List["DomainTerm"]
+
+class ElicitationEvidence(BaseModel):
+    fonte_ref: typing.Optional[str] = Field(default=None, description='Exatamente a referencia de um item de contexto \'retrieved\' (chunk:...) ou um SN-n da Visão')
+    citacao: typing.Optional[str] = Field(default=None, description='Trecho LITERAL copiado da fonte, sem reescrever')
+
+class ElicitationPlanArtifact(BaseModel):
+    itens: typing.List["ElicitationPlanItem"]
+
+class ElicitationPlanItem(BaseModel):
+    id: typing.Optional[str] = Field(default=None, description='EP-n existente; null se novo')
+    stakeholder_id: typing.Optional[str] = Field(default=None, description='STK-n do stakeholder a ser ouvido')
+    objetivo: typing.Optional[str] = Field(default=None, description='O que se quer compreender com este stakeholder sobre as decisões do sistema')
+    tecnicas: typing.List[types.ElicitationTechnique]
+    perguntas: typing.List[str] = Field(description='Roteiro de perguntas sobre necessidades de explicação (não sobre soluções)')
+    need_ids: typing.List[str] = Field(description='Necessidades da Visão (NEED-n) que a elicitação deve aprofundar')
+    lacunas_alvo: typing.List[str] = Field(description='Lacunas da Visão que esta elicitação tenta resolver (texto literal da lacuna)')
+    lacunas: typing.List["Lacuna"]
+
+class ElicitedNeed(BaseModel):
+    id: typing.Optional[str] = Field(default=None, description='RN-n existente; null se nova')
+    stakeholder_id: typing.Optional[str] = None
+    necessidade: typing.Optional[str] = Field(default=None, description='Necessidade de explicação expressa pelo stakeholder, em suas palavras')
+    decisao_alvo: typing.Optional[str] = Field(default=None, description='Decisão, recomendação ou previsão do sistema que precisa ser explicada')
+    objetivo: typing.Optional[types.ExplanationGoal] = None
+    need_ids: typing.List[str] = Field(description='NEED-n da Visão que esta necessidade aprofunda; vazio se for nova')
+    evidencias: typing.List["ElicitationEvidence"] = Field(description='Pelo menos uma; sem evidência, não produza a necessidade')
+    lacunas: typing.List["Lacuna"]
+
+class ElicitedNeedsArtifact(BaseModel):
+    necessidades: typing.List["ElicitedNeed"]
 
 class EvidenceRef(BaseModel):
     chunk_ref: typing.Optional[str] = Field(default=None, description='Exatamente o valor de referencia de um item de contexto com origem \'retrieved\'')
@@ -105,6 +161,27 @@ class ExplainabilityProblem(BaseModel):
     declaracao_problema: typing.Optional["ProblemStatement"] = None
     lacunas: typing.List["Lacuna"]
 
+class ExplainabilityRequirement(BaseModel):
+    id: typing.Optional[str] = Field(default=None, description='RI-n existente; null se novo')
+    enunciado: typing.Optional[str] = Field(default=None, description='O sistema deve ... (o QUÊ explicar, para QUEM, em que SITUAÇÃO; não o COMO)')
+    stakeholder_ids: typing.List[str]
+    need_ids: typing.List[str] = Field(description='NEED-n da Visão atendidas')
+    rn_ids: typing.List[str] = Field(description='RN-n que sustentam o requisito (obrigatório)')
+    objetivo: typing.Optional[types.ExplanationGoal] = None
+    decisao_alvo: typing.Optional[str] = None
+    contexto_de_uso: typing.Optional[str] = None
+    lacunas: typing.List["Lacuna"]
+
+class ExplainabilityRequirementsArtifact(BaseModel):
+    requisitos: typing.List["ExplainabilityRequirement"]
+
+class ExtractNeedsInput(BaseModel):
+    stakeholder: typing.Optional["Stakeholder"] = None
+    plano: typing.Optional["ElicitationPlanItem"] = None
+    solicitacoes_visao: typing.List["StakeholderNeed"] = Field(description='Solicitações deste stakeholder registradas na Visão (1.1.3)')
+    necessidades_visao: typing.List["ExplainabilityNeed"]
+    necessidades_existentes: typing.List["ElicitedNeed"]
+
 class GlossaryArtifact(BaseModel):
     termos: typing.List["GlossaryTerm"]
 
@@ -121,6 +198,13 @@ class IdentifyNeedsInput(BaseModel):
     solicitacoes: typing.List["StakeholderNeed"]
     glossario: typing.List["GlossaryTerm"]
     necessidades_existentes: typing.List["ExplainabilityNeed"]
+
+class IdentifyRequirementsInput(BaseModel):
+    necessidade: typing.Optional["ExplainabilityNeed"] = Field(default=None, description='Necessidade da Visão em foco; null para necessidades elicitadas novas')
+    necessidades_elicitadas: typing.List["ElicitedNeed"] = Field(description='RN-n a transformar em requisitos; TODAS devem ser usadas')
+    stakeholders: typing.List["Stakeholder"]
+    glossario: typing.List["GlossaryTerm"]
+    requisitos_existentes: typing.List["ExplainabilityRequirement"]
 
 class IdentifyStakeholderNeedsInput(BaseModel):
     stakeholders: typing.List["Stakeholder"]
@@ -154,9 +238,27 @@ class OrigemRef(BaseModel):
     referencia: typing.Optional[str] = Field(default=None, description='ID de item de entrada (ex.: STK-02, NEED-01) ou \'escopo\'')
     relacao: typing.Optional[str] = Field(default=None, description='Como a saída decorre desta entrada')
 
+class PhaseComplementaryArtifact(BaseModel):
+    requisitos: typing.List["PhaseComplementaryRequirement"]
+
+class PhaseComplementaryRequirement(BaseModel):
+    id: typing.Optional[str] = Field(default=None, description='RC-n existente; null se novo')
+    categoria: typing.Optional[types.ComplementaryCategory] = None
+    requisito: typing.Optional[str] = None
+    justificativa: typing.Optional[str] = None
+    ri_ids: typing.List[str] = Field(description='Requisitos de explicabilidade (RI-n) afetados (obrigatório)')
+    cr_ids: typing.List[str] = Field(description='CR-n da Visão que este requisito refina; vazio se novo')
+    evidencias: typing.List["EvidenceRef"] = Field(description='Pelo menos uma; sem evidência, não produza o requisito')
+
 class PhaseDigest(BaseModel):
     resumo: typing.Optional[str] = Field(default=None, description='Resumo compacto (até ~600 palavras) da fase aprovada')
     ids_cobertos: typing.List[str] = Field(description='Todos os IDs de itens mencionados no resumo')
+
+class PlanElicitationInput(BaseModel):
+    stakeholders: typing.List["Stakeholder"]
+    necessidades: typing.List["ExplainabilityNeed"]
+    lacunas_visao: typing.List[str] = Field(description='Lacunas abertas da Visão aprovada')
+    plano_existente: typing.List["ElicitationPlanItem"]
 
 class PlanQueriesInput(BaseModel):
     problema: typing.Optional["ExplainabilityProblem"] = None
@@ -199,6 +301,16 @@ class ReferenceQuery(BaseModel):
 class ReferenceQueryPlan(BaseModel):
     consultas: typing.List["ReferenceQuery"]
 
+class RefineComplementaryInput(BaseModel):
+    requisitos: typing.List["ExplainabilityRequirement"]
+    requisitos_complementares_visao: typing.List["ComplementaryRequirement"]
+    requisitos_existentes: typing.List["PhaseComplementaryRequirement"]
+
+class SimilarPair(BaseModel):
+    a: typing.Optional[str] = None
+    b: typing.Optional[str] = None
+    similaridade: typing.Optional[float] = None
+
 class Stakeholder(BaseModel):
     id: typing.Optional[str] = Field(default=None, description='STK-n de um stakeholder existente; null se for novo')
     nome: typing.Optional[str] = None
@@ -226,7 +338,7 @@ class StakeholdersArtifact(BaseModel):
 
 
 # #########################################################################
-# Model rebuilds (37)
+# Model rebuilds (55)
 # #########################################################################
 # Resolve string forward references now that every model above is defined so
 # class declaration order never breaks Pydantic construction (issue #793).
@@ -237,27 +349,43 @@ ChecklistQuestion.model_rebuild()
 ComplementaryInput.model_rebuild()
 ComplementaryRequirement.model_rebuild()
 ComplementaryRequirementsArtifact.model_rebuild()
+ConsolidateInput.model_rebuild()
+ConsolidatedRequirement.model_rebuild()
+ConsolidatedRequirementsArtifact.model_rebuild()
 ContextItem.model_rebuild()
 CreateGlossaryInput.model_rebuild()
 DefineProblemInput.model_rebuild()
 DigestInput.model_rebuild()
+DiscardedItem.model_rebuild()
 DomainTerm.model_rebuild()
 DomainTermsArtifact.model_rebuild()
+ElicitationEvidence.model_rebuild()
+ElicitationPlanArtifact.model_rebuild()
+ElicitationPlanItem.model_rebuild()
+ElicitedNeed.model_rebuild()
+ElicitedNeedsArtifact.model_rebuild()
 EvidenceRef.model_rebuild()
 ExplainabilityLimitsArtifact.model_rebuild()
 ExplainabilityNeed.model_rebuild()
 ExplainabilityNeedsArtifact.model_rebuild()
 ExplainabilityProblem.model_rebuild()
+ExplainabilityRequirement.model_rebuild()
+ExplainabilityRequirementsArtifact.model_rebuild()
+ExtractNeedsInput.model_rebuild()
 GlossaryArtifact.model_rebuild()
 GlossaryTerm.model_rebuild()
 IdentifyNeedsInput.model_rebuild()
+IdentifyRequirementsInput.model_rebuild()
 IdentifyStakeholderNeedsInput.model_rebuild()
 IdentifyStakeholdersInput.model_rebuild()
 Lacuna.model_rebuild()
 LimitAnswer.model_rebuild()
 LimitsInput.model_rebuild()
 OrigemRef.model_rebuild()
+PhaseComplementaryArtifact.model_rebuild()
+PhaseComplementaryRequirement.model_rebuild()
 PhaseDigest.model_rebuild()
+PlanElicitationInput.model_rebuild()
 PlanQueriesInput.model_rebuild()
 Positioning.model_rebuild()
 PositioningArtifact.model_rebuild()
@@ -265,6 +393,8 @@ PositioningInput.model_rebuild()
 ProblemStatement.model_rebuild()
 ReferenceQuery.model_rebuild()
 ReferenceQueryPlan.model_rebuild()
+RefineComplementaryInput.model_rebuild()
+SimilarPair.model_rebuild()
 Stakeholder.model_rebuild()
 StakeholderNeed.model_rebuild()
 StakeholderNeedsArtifact.model_rebuild()

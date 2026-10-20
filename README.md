@@ -4,7 +4,7 @@ Engenharia de requisitos de explicabilidade orientada ao processo **OpenUPExp**,
 (LangGraph + BAML), validação humana nos pontos de decisão do BPMN, rastreabilidade e gestão de contexto.
 
 - **Arquitetura e decisões:** [`docs/architecture/`](docs/architecture/README.md)
-- **Manifesto do processo (BPMN → execução):** [`process/manifest/openupexp-0.1.0.yaml`](process/manifest/openupexp-0.1.0.yaml)
+- **Manifesto do processo (BPMN → execução):** [`process/manifest/openupexp-0.2.0.yaml`](process/manifest/openupexp-0.2.0.yaml)
 - **BPMN de referência** (cópia fixada do repositório teórico): [`process/bpmn/`](process/bpmn/)
 - **Estudo de caso INPI** (escopo e base de referência): [`experiments/cases/inpi/`](experiments/cases/inpi/)
 - **Protótipo original** (6 workers, linha de base experimental): [`legacy/`](legacy/README.md)
@@ -18,7 +18,7 @@ Engenharia de requisitos de explicabilidade orientada ao processo **OpenUPExp**,
 | M2 Fase 1 executável (grafo, HITL de aprovação, revisit, versionamento, exportação) | implementado |
 | M3 Frontend (BPMN com status, decisões, edição, evidências, métricas) | implementado (MVP) |
 | M4 Experimentos (estratégia B, harness, gabaritos, avaliação) | pendente |
-| M5 Fase 2 + consenso | pendente — depende dos templates da teoria |
+| M5 Fase 2 + consenso | implementado com formatos provisórios (manifesto 0.2.0; ver cap. 12 §12.4) |
 | M6 Fases 3–4 | pendente — depende dos templates da teoria |
 
 As interpretações de trabalho adotadas para as decisões pendentes da autora estão em
@@ -41,6 +41,11 @@ docker compose exec worker openupexp seed-inpi --owner-email eng@exemplo.org
 Acesse <http://localhost:5173>, entre como a engenheira, abra o projeto e inicie a Fase 1.
 Sem chave de LLM, escolha **Agentes: Simulado** para percorrer o processo (HITL, retornos,
 versões, exportação) com saídas determinísticas.
+
+Com a Visão aprovada, inicie a **Fase 2** escolhendo essa execução como base. A execução
+pausa em 2.2.1 para você enviar o material de elicitação (fonte do tipo "Material de
+elicitação") e em 2.2.5 para o consenso: membros com papel *participante* registram posição
+na Central de decisões, e a engenheira encerra a rodada.
 
 ## Desenvolvimento local
 
@@ -67,7 +72,7 @@ CLI útil sem a interface: `openupexp start <projeto> --gateway fake`, `openupex
 backend/
   baml_src/            contratos e prompts dos agentes (fonte única)
   openupexp/
-    agents/            grafo LangGraph da Fase 1, handlers por tarefa, gateway BAML/simulado
+    agents/            grafo LangGraph por fase, handlers da Fase 1 e 2, gateway BAML/simulado
     context/           ContextBuilder (estratégias A, C, D; B no M4)
     retrieval/         ingestão, chunking estrutural, embeddings, busca híbrida, citações
     domain/            artefatos versionados, invalidação, serviços, eventos, diff

@@ -16,6 +16,7 @@ from openupexp.retrieval.chunkers import CHUNKER_VERSION, Page, chunk_document, 
 from openupexp.retrieval.embeddings import Embedder
 
 REFERENCE_KINDS = ("lei", "manual", "academico")
+ELICITATION_KINDS = ("elicitacao",)
 
 
 def extract_pages(filename: str, data: bytes) -> list[Page]:
@@ -68,11 +69,23 @@ async def add_source(
 
 
 async def build_corpus_version(
-    session: AsyncSession, project_id: uuid.UUID, embedder: Embedder
+    session: AsyncSession,
+    project_id: uuid.UUID,
+    embedder: Embedder,
+    *,
+    kinds: tuple[str, ...] = REFERENCE_KINDS,
+    purpose: str = "reference",
+    run_id: uuid.UUID | None = None,
 ) -> CorpusVersion:
-    """Cria uma nova versão do corpus, reaproveitando embeddings de chunks inalterados."""
+    """Cria uma nova versão do corpus, reaproveitando embeddings de chunks inalterados.
+
+    purpose="elicitation" indexa o material de elicitação (entrevistas, workshops…) de uma
+    execução da Fase 2, separado da base de referência do projeto.
+    """
     cv = CorpusVersion(
         project_id=project_id,
+        purpose=purpose,
+        run_id=run_id,
         embedding_provider=embedder.provider,
         embedding_model=embedder.model,
         embedding_dim=embedder.dim,
@@ -100,7 +113,7 @@ async def build_corpus_version(
             select(SourceDocument).where(
                 SourceDocument.project_id == project_id,
                 SourceDocument.ativo.is_(True),
-                SourceDocument.source_kind.in_(REFERENCE_KINDS),
+                SourceDocument.source_kind.in_(kinds),
             )
         )
     ).all()
@@ -144,7 +157,8 @@ async def build_corpus_version(
 async def latest_corpus_version(session: AsyncSession, project_id: uuid.UUID) -> CorpusVersion | None:
     return await session.scalar(
         select(CorpusVersion)
-        .where(CorpusVersion.project_id == project_id, CorpusVersion.status == "ready")
+        .where(CorpusVersion.project_id == project_id, CorpusVersion.status == "ready",
+               CorpusVersion.purpose == "reference")
         .order_by(CorpusVersion.created_at.desc())
         .limit(1)
     )

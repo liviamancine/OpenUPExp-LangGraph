@@ -1,0 +1,147 @@
+{#- Parte da Fase 2 do Documento de Requisitos de Explicabilidade (ERD).
+    Estrutura PROVISÓRIA (A-12, A-14): a teoria ainda não define o template desta parte;
+    as seções seguem os passos de OpenUPExp/tarefas/encontrar-descrever-requisitos.md. -#}
+# Requisitos de Explicabilidade — Elicitação (Fase 2)
+
+> **Projeto:** {{ meta.projeto }}
+> **Data:** {{ meta.data }}
+> **Versão:** {{ meta.versao }}
+> **Execução:** `{{ meta.run_id }}` · estratégia de contexto {{ meta.estrategia }} · manifesto {{ meta.manifesto }}
+> **Visão de base:** execução `{{ meta.base_run_id }}`
+> **Status:** {{ meta.status }}
+>
+> _Estrutura provisória: o template desta parte do ERD ainda não foi definido na teoria (A-14)._
+
+---
+
+## 1. Plano de elicitação
+
+{% for p in plan -%}
+### {{ p.id }} — {{ stakeholder_name(p.stakeholder_id) }}
+
+- **Objetivo:** {{ p.objetivo | t }}
+- **Técnicas:** {{ p.tecnicas | lst | t }}
+- **Necessidades da Visão:** {{ p.need_ids | lst | t }}
+{% if p.lacunas_alvo %}
+- **Lacunas da Visão visadas:** {{ p.lacunas_alvo | lst }}
+{% endif %}
+
+{% for q in p.perguntas -%}
+{{ loop.index }}. {{ q }}
+{% endfor %}
+
+{% else %}
+_Pendente._
+{% endfor %}
+
+---
+
+## 2. Material de elicitação
+
+{% if sources and sources.documentos %}
+| Documento | Tipo | Páginas | SHA-256 |
+|---|---|---|---|
+{% for d in sources.documentos -%}
+| {{ d.arquivo | c }} | {{ d.source_kind }} | {{ d.paginas | c }} | `{{ d.sha256[:12] }}` |
+{% endfor %}
+{% elif sources %}
+Nenhum material de elicitação foi fornecido. Justificativa do Engenheiro de Requisitos: {{ sources.justificativa | t }}
+
+As necessidades foram extraídas apenas das solicitações registradas na Visão.
+{% else %}
+_Pendente._
+{% endif %}
+
+---
+
+## 3. Necessidades de explicabilidade elicitadas
+
+| ID | Stakeholder | Necessidade | Decisão a explicar | Objetivo | Visão |
+|---|---|---|---|---|---|
+{% for n in elicited -%}
+| {{ n.id }} | {{ stakeholder_name(n.stakeholder_id) | c }} | {{ n.necessidade | c }} | {{ n.decisao_alvo | c }} | {{ n.objetivo | c }} | {{ n.need_ids | lst | c }} |
+{% endfor %}
+
+---
+
+## 4. Requisitos de explicabilidade consolidados
+
+{% for r in consolidated -%}
+**{{ r.id }}.** {{ r.enunciado | t }}
+
+- **Tipo:** {{ r.tipo | t }}{% if r.objetivo %} · **Objetivo:** {{ r.objetivo }}{% endif %}{% if r.categoria %} · **Categoria:** {{ r.categoria }}{% endif +%}
+- **Stakeholders:** {{ r.stakeholder_ids | lst | t }} · **Necessidades:** {{ r.need_ids | lst | t }}
+- **Origem:** {{ r.origem_ids | lst | t }}
+{% if r.justificativa_agrupamento %}
+- **Consolidação:** {{ r.justificativa_agrupamento }}
+{% endif %}
+
+{% else %}
+_Pendente._
+{% endfor %}
+{% if discarded %}
+### 4.1 Itens não incorporados
+
+| Origem | Motivo |
+|---|---|
+{% for d in discarded -%}
+| {{ d.origem_id }} | {{ d.motivo | c }} |
+{% endfor %}
+{% endif %}
+
+---
+
+## 5. Requisitos complementares
+
+{% for c in complementary -%}
+**{{ c.id }}.** {{ c.requisito | t }}
+
+- **Categoria:** {{ c.categoria | t }} · **Requisitos afetados:** {{ c.ri_ids | lst | t }}{% if c.cr_ids %} · **Refina:** {{ c.cr_ids | lst }}{% endif +%}
+- **Justificativa:** {{ c.justificativa | t }}
+{% for e in c.evidencias -%}
+- **Evidência** ({{ e.tipo }}, {{ e.verificacao | default("não verificada") }}): `{{ e.chunk_ref }}` — "{{ e.citacao }}"
+{% endfor %}
+
+{% else %}
+_Nenhum requisito complementar fundamentado pelas evidências recuperadas._
+{% endfor %}
+
+---
+
+## 6. Rastreabilidade Necessidade → Requisito
+
+| Necessidade da Visão | Requisitos consolidados |
+|---|---|
+{% for need_id, reqs in need_matrix -%}
+| {{ need_id }} | {{ reqs | lst | t }} |
+{% endfor %}
+
+---
+
+## 7. Registro de consenso (2.2.5)
+
+{% if consensus %}
+{% for c in consensus -%}
+- **Rodada {{ c.iteracao }}:** {{ c.resultado }}{% if c.justificativa %} — {{ c.justificativa }}{% endif +%}
+{% for p in c.posicoes -%}
+  - {{ p.nome }}: **{{ p.posicao }}**{% if p.comentario %} — {{ p.comentario }}{% endif +%}
+{% endfor %}
+{% endfor %}
+{% else %}
+_Consenso ainda não realizado._
+{% endif %}
+
+---
+
+## Lacunas registradas
+
+{% for origem, l in lacunas -%}
+- **{{ origem }}{% if l.campo not in origem %} · {{ l.campo }}{% endif %}:** {{ l.motivo | t }}{% if l.pergunta_sugerida %} — *Pergunta sugerida:* {{ l.pergunta_sugerida }}{% endif +%}
+{% else -%}
+_Nenhuma._
+{% endfor %}
+
+---
+
+> Documento gerado pela plataforma OpenUPExp a partir de artefatos estruturados e versionados.
+> Conteúdo produzido por agentes de IA e sujeito à validação do Engenheiro de Requisitos.

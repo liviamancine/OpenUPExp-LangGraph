@@ -1,4 +1,4 @@
-"""Registro dos tipos de artefato da Fase 1: schema BAML, campo de itens e prefixo de ID."""
+"""Registro dos tipos de artefato: schema BAML, campo de itens e prefixo de ID."""
 
 from dataclasses import dataclass
 from typing import Callable
@@ -43,6 +43,25 @@ ARTIFACT_TYPES: dict[str, ArtifactType] = {
         ArtifactType("vision.draft", None, title="Rascunho do Documento de Visão"),
         ArtifactType("vision.review_report", None, title="Checklist de pré-revisão"),
         ArtifactType("digest.vision", T.PhaseDigest, title="Digest da Visão"),
+        # Fase 2 — formatos provisórios (A-14), ver docs/architecture/12-decisoes-pendentes.md
+        ArtifactType("elicitation.vision_baseline", None, title="Visão aprovada (linha de base)"),
+        ArtifactType("elicitation.plan", T.ElicitationPlanArtifact, "itens", T.ElicitationPlanItem, "EP",
+                     lambda i: f"{i.get('stakeholder_id')} {i.get('objetivo')}", "Plano de elicitação"),
+        ArtifactType("elicitation.sources", None, title="Material de elicitação"),
+        ArtifactType("elicitation.needs", T.ElicitedNeedsArtifact, "necessidades", T.ElicitedNeed, "RN",
+                     lambda i: f"{i.get('stakeholder_id')} {i.get('necessidade')}", "Necessidades elicitadas"),
+        ArtifactType("requirements.identified", T.ExplainabilityRequirementsArtifact, "requisitos",
+                     T.ExplainabilityRequirement, "RI", lambda i: i.get("enunciado") or "",
+                     "Requisitos de explicabilidade identificados"),
+        ArtifactType("requirements.complementary", T.PhaseComplementaryArtifact, "requisitos",
+                     T.PhaseComplementaryRequirement, "RC", lambda i: i.get("requisito") or "",
+                     "Requisitos complementares (Fase 2)"),
+        ArtifactType("requirements.consolidated", T.ConsolidatedRequirementsArtifact, "requisitos",
+                     T.ConsolidatedRequirement, "REQ", lambda i: i.get("enunciado") or "",
+                     "Requisitos consolidados"),
+        ArtifactType("requirements.review_report", None, title="Checklist de pré-revisão"),
+        ArtifactType("requirements.draft", None, title="Documento de Requisitos de Explicabilidade"),
+        ArtifactType("digest.requirements", T.PhaseDigest, title="Digest dos Requisitos"),
     ]
 }
 
@@ -57,6 +76,20 @@ VISION_EDITABLE = [
     "vision.limits",
     "glossary",
 ]
+
+
+REQUIREMENTS_EDITABLE = [
+    "elicitation.plan",
+    "elicitation.needs",
+    "requirements.identified",
+    "requirements.complementary",
+    "requirements.consolidated",
+]
+
+# Por fase: seções editáveis (em ordem), documento da fase e checklist de pré-revisão.
+PHASE_EDITABLE = {"1": VISION_EDITABLE, "2": REQUIREMENTS_EDITABLE}
+PHASE_DOCUMENT = {"1": "vision.draft", "2": "requirements.draft"}
+PHASE_REVIEW_REPORT = {"1": "vision.review_report", "2": "requirements.review_report"}
 
 
 def items_from_content(artifact_type: str, content: dict) -> list[tuple[str, dict]]:

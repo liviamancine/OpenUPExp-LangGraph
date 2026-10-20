@@ -1,5 +1,8 @@
 # 03 — Arquitetura preliminar das Fases 2–4
 
+> **Atualização (manifesto 0.2.0):** a Fase 2 foi implementada com interpretações provisórias,
+> listadas no cap. 12 §12.4 e detalhadas no cap. 13 §13.4. As Fases 3–4 continuam preliminares.
+
 > Este capítulo é **preliminar**. As tarefas e os data objects vêm do BPMN [TEORIA]. Os
 > contratos ainda não podem ser fechados porque os templates dessas fases não existem
 > (I-05, I-09). Cada linha marca a dependência teórica correspondente.

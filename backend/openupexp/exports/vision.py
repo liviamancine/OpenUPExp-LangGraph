@@ -1,6 +1,5 @@
 """Renderização do Documento de Visão em Markdown (artefato documental versionado)."""
 
-import hashlib
 import uuid
 from datetime import datetime
 from pathlib import Path
@@ -8,7 +7,6 @@ from pathlib import Path
 from jinja2 import ChainableUndefined, Environment, FileSystemLoader, Undefined
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from openupexp.config import get_settings
 from openupexp.db.models import Export, Project, Run
 from openupexp.domain import artifacts as store
 
@@ -117,15 +115,6 @@ async def render_current_document(session: AsyncSession, run: Run) -> str:
 async def export_markdown(
     session: AsyncSession, run: Run, version_id: uuid.UUID, markdown: str
 ) -> Export:
-    folder = get_settings().data_dir / "projects" / str(run.project_id) / "exports" / str(run.id)
-    folder.mkdir(parents=True, exist_ok=True)
-    sha = hashlib.sha256(markdown.encode()).hexdigest()
-    path = folder / f"documento-visao-{sha[:10]}.md"
-    path.write_text(markdown, encoding="utf-8")
-    exp = Export(
-        run_id=run.id, artifact_version_id=version_id, formato="md",
-        template_version=TEMPLATE_VERSION, storage_path=str(path), sha256=sha,
-    )
-    session.add(exp)
-    await session.flush()
-    return exp
+    from openupexp.exports.documents import export_markdown as _export
+
+    return await _export(session, run, version_id, markdown)

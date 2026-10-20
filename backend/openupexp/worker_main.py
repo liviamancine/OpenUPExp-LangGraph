@@ -41,7 +41,7 @@ async def run_graph(run_id: uuid.UUID, mode: str, resume: dict | None = None) ->
     async with session_scope() as s:
         run = await s.get(Run, run_id)
         gateway = get_gateway(run.agent_gateway, run.model_profile)
-        thread_id, phase_id = run.thread_id, run.phase
+        thread_id, phase_id, manifest_version = run.thread_id, run.phase, run.manifest_version
         corpus = run.corpus_version_id
         if mode != "resume":
             run.status = "running"
@@ -55,7 +55,7 @@ async def run_graph(run_id: uuid.UUID, mode: str, resume: dict | None = None) ->
             cv = await s.get(CorpusVersion, corpus)
             embedder = get_embedder(cv.embedding_provider, cv.embedding_model)
 
-    manifest = get_manifest()
+    manifest = get_manifest(manifest_version)
     phase = manifest.phase(phase_id)
     settings = get_settings()
     async with AsyncPostgresSaver.from_conn_string(settings.psycopg_url) as saver:

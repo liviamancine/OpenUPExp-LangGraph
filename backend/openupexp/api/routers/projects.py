@@ -96,7 +96,8 @@ async def get_project(project_id: uuid.UUID, user: AppUser = Depends(current_use
         .where(ProjectMember.project_id == project_id))).all()
     sources = (await session.scalars(select(SourceDocument).where(SourceDocument.project_id == project_id)
                                      .order_by(SourceDocument.created_at))).all()
-    corpora = (await session.scalars(select(CorpusVersion).where(CorpusVersion.project_id == project_id)
+    corpora = (await session.scalars(select(CorpusVersion).where(CorpusVersion.project_id == project_id,
+                                                                  CorpusVersion.purpose == "reference")
                                      .order_by(CorpusVersion.created_at.desc()))).all()
     runs = (await session.scalars(select(Run).where(Run.project_id == project_id)
                                   .order_by(Run.created_at.desc()))).all()
@@ -139,8 +140,8 @@ async def upload_source(project_id: uuid.UUID, file: UploadFile = File(...), sou
                         user: AppUser = Depends(current_user), session: AsyncSession = Depends(get_session)):
     await require_member(session, project_id, user, ("requirements_engineer",))
     kind = source_kind or guess_source_kind(file.filename or "")
-    if kind not in ("escopo", "lei", "manual", "academico"):
-        raise HTTPException(422, "source_kind deve ser escopo, lei, manual ou academico")
+    if kind not in ("escopo", "lei", "manual", "academico", "elicitacao"):
+        raise HTTPException(422, "source_kind deve ser escopo, lei, manual, academico ou elicitacao")
     doc = await add_source(session, project_id, file.filename or "documento", await file.read(), kind)
     return _source(doc)
 
@@ -178,5 +179,6 @@ def run_summary(r: Run) -> dict:
     return {"id": str(r.id), "phase": r.phase, "status": r.status, "context_strategy": r.context_strategy,
             "agent_gateway": r.agent_gateway, "current_task": r.current_task, "error": r.error,
             "manifest_version": r.manifest_version, "model_profile": r.model_profile,
+            "base_run_id": str(r.base_run_id) if r.base_run_id else None,
             "created_at": r.created_at.isoformat() if r.created_at else None,
             "updated_at": r.updated_at.isoformat() if r.updated_at else None}

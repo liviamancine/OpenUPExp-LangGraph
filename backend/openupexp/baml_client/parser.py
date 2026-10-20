@@ -35,6 +35,12 @@ class LlmResponseParser:
         __result__ = self.__options.merge_options(baml_options).parse_response(function_name="CaptureDomainTerminology", llm_response=llm_response, mode="request")
         return typing.cast(types.DomainTermsArtifact, __result__)
 
+    def ConsolidateRequirements(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> types.ConsolidatedRequirementsArtifact:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="ConsolidateRequirements", llm_response=llm_response, mode="request")
+        return typing.cast(types.ConsolidatedRequirementsArtifact, __result__)
+
     def CreateInitialGlossary(
         self, llm_response: str, baml_options: BamlCallOptions = {},
     ) -> types.GlossaryArtifact:
@@ -59,6 +65,12 @@ class LlmResponseParser:
         __result__ = self.__options.merge_options(baml_options).parse_response(function_name="DevelopComplementaryRequirements", llm_response=llm_response, mode="request")
         return typing.cast(types.ComplementaryRequirementsArtifact, __result__)
 
+    def ExtractElicitedNeeds(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> types.ElicitedNeedsArtifact:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="ExtractElicitedNeeds", llm_response=llm_response, mode="request")
+        return typing.cast(types.ElicitedNeedsArtifact, __result__)
+
     def GenerateExplainabilityPositioning(
         self, llm_response: str, baml_options: BamlCallOptions = {},
     ) -> types.PositioningArtifact:
@@ -70,6 +82,12 @@ class LlmResponseParser:
     ) -> types.ExplainabilityNeedsArtifact:
         __result__ = self.__options.merge_options(baml_options).parse_response(function_name="IdentifyExplainabilityNeeds", llm_response=llm_response, mode="request")
         return typing.cast(types.ExplainabilityNeedsArtifact, __result__)
+
+    def IdentifyExplainabilityRequirements(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> types.ExplainabilityRequirementsArtifact:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="IdentifyExplainabilityRequirements", llm_response=llm_response, mode="request")
+        return typing.cast(types.ExplainabilityRequirementsArtifact, __result__)
 
     def IdentifyStakeholderNeeds(
         self, llm_response: str, baml_options: BamlCallOptions = {},
@@ -83,11 +101,23 @@ class LlmResponseParser:
         __result__ = self.__options.merge_options(baml_options).parse_response(function_name="IdentifyStakeholders", llm_response=llm_response, mode="request")
         return typing.cast(types.StakeholdersArtifact, __result__)
 
+    def PlanElicitation(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> types.ElicitationPlanArtifact:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="PlanElicitation", llm_response=llm_response, mode="request")
+        return typing.cast(types.ElicitationPlanArtifact, __result__)
+
     def PlanReferenceQueries(
         self, llm_response: str, baml_options: BamlCallOptions = {},
     ) -> types.ReferenceQueryPlan:
         __result__ = self.__options.merge_options(baml_options).parse_response(function_name="PlanReferenceQueries", llm_response=llm_response, mode="request")
         return typing.cast(types.ReferenceQueryPlan, __result__)
+
+    def RefineComplementaryRequirements(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> types.PhaseComplementaryArtifact:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="RefineComplementaryRequirements", llm_response=llm_response, mode="request")
+        return typing.cast(types.PhaseComplementaryArtifact, __result__)
 
     
 
@@ -108,6 +138,12 @@ class LlmStreamParser:
     ) -> stream_types.DomainTermsArtifact:
         __result__ = self.__options.merge_options(baml_options).parse_response(function_name="CaptureDomainTerminology", llm_response=llm_response, mode="stream")
         return typing.cast(stream_types.DomainTermsArtifact, __result__)
+
+    def ConsolidateRequirements(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> stream_types.ConsolidatedRequirementsArtifact:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="ConsolidateRequirements", llm_response=llm_response, mode="stream")
+        return typing.cast(stream_types.ConsolidatedRequirementsArtifact, __result__)
 
     def CreateInitialGlossary(
         self, llm_response: str, baml_options: BamlCallOptions = {},
@@ -133,6 +169,12 @@ class LlmStreamParser:
         __result__ = self.__options.merge_options(baml_options).parse_response(function_name="DevelopComplementaryRequirements", llm_response=llm_response, mode="stream")
         return typing.cast(stream_types.ComplementaryRequirementsArtifact, __result__)
 
+    def ExtractElicitedNeeds(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> stream_types.ElicitedNeedsArtifact:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="ExtractElicitedNeeds", llm_response=llm_response, mode="stream")
+        return typing.cast(stream_types.ElicitedNeedsArtifact, __result__)
+
     def GenerateExplainabilityPositioning(
         self, llm_response: str, baml_options: BamlCallOptions = {},
     ) -> stream_types.PositioningArtifact:
@@ -144,6 +186,12 @@ class LlmStreamParser:
     ) -> stream_types.ExplainabilityNeedsArtifact:
         __result__ = self.__options.merge_options(baml_options).parse_response(function_name="IdentifyExplainabilityNeeds", llm_response=llm_response, mode="stream")
         return typing.cast(stream_types.ExplainabilityNeedsArtifact, __result__)
+
+    def IdentifyExplainabilityRequirements(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> stream_types.ExplainabilityRequirementsArtifact:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="IdentifyExplainabilityRequirements", llm_response=llm_response, mode="stream")
+        return typing.cast(stream_types.ExplainabilityRequirementsArtifact, __result__)
 
     def IdentifyStakeholderNeeds(
         self, llm_response: str, baml_options: BamlCallOptions = {},
@@ -157,10 +205,22 @@ class LlmStreamParser:
         __result__ = self.__options.merge_options(baml_options).parse_response(function_name="IdentifyStakeholders", llm_response=llm_response, mode="stream")
         return typing.cast(stream_types.StakeholdersArtifact, __result__)
 
+    def PlanElicitation(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> stream_types.ElicitationPlanArtifact:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="PlanElicitation", llm_response=llm_response, mode="stream")
+        return typing.cast(stream_types.ElicitationPlanArtifact, __result__)
+
     def PlanReferenceQueries(
         self, llm_response: str, baml_options: BamlCallOptions = {},
     ) -> stream_types.ReferenceQueryPlan:
         __result__ = self.__options.merge_options(baml_options).parse_response(function_name="PlanReferenceQueries", llm_response=llm_response, mode="stream")
         return typing.cast(stream_types.ReferenceQueryPlan, __result__)
+
+    def RefineComplementaryRequirements(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> stream_types.PhaseComplementaryArtifact:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="RefineComplementaryRequirements", llm_response=llm_response, mode="stream")
+        return typing.cast(stream_types.PhaseComplementaryArtifact, __result__)
 
     

@@ -72,11 +72,16 @@ class ContextPackage(BaseModel):
     def retrieved(self) -> list[PackageItem]:
         return [it for it in self.items if it.origin == "retrieved"]
 
-    def extras(self) -> list[ContextItem]:
-        """Itens não obrigatórios, entregues à função BAML no parâmetro `contexto`."""
+    def extras(self, retrieved: set[str] | None = None) -> list[ContextItem]:
+        """Itens não obrigatórios, entregues à função BAML no parâmetro `contexto`.
+
+        retrieved, quando informado, restringe os trechos recuperados aos dessa chamada.
+        """
         out = []
         for it in self.items:
             if it.origin in ("required", "previous"):
+                continue
+            if retrieved is not None and it.origin == "retrieved" and it.ref not in retrieved:
                 continue
             conteudo = it.content if isinstance(it.content, str) else json.dumps(
                 it.content, ensure_ascii=False, indent=1)
@@ -128,24 +133,40 @@ async def _read_item(
     )
 
 
+CONSENSUS_POSITIONS = ("concordo", "ressalvas", "objecao")
+
+
 async def _feedback_items(session: AsyncSession, run: Run) -> list[PackageItem]:
+    """Retornos (revisit) decididos pelo humano, com as posições do consenso, se houver."""
     rows = await session.execute(
         select(HitlResponse, HitlRequest)
         .join(HitlRequest, HitlResponse.hitl_request_id == HitlRequest.id)
-        .where(HitlRequest.run_id == run.id, HitlResponse.decision.like("revisit%"))
+        .where(HitlRequest.run_id == run.id)
         .order_by(HitlResponse.created_at)
     )
-    out = []
+    by_request: dict = {}
     for resp, req in rows.all():
-        partes = [f"Decisão: {resp.decision} (iteração {req.iteracao})"]
-        if resp.comentario:
-            partes.append(f"Comentário geral: {resp.comentario}")
-        for c in resp.item_comments or []:
-            partes.append(f"Sobre {c.get('alvo')}: {c.get('texto')}")
-        out.append(PackageItem(
-            origin="feedback", ref=f"hitl_response:{resp.id}", content="\n".join(partes),
-            reason="feedback do revisor humano em iteração anterior",
-        ))
+        by_request.setdefault(req.id, (req, []))[1].append(resp)
+    out = []
+    for req, responses in by_request.values():
+        positions = [r for r in responses if r.decision in CONSENSUS_POSITIONS]
+        for resp in responses:
+            if not resp.decision.startswith("revisit"):
+                continue
+            partes = [f"Decisão: {resp.decision} (iteração {req.iteracao})"]
+            if resp.comentario:
+                partes.append(f"Comentário geral: {resp.comentario}")
+            for c in resp.item_comments or []:
+                partes.append(f"Sobre {c.get('alvo')}: {c.get('texto')}")
+            for p in positions:
+                if p.comentario or p.item_comments:
+                    partes.append(f"Posição de participante no consenso ({p.decision}): {p.comentario or ''}".rstrip())
+                    for c in p.item_comments or []:
+                        partes.append(f"  sobre {c.get('alvo')}: {c.get('texto')}")
+            out.append(PackageItem(
+                origin="feedback", ref=f"hitl_response:{resp.id}", content="\n".join(partes),
+                reason="feedback do revisor humano em iteração anterior",
+            ))
     return out
 
 
@@ -206,7 +227,7 @@ async def build_context(
         for dg in await _digest_items(session, run):
             pkg.add(dg)
     if strategy == "A":
-        from openupexp.exports.vision import render_current_document
+        from openupexp.exports.documents import render_current_document
 
         doc = await render_current_document(session, run)
         pkg.add(PackageItem(origin="document", ref=f"run:{run.id}:documento", content=doc,

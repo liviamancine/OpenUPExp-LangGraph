@@ -60,9 +60,10 @@ class TaskContext:
     execution: TaskExecution
     iteration: int
 
-    async def call(self, function: str, entrada) -> object:
+    async def call(self, function: str, entrada, retrieved: set[str] | None = None) -> object:
+        """retrieved limita os trechos recuperados entregues a esta chamada (tarefas em map)."""
         return await self.gateway.call(
-            function, entrada, self.package.extras(), run_id=self.run.id,
+            function, entrada, self.package.extras(retrieved), run_id=self.run.id,
             task_execution_id=self.execution.id,
         )
 
@@ -81,7 +82,8 @@ def _links_from_item(item: dict) -> list[tuple[str, str, str]]:
         if item.get(field_name):
             links.append((item["id"], item[field_name], kind))
     for field_name, kind in [("stakeholder_ids", "relates_to"), ("solicitacao_ids", "derives_from"),
-                             ("need_ids", "relates_to")]:
+                             ("need_ids", "relates_to"), ("rn_ids", "derives_from"),
+                             ("origem_ids", "derives_from"), ("ri_ids", "relates_to"), ("cr_ids", "refines")]:
         for target in item.get(field_name) or []:
             if target:
                 links.append((item["id"], target, kind))
