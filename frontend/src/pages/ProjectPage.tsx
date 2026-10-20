@@ -84,7 +84,10 @@ function Journey({ project: p, isEngineer, goTo }: {
   project: ProjectDetail; isEngineer: boolean; goTo: (t: "documentos" | "equipe") => void;
 }) {
   const navigate = useNavigate();
-  const profiles = useQuery({ queryKey: ["llm-profiles"], queryFn: () => api.get<LlmProfile[]>("/llm/profiles") });
+  // atualiza ao voltar para a aba: chaves e modelos podem ter mudado na administração
+  const profiles = useQuery({ queryKey: ["llm-profiles"], queryFn: () => api.get<LlmProfile[]>("/llm/profiles"),
+    refetchOnWindowFocus: true, refetchInterval: 60_000 });
+  const ordered = [...(profiles.data ?? [])].sort((a, b) => Number(b.disponivel) - Number(a.disponivel));
   const [choice, setChoice] = useState<string | null>(null);  // id do perfil ou "fake"
   const [strategy, setStrategy] = useState("D");
   const usable = profiles.data?.filter((x) => x.disponivel) ?? [];
@@ -159,7 +162,7 @@ function Journey({ project: p, isEngineer, goTo }: {
             <div className="card-head"><span className="icon-bubble"><Icon name="settings" /></span><h2>Como a IA vai trabalhar</h2></div>
             <div className="small muted">Qual modelo de IA vai executar as próximas etapas:</div>
             <div className="choices">
-              {profiles.data?.map((x) => (
+              {ordered.map((x) => (
                 <label key={x.id} className={`choice ${selected === x.id ? "selected" : ""}`}
                   style={x.disponivel ? undefined : { opacity: 0.55, cursor: "not-allowed" }}>
                   <input type="radio" name="gw" checked={selected === x.id} disabled={!x.disponivel} onChange={() => setChoice(x.id)} />
@@ -167,6 +170,7 @@ function Journey({ project: p, isEngineer, goTo }: {
                     <div className="title row" style={{ gap: 6 }}>
                       <Icon name={x.modelo.local ? "lock" : "sparkles"} size={15} />{x.nome}
                       {x.padrao && <span className="badge ok">padrão</span>}
+                      {x.disponivel && !x.modelo.local && <span className="badge completed"><Icon name="check" size={11} />pronto para usar</span>}
                       {x.modelo.local && <span className="badge">no seu computador</span>}
                     </div>
                     <div className="help">{x.modelo.local

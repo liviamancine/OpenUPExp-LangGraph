@@ -85,7 +85,8 @@ function NewComparison({ initialTask, initialRun, onCancel }: {
   const sources = useQuery({ queryKey: ["lab-sources", runId], enabled: !!runId,
     queryFn: () => api.get<LabSource[]>(`/lab/sources/${runId}`) });
   const [taskExec, setTaskExec] = useState(initialTask ?? "");
-  const profiles = useQuery({ queryKey: ["llm-profiles"], queryFn: () => api.get<LlmProfile[]>("/llm/profiles") });
+  const profiles = useQuery({ queryKey: ["llm-profiles"], queryFn: () => api.get<LlmProfile[]>("/llm/profiles"),
+    refetchOnWindowFocus: true });
   const [chosen, setChosen] = useState<string[]>([]);
   const [notes, setNotes] = useState("");
   const [strategies, setStrategies] = useState<string[]>(["original"]);
