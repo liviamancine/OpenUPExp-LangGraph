@@ -34,6 +34,7 @@ services:
       PROCESS_DIR: /process
       LOCAL_LLM_ENABLED: ${LOCAL_LLM_ENABLED:-false}
       OLLAMA_URL: ${OLLAMA_URL:-http://ollama:11434}
+      LLM_ALLOWED_HOSTS: ${LLM_ALLOWED_HOSTS:-}
     volumes: [data:/data, ./process:/process:ro]
     ports: ["${API_PORT:-8010}:8000"]
     depends_on: { migrate: { condition: service_completed_successfully } }
@@ -52,6 +53,7 @@ services:
       PROCESS_DIR: /process
       LOCAL_LLM_ENABLED: ${LOCAL_LLM_ENABLED:-false}
       OLLAMA_URL: ${OLLAMA_URL:-http://ollama:11434}
+      LLM_ALLOWED_HOSTS: ${LLM_ALLOWED_HOSTS:-}
       SEED_DIR: /seed
     volumes:
       - data:/data

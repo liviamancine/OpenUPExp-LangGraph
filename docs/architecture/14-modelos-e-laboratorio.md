@@ -7,7 +7,7 @@ Nada aqui vem da teoria OpenUPExp: é decisão de arquitetura da plataforma.
 |---|---|---|
 | 0 | Este capítulo: arquitetura, modelo de dados e plano | [IMPLEMENTADO] |
 | 1 | Ollama opcional no Compose, modelo local protegido, escolha do perfil por execução, registro da configuração usada | [IMPLEMENTADO] |
-| 2 | Administração de modelos e perfis, com teste de conexão, teste de compatibilidade e lista de servidores permitidos | [PROPOSTA] |
+| 2 | Administração de modelos e perfis, com teste de conexão, teste de compatibilidade e lista de servidores permitidos | [IMPLEMENTADO] |
 | 3 | Laboratório v1: reexecutar tarefas reais com o mesmo pacote de contexto em vários modelos | [PROPOSTA] |
 | 4 | Laboratório v2: estratégias A–D (com a B), matriz modelo × estratégia, gabaritos (M4) | [PROPOSTA] |
 
@@ -132,15 +132,33 @@ Planejado para o passo 3 (laboratório):
 Alterações nos cadastros vão para `audit_log` (já existente), incluindo troca de versão dos pesos
 do modelo local.
 
-## 14.4 Administração (passo 2)
+## 14.4 Administração (passo 2) [IMPLEMENTADO]
 
-- Somente o papel `admin` acessa. Lista de modelos e perfis; o modelo local aparece com cadeado.
-- **Cadastro** valida o endereço contra uma lista de servidores permitidos
-  (`LLM_ALLOWED_HOSTS`), porque os agentes enviam conteúdo dos documentos do projeto ao modelo.
-- **Teste de conexão**: lista os modelos do servidor ou faz uma chamada mínima.
-- **Teste de compatibilidade**: executa uma função BAML curta com entrada fixa e verifica se a
-  saída é aceita pelo contrato. Só modelos aprovados podem ser habilitados para execuções.
-- Habilitar/desabilitar e escolher o perfil padrão (o local é o padrão inicial).
+Tela **Administração → Modelos de IA** (`/admin/modelos`), visível só para o papel `admin`;
+API em `/api/admin/llm`. Código: `backend/openupexp/llm/admin.py`.
+
+- **Cadastro** de modelos (Ollama, compatível com OpenAI, OpenAI, Anthropic, Google) e de perfis
+  (temperatura, limite de resposta, contexto, raciocínio), com validação de faixas.
+- **Servidores permitidos**: o endereço precisa estar em `LLM_ALLOWED_HOSTS` (vazio = lista padrão:
+  Ollama local, Groq, OpenAI, Anthropic, Google), porque os agentes enviam trechos dos documentos.
+- **Chaves**: o cadastro guarda só o nome da variável, que precisa terminar em `_API_KEY` ou
+  `_TOKEN`. Sem essa regra, um cadastro poderia enviar outro segredo do servidor (por exemplo
+  `JWT_SECRET`) a um endereço externo como se fosse a chave.
+- **Teste de conexão** (na API, sem conteúdo de projeto): lista os modelos do servidor e indica se
+  o modelo cadastrado aparece.
+- **Teste de compatibilidade** (no worker, pela fila): chama `DefineExplainabilityProblem` com um
+  escopo fixo e neutro de domínio, pelo mesmo `ClientRegistry` das execuções. Aprova se a saída é
+  aceita pelo contrato e identifica ao menos um stakeholder. Registra tempo, tokens, versão dos
+  prompts (`baml_src_sha`) e dos pesos (`digest`).
+- **Habilitar só depois de passar no teste.** Modelos novos nascem com o perfil desabilitado;
+  mudar o modelo, o endereço ou os parâmetros invalida o teste e desabilita o perfil.
+- **Padrão**: o administrador escolhe o perfil padrão das novas etapas (inicialmente o local). Se o
+  padrão escolhido não estiver utilizável (ex.: modelo local desligado), vale a nuvem com reserva.
+- **Proteção**: o modelo local e seu perfil não podem ser editados nem excluídos, mas podem ser
+  testados e escolhidos como padrão. Toda alteração vai para `audit_event`.
+
+Verificado com o modelo local real: conexão em 28 ms; compatibilidade aprovada em 85 s
+(714/505 tokens, 3 stakeholders identificados).
 
 ## 14.5 Laboratório (passos 3 e 4)
 

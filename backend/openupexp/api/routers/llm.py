@@ -14,7 +14,7 @@ router = APIRouter(prefix="/api")
 @router.get("/llm/profiles")
 async def profiles(user: AppUser = Depends(current_user), session: AsyncSession = Depends(get_session)):
     await ensure_catalog(session)
-    default = effective_default_slug()
+    default = await effective_default_slug(session)
     return [{
         "id": str(p.id), "slug": p.slug, "nome": p.nome, "padrao": p.slug == default, "protegido": p.protected,
         "params": p.params, "disponivel": key_configured(m),

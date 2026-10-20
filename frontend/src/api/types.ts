@@ -135,3 +135,23 @@ export interface ModelSnapshot {
   profile_id?: string; profile_slug?: string; profile_nome?: string; provider?: string; model?: string;
   local?: boolean; model_digest?: string | null;
 }
+
+export interface CompatResult {
+  status: "na_fila" | "concluido"; ok?: boolean; at: string; detalhe?: string; latency_ms?: number;
+  input_tokens?: number | null; output_tokens?: number | null;
+}
+export interface ConnResult { ok: boolean; at: string; detalhe: string; latency_ms: number; modelos?: string[]; modelo_encontrado?: boolean }
+export interface AdminProfile {
+  id: string; slug: string; nome: string; params: Record<string, unknown>; protegido: boolean;
+  padrao_marcado: boolean; padrao_efetivo: boolean; habilitado: boolean; compat: CompatResult | null;
+}
+export interface AdminModel {
+  id: string; slug: string; nome: string; provider: string; model: string; endereco: string | null;
+  api_key_env: string | null; local: boolean; protegido: boolean; habilitado: boolean; chave_configurada: boolean | null;
+  descricao: string | null; conexao: ConnResult | null; perfis: AdminProfile[];
+}
+export interface AdminOverview {
+  servidores_permitidos: string[]; provedores: Record<string, string>; modelo_local_ligado: boolean;
+  padrao_efetivo: string; modelos: AdminModel[];
+  parametros: Record<string, { tipo: string; min: number | null; max: number | null }>;
+}

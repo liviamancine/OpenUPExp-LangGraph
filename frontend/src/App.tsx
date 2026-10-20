@@ -11,6 +11,7 @@ import RunPage from "./pages/RunPage";
 import ReviewPage from "./pages/ReviewPage";
 import InboxPage from "./pages/InboxPage";
 import ArtifactPage from "./pages/ArtifactPage";
+import AdminModelsPage from "./pages/AdminModelsPage";
 
 type Theme = "light" | "dark" | null;
 
@@ -70,6 +71,12 @@ function Sidebar() {
           <Icon name="bell" /><span className="text">O que precisa de mim</span>
           {pending > 0 && <span className="count" aria-label={`${pending} pendentes`}>{pending}</span>}
         </NavLink>
+        {me.data?.papel_global === "admin" && (
+          <>
+            <div className="nav-label">Administração</div>
+            <NavLink to="/admin/modelos"><Icon name="sparkles" /><span className="text">Modelos de IA</span></NavLink>
+          </>
+        )}
       </nav>
       <div className="side-foot">
         <div className="side-user">
@@ -105,6 +112,7 @@ export default function App() {
           <Route path="/decisoes" element={<InboxPage />} />
           <Route path="/decisoes/:requestId" element={<ReviewPage />} />
           <Route path="/versoes/:versionId" element={<ArtifactPage />} />
+          <Route path="/admin/modelos" element={<AdminModelsPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

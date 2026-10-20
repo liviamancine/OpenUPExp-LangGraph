@@ -26,6 +26,8 @@ class Settings(BaseSettings):
     llm_profile: str = "OpenUPExpDefault"
     # modelo local (cap. 14): opcional; variante criada pelo serviço ollama-pull (perfil local-llm)
     local_llm_enabled: bool = False
+    # servidores aos quais a plataforma pode enviar conteúdo dos projetos (cap. 14 §14.4)
+    llm_allowed_hosts: str = ""  # vazio = lista padrão (openupexp/llm/admin.py)
     ollama_url: str = "http://ollama:11434"
     ollama_model: str = "openupexp-qwen3-4b"
     ollama_base_model: str = "qwen3:4b-instruct-2507-q4_K_M"

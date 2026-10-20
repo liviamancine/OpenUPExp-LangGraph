@@ -178,3 +178,16 @@ ainda não medido.
 | D-23 | Variante Qwen3 4B Instruct-2507 (sem modo de raciocínio) | Evita o bloco de pensamento, que na CPU multiplica o tempo e atrapalha a saída estruturada |
 | D-24 | Modelo local desligado por padrão | Máquinas sem GPU podem travar; ligar é uma decisão explícita da instalação |
 | D-25 | Variante do modelo criada por Modelfile com `num_ctx` 16384 | O contexto padrão do Ollama é menor que os prompts da plataforma |
+
+## 13.8 Administração de modelos (cap. 14, passo 2)
+
+- Coluna `inference_profile.checks` (migração `c4d8e2a9f1b3`) com o resultado do teste de
+  compatibilidade; o teste roda como job `llm.compat` no worker.
+- O padrão efetivo é o perfil marcado, se utilizável; senão, `nuvem-com-reserva`.
+
+| # | Decisão | Motivo |
+|---|---|---|
+| D-26 | `api_key_env` restrito a `*_API_KEY` / `*_TOKEN` | Impede que um cadastro aponte para outros segredos do servidor |
+| D-27 | Perfil só é habilitado após teste de compatibilidade; mudanças no modelo invalidam o teste | O teste reflete exatamente a configuração em uso |
+| D-28 | Teste de compatibilidade no worker, não na API | Com o modelo local, leva minutos; a API responde na hora e a tela acompanha |
+

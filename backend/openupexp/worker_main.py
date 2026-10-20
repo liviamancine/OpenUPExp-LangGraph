@@ -104,6 +104,12 @@ async def process_job(job) -> None:
             embedder = get_embedder(payload.get("provider"), payload.get("model"))
             cv = await build_corpus_version(s, uuid.UUID(payload["project_id"]), embedder)
             log.info("corpus %s pronto: %s", cv.id, cv.stats)
+    elif kind == "llm.compat":
+        from openupexp.llm.admin import run_compat_test
+
+        async with session_scope() as s:
+            result = await run_compat_test(s, uuid.UUID(payload["profile_id"]))
+            log.info("teste de compatibilidade %s: %s", payload["profile_id"], result.get("ok"))
     else:
         raise ValueError(f"tipo de job desconhecido: {kind}")
 

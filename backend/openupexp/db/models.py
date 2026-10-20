@@ -505,6 +505,7 @@ class InferenceProfile(Base):
     slug: Mapped[str] = mapped_column(String(80), unique=True)
     nome: Mapped[str] = mapped_column(String(120))
     params: Mapped[dict] = mapped_column(JSONB, default=dict)  # temperature, max_tokens, num_ctx, think
+    checks: Mapped[dict] = mapped_column(JSONB, default=dict)  # resultado do teste de compatibilidade
     protected: Mapped[bool] = mapped_column(Boolean, default=False)
     is_default: Mapped[bool] = mapped_column(Boolean, default=False)
     enabled: Mapped[bool] = mapped_column(Boolean, default=True)

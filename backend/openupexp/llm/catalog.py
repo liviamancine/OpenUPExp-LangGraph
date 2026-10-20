@@ -114,9 +114,16 @@ async def list_profiles(session: AsyncSession, only_enabled: bool = True) -> lis
     return sorted(((p, m) for p, m in rows), key=lambda r: (not r[0].is_default, not r[1].local, r[0].nome))
 
 
-def effective_default_slug() -> str:
-    """O modelo local é o padrão quando ligado; senão, a nuvem com reserva."""
-    return LOCAL_PROFILE if get_settings().local_llm_enabled else CLOUD_FALLBACK_PROFILE
+def usable(p: InferenceProfile, m: LlmModel) -> bool:
+    return p.enabled and m.enabled
+
+
+async def effective_default_slug(session: AsyncSession) -> str:
+    """O perfil marcado como padrão (inicialmente o local), se utilizável; senão, a nuvem com reserva."""
+    row = (await session.execute(
+        select(InferenceProfile, LlmModel).join(LlmModel, LlmModel.id == InferenceProfile.model_id)
+        .where(InferenceProfile.is_default))).first()
+    return row[0].slug if row and usable(*row) else CLOUD_FALLBACK_PROFILE
 
 
 async def ollama_digest(model: LlmModel) -> str | None:
@@ -143,14 +150,18 @@ async def resolve_profile(session: AsyncSession, profile_id: uuid.UUID | None) -
     if profile_id:
         row = (await session.execute(q.where(InferenceProfile.id == profile_id))).first()
     else:
-        row = (await session.execute(q.where(InferenceProfile.slug == effective_default_slug()))).first()
+        row = (await session.execute(q.where(InferenceProfile.slug == await effective_default_slug(session)))).first()
     if row is None:
         raise LookupError("Perfil de modelo inexistente.")
     p, m = row
-    if not (p.enabled and m.enabled):
-        if m.local:
+    if not usable(p, m):
+        if m.local and not get_settings().local_llm_enabled:
             raise LookupError("O modelo local está desligado nesta instalação (LOCAL_LLM_ENABLED=false).")
         raise LookupError(f"O perfil '{p.nome}' está desabilitado.")
+    return await snapshot_of(p, m)
+
+
+async def snapshot_of(p: InferenceProfile, m: LlmModel) -> dict:
     return {
         "profile_id": str(p.id), "profile_slug": p.slug, "profile_nome": p.nome,
         "model_slug": m.slug, "provider": m.provider, "base_url": m.base_url, "model": m.model,
