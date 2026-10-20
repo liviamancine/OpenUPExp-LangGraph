@@ -20,7 +20,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from openupexp.agents.registry import ARTIFACT_TYPES
 from openupexp.agents.runtime import TaskContext, WriteResult
-from openupexp.context.builder import ContextPackage
+from openupexp.context.builder import ContextPackage, Coverage, PackageItem, derive_package
 from openupexp.db.models import (
     Artifact,
     ArtifactVersion,
@@ -44,6 +44,8 @@ from openupexp.queue.jobs import enqueue
 from openupexp.retrieval.embeddings import get_embedder
 
 FAKE = "fake"
+STRATEGIES = ("original", "A", "B", "C", "D")
+MAX_TRIALS = 30
 FAKE_SNAPSHOT = {"provider": FAKE, "profile_slug": FAKE, "profile_nome": "Modo de teste (simulado)", "model": "fake"}
 # origens que o handler acrescenta ao pacote durante a execução
 RUNTIME_ORIGINS = ("retrieved", "related")
@@ -285,20 +287,34 @@ async def _snapshots(session: AsyncSession, profile_ids: list[str]) -> list[dict
 
 
 async def create_comparison(session: AsyncSession, te_id: uuid.UUID, profile_ids: list[str],
-                            notes: str | None, user_id: uuid.UUID | None) -> LabComparison:
+                            notes: str | None, user_id: uuid.UUID | None, strategies: list[str] | None = None,
+                            repeticoes: int = 1) -> LabComparison:
     te, run, pkg = await _source(session, te_id)
     snaps = await _snapshots(session, profile_ids)
+    strategies = list(dict.fromkeys(strategies or ["original"]))
+    if any(x not in STRATEGIES for x in strategies):
+        raise LabError("Estratégia desconhecida.")
+    if not 1 <= repeticoes <= 5:
+        raise LabError("Use de 1 a 5 repetições.")
+    if len(snaps) * len(strategies) * repeticoes > MAX_TRIALS:
+        raise LabError(f"No máximo {MAX_TRIALS} tentativas por comparação (modelos × estratégias × repetições).")
     comp = LabComparison(id=uuid.uuid4(), source_task_execution_id=te.id, run_id=run.id, project_id=run.project_id,
                          task_id=te.task_id, baml_src_sha=baml_src_sha(), source_baml_src_sha=run.baml_src_sha,
                          package_sha256=pkg.sha256, notes=notes, created_by=user_id)
     session.add(comp)
     await session.flush()
-    for i, snap in enumerate(snaps):
-        trial = LabTrial(id=uuid.uuid4(), comparison_id=comp.id, position=i, profile_snapshot=snap,
-                         status="queued", output=[], metrics={}, calls=[])
-        session.add(trial)
-        await session.flush()
-        await enqueue(session, "lab.trial", {"trial_id": str(trial.id)})
+    position = 0
+    # repetições intercaladas: uma rodada completa de modelos × estratégias antes da próxima
+    for rep_no in range(1, repeticoes + 1):
+        for strategy in strategies:
+            for snap in snaps:
+                trial = LabTrial(id=uuid.uuid4(), comparison_id=comp.id, position=position, profile_snapshot=snap,
+                                 strategy=None if strategy == "original" else strategy, repeticao=rep_no,
+                                 status="queued", output=[], metrics={}, calls=[])
+                session.add(trial)
+                await session.flush()
+                await enqueue(session, "lab.trial", {"trial_id": str(trial.id)})
+                position += 1
     return comp
 
 
@@ -341,7 +357,7 @@ async def run_trial(trial_id: uuid.UUID) -> str:
             return trial.status if trial else "missing"
         trial.status, trial.started_at = "running", datetime.now(UTC)
         comp = await s.get(LabComparison, trial.comparison_id)
-        snapshot, te_id = dict(trial.profile_snapshot), comp.source_task_execution_id
+        snapshot, te_id, strategy = dict(trial.profile_snapshot), comp.source_task_execution_id, trial.strategy
 
     gateway = LabGateway(snapshot)
     started = time.perf_counter()
@@ -351,22 +367,34 @@ async def run_trial(trial_id: uuid.UUID) -> str:
             manifest = get_manifest(run.manifest_version)
             phase, task = manifest.phase(run.phase), manifest.task(te.task_id)
             package = ContextPackage(strategy=pkg_row.strategy, task_id=te.task_id,
-                                     items=[it for it in pkg_row.items if it["origin"] not in RUNTIME_ORIGINS])
+                                     items=[PackageItem(**it) for it in pkg_row.items
+                                            if it["origin"] not in RUNTIME_ORIGINS],
+                                     coverage=Coverage(**{**(pkg_row.coverage or {}), "output_missing_ids": []}))
             embedder = get_embedder()
             if run.corpus_version_id:
                 cv = await s.get(CorpusVersion, run.corpus_version_id)
                 embedder = get_embedder(cv.embedding_provider, cv.embedding_model)
+            notes: dict = {}
+            if strategy:
+                package, notes = await derive_package(s, run, task, package, strategy, embedder)
+            contexto = {"estrategia": strategy or "original", "pacote_original": pkg_row.strategy,
+                        "tokens_estimados": package.token_estimate(), "itens_entregues": len(package.items),
+                        "perda_top_k": (round(len(package.coverage.missing_ids) / len(package.coverage.required_ids), 3)
+                                        if package.coverage.required_ids else 0.0),
+                        "ids_fora_do_contexto": list(package.coverage.missing_ids), **notes}
             ctx = TaskContext(s, run, phase, task, package, gateway, embedder, te, te.iteracao)
             results = await _handlers()[te.task_id](ctx)
             metrics = trial_metrics(results, package, gateway.calls, _retrieved_refs(pkg_row.items),
                                     int((time.perf_counter() - started) * 1000))
+            metrics["contexto"] = contexto
             output = trial_output(results)
             await s.rollback()  # o laboratório não grava nada nos artefatos
         status, error = "completed", None
     except Exception as exc:  # noqa: BLE001 — falha do modelo ou do contrato é resultado da tentativa
         status, error = "failed", f"{type(exc).__name__}: {str(exc)[:1500]}"
         output = []
-        metrics = {"contrato_valido": False, **_call_totals(gateway.calls),
+        metrics = {"contrato_valido": False, "contexto": {"estrategia": strategy or "original"},
+                   **_call_totals(gateway.calls),
                    "duracao_ms": int((time.perf_counter() - started) * 1000)}
 
     async with session_scope() as s:
@@ -374,3 +402,38 @@ async def run_trial(trial_id: uuid.UUID) -> str:
         trial.status, trial.error, trial.output, trial.metrics = status, error, output, metrics
         trial.calls, trial.finished_at = gateway.calls, datetime.now(UTC)
     return status
+
+
+# ---------------------------------------------------------------------------
+# Resumo por configuração (modelo × estratégia), média e desvio entre repetições
+# ---------------------------------------------------------------------------
+
+
+def _mean_sd(values: list[float]) -> dict | None:
+    if not values:
+        return None
+    mean = sum(values) / len(values)
+    sd = (sum((v - mean) ** 2 for v in values) / (len(values) - 1)) ** 0.5 if len(values) > 1 else 0.0
+    return {"media": round(mean, 3), "dp": round(sd, 3), "n": len(values)}
+
+
+def summarize(trials: list[dict]) -> list[dict]:
+    groups: dict[tuple, list[dict]] = {}
+    for t in trials:
+        groups.setdefault((t["modelo"], t["strategy"] or "original"), []).append(t)
+    out = []
+    for (modelo, strategy), ts in groups.items():
+        done = [t for t in ts if t["status"] == "completed"]
+        m = [t["metrics"] for t in done]
+        out.append({
+            "modelo": modelo, "estrategia": strategy, "tentativas": len(ts), "concluidas": len(done),
+            "falhas": sum(1 for t in ts if t["status"] == "failed"),
+            "itens": _mean_sd([x.get("itens", 0) for x in m]),
+            "lacunas": _mean_sd([x.get("lacunas", 0) for x in m]),
+            "tokens": _mean_sd([(x.get("input_tokens") or 0) + (x.get("output_tokens") or 0) for x in m]),
+            "tempo_s": _mean_sd([(x.get("latency_ms") or 0) / 1000 for x in m]),
+            "perda_top_k": _mean_sd([(x.get("contexto") or {}).get("perda_top_k", 0.0) for x in m]),
+            "f1": _mean_sd([t["gabarito"]["f1"] for t in done if t.get("gabarito")]),
+            "nota": _mean_sd([n["nota"] for t in done for n in t.get("notas", [])]),
+        })
+    return out

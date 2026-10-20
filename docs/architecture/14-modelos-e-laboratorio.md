@@ -9,7 +9,7 @@ Nada aqui vem da teoria OpenUPExp: é decisão de arquitetura da plataforma.
 | 1 | Ollama opcional no Compose, modelo local protegido, escolha do perfil por execução, registro da configuração usada | [IMPLEMENTADO] |
 | 2 | Administração de modelos e perfis, com teste de conexão, teste de compatibilidade e lista de servidores permitidos | [IMPLEMENTADO] |
 | 3 | Laboratório v1: reexecutar tarefas reais com o mesmo pacote de contexto em vários modelos | [IMPLEMENTADO] |
-| 4 | Laboratório v2: estratégias A–D (com a B), matriz modelo × estratégia, gabaritos (M4) | [PROPOSTA] |
+| 4 | Laboratório v2: estratégias A–D (com a B), matriz modelo × estratégia, repetições, gabaritos | [IMPLEMENTADO] (1º nível de emparelhamento) |
 
 ## 14.1 Princípios
 
@@ -190,6 +190,39 @@ Tela **Pesquisa → Laboratório de modelos** (`/laboratorio`), também acessív
 
 Verificado com o modelo local: tarefa 1.1.2 (INPI) — formato aceito, 4 stakeholders, mesmos
 trechos, 1.643/959 tokens, 220 s; a mesma tarefa no modo simulado, como controle.
+
+### Implementação do passo 4 [IMPLEMENTADO]
+
+- **Estratégia B** no ContextBuilder (`semantic_select`): para cada entrada em lista, mantém os
+  `B_TOP_K` (8) itens mais próximos da descrição da tarefa (nome, função BAML, referência teórica),
+  na ordem original. A perda fica em `coverage.missing_ids` e **não é corrigida** (cap. 05). Vale
+  para as etapas (opção "Busca por semelhança — experimental") e para o laboratório.
+- **Estratégia como fator do laboratório**: cada tentativa tem `strategy` (vazio = pacote original).
+  `derive_package` monta o pacote da estratégia a partir das **mesmas versões** que a tarefa recebeu;
+  digests (D, quando o pacote original não os tinha) e documento integral (A) são os **atuais** da
+  execução, e a tentativa registra isso em `contexto.estado_atual`.
+- **Repetições** (1 a 5) intercaladas — uma rodada completa de modelos × estratégias antes da
+  próxima — e **resumo por configuração** com média ± desvio padrão. Limite de 30 tentativas.
+- **Gabarito** (`lab_gold`), por projeto e tarefa: lista de itens esperados de uma parte do
+  documento, com campo de autoria. Emparelhamento 1:1 guloso por semelhança textual (limiar 0,6),
+  com precisão, cobertura (recall) e F1; a tela mostra cada par, os faltantes e os extras para
+  conferência. É o primeiro nível do emparelhamento previsto no cap. 09 (humano ou LLM-juiz).
+- **Exportação CSV** de uma linha por tentativa, para análise estatística externa.
+
+Verificado com modelos reais (tarefa 1.1.2, INPI; gabarito **de teste**, não de especialistas):
+
+| Modelo | Estratégia | Itens | F1 (teste) | Pontos em aberto | Tokens (lidos/escritos) | Tempo |
+|---|---|---|---|---|---|---|
+| GPT-5 mini | como executada | 4 | 100% | 7 | 1.460 / 4.081 | 39,8 s |
+| Gemini 3.5 Flash | como executada | 4 | 100% | 7 | 1.620 / 1.331 | 20,1 s |
+| GPT-5 mini | C | 4 | 100% | 6 | 1.460 / 3.399 | 28,6 s |
+| Gemini 3.5 Flash | C | 4 | 100% | 7 | 1.620 / 1.382 | 24,6 s |
+
+Uma execução por configuração e um caso pequeno: não permite conclusões, só confirma o fluxo.
+
+**Limitações**: o emparelhamento textual erra com sinônimos e paráfrases (por isso a conferência
+na tela); o LLM-juiz e a concordância entre especialistas (α de Krippendorff) continuam pendentes;
+a estratégia A usa o documento atual, não o do momento da tarefa.
 
 ### Plano original
 

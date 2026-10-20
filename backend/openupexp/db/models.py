@@ -542,6 +542,9 @@ class LabTrial(Base):
     id: Mapped[uuid.UUID] = _uuid_pk()
     comparison_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("lab_comparison.id", ondelete="CASCADE"))
     position: Mapped[int] = mapped_column(Integer, default=0)
+    # estratégia de contexto (None = pacote original da tarefa) e número da repetição
+    strategy: Mapped[str | None] = mapped_column(String(10))
+    repeticao: Mapped[int] = mapped_column(Integer, default=1)
     # snapshot do perfil (mesmo formato de run.model_profile); {"provider": "fake"} no modo de teste
     profile_snapshot: Mapped[dict] = mapped_column(JSONB, default=dict)
     # queued | running | completed | failed | cancelled
@@ -564,3 +567,19 @@ class LabRating(Base):
     comentario: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = _created()
     __table_args__ = (UniqueConstraint("trial_id", "user_id", name="uq_lab_rating_user"),)
+
+
+class LabGold(Base):
+    """Gabarito de referência de uma tarefa num projeto: itens esperados, um texto por item (cap. 09 §9.4)."""
+    __tablename__ = "lab_gold"
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    project_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("project.id", ondelete="CASCADE"))
+    task_id: Mapped[str] = mapped_column(String(20))
+    artifact_type: Mapped[str] = mapped_column(String(80))
+    itens: Mapped[list] = mapped_column(JSONB, default=list)
+    autoria: Mapped[str | None] = mapped_column(Text)  # quem elaborou e como (ex.: especialista sem ver saídas)
+    updated_by: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("app_user.id"))
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+    __table_args__ = (UniqueConstraint("project_id", "task_id", "artifact_type", name="uq_lab_gold"),)

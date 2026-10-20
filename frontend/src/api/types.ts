@@ -163,6 +163,8 @@ export interface LabMetrics {
   recuperacao?: { identica: boolean; trechos: number; so_na_original: string[]; so_nesta: string[] };
   chamadas?: number; chamadas_com_erro?: number; input_tokens?: number; output_tokens?: number; latency_ms?: number; duracao_ms?: number | null;
   artefatos?: { artifact: string; titulo: string; itens: number | null; lacunas: number }[];
+  contexto?: { estrategia: string; tokens_estimados?: number; itens_entregues?: number; perda_top_k?: number;
+    ids_fora_do_contexto?: string[]; estado_atual?: string[] };
 }
 export interface LabOutput { artifact: string; titulo: string; content: Record<string, unknown> }
 export interface LabTrialT {
@@ -170,11 +172,23 @@ export interface LabTrialT {
   status: string; error: string | null; metrics: LabMetrics; output: LabOutput[];
   calls: { function: string; status: string; latency_ms: number; input_tokens?: number; output_tokens?: number; error?: string }[];
   started_at: string | null; finished_at: string | null; notas: { nota: number; comentario: string | null; minha: boolean }[];
+  strategy: string | null; repeticao: number; gabarito: GoldScore | null;
+}
+export interface GoldScore {
+  precisao: number; recall: number; f1: number; acertos: number; gerados: number; esperados: number;
+  pares: { gabarito: string; gerado: string; similaridade: number }[]; nao_encontrados: string[]; sem_correspondencia: string[];
+}
+export interface Stat { media: number; dp: number; n: number }
+export interface LabSummaryRow {
+  modelo: string | null; estrategia: string; tentativas: number; concluidas: number; falhas: number;
+  itens: Stat | null; lacunas: Stat | null; tokens: Stat | null; tempo_s: Stat | null; perda_top_k: Stat | null; f1: Stat | null; nota: Stat | null;
 }
 export interface LabDetail {
   id: string; projeto: string; project_id: string; run_id: string; fase: string; task_id: string; nome: string; funcao: string | null;
   notes: string | null; created_at: string; prompts_mudaram: boolean; package_sha256: string; pode_editar: boolean;
-  original: { nome: string; modelo: string; output: LabOutput[]; metrics: LabMetrics };
+  original: { nome: string; modelo: string; output: LabOutput[]; metrics: LabMetrics; gabarito: GoldScore | null };
   tentativas: LabTrialT[];
+  resumo: LabSummaryRow[];
+  gabarito: { artefatos: string[]; artifact_type: string | null; itens: string[]; autoria: string | null; atualizado_em: string | null };
 }
 export interface LabSummary { id: string; projeto: string; task_id: string; fase: string; nome: string; created_at: string; modelos: (string | null)[]; situacao: string[] }

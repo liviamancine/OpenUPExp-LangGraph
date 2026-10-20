@@ -59,7 +59,7 @@ client<llm> GeminiFlash {
   retry_policy PadraoRetry
   options {
     api_key env.GEMINI_API_KEY
-    model "gemini-2.5-flash"
+    model "gemini-3.5-flash"
     generationConfig { temperature 0.0 }
   }
 }

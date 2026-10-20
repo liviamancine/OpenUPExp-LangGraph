@@ -142,3 +142,79 @@ async def test_lab_api_access_and_rating(scope_bytes, law_bytes, client):
     assert d["tentativas"][0]["notas"] == [{"nota": 5, "comentario": None, "minha": True}]
     assert len((await client.get("/api/lab/comparisons", headers=h)).json()) == 1
     assert (await client.get("/api/lab/comparisons", headers=outsider)).json() == []
+
+
+def test_gold_matching_is_one_to_one():
+    from openupexp.lab.gold import score
+
+    out = [{"nome": "Solicitante do registro"}, {"nome": "Examinador"}, {"nome": "Fornecedor de software"}]
+    s = score(["Solicitante", "Examinador", "Regulador"], out, "vision.stakeholders")
+    assert (s["acertos"], s["esperados"], s["gerados"]) == (2, 3, 3)
+    assert s["nao_encontrados"] == ["Regulador"] and s["sem_correspondencia"] == ["Fornecedor de software"]
+    assert abs(s["f1"] - 0.667) < 0.01
+    # o mesmo item gerado não conta duas vezes
+    assert score(["Examinador", "Examinador técnico"], [{"nome": "Examinador"}], "vision.stakeholders")["acertos"] == 1
+
+
+async def test_strategies_repetitions_and_top_k_loss(scope_bytes, law_bytes, monkeypatch):
+    from openupexp.context import builder
+
+    monkeypatch.setattr(builder, "B_TOP_K", 2)
+    # 1.1.3 recebe a lista de stakeholders: com top-2, a estratégia B perde stakeholders e necessidades
+    _, te_id = await _source(scope_bytes, law_bytes, "1.1.3")
+    async with session_scope() as s:
+        comp = await service.create_comparison(s, te_id, [service.FAKE], None, None,
+                                               strategies=["original", "B", "C"], repeticoes=2)
+        with pytest.raises(service.LabError):
+            await service.create_comparison(s, te_id, [service.FAKE], None, None, strategies=["Z"])
+    await drain(["lab.trial"])
+    async with session_scope() as s:
+        trials = (await s.scalars(select(LabTrial).where(LabTrial.comparison_id == comp.id)
+                                  .order_by(LabTrial.position))).all()
+    assert len(trials) == 6 and all(t.status == "completed" for t in trials)
+    by = {(t.strategy, t.repeticao): t.metrics for t in trials}
+    assert by[("B", 1)]["contexto"]["perda_top_k"] > 0 and by[(None, 1)]["contexto"]["perda_top_k"] == 0
+    assert by[("B", 1)]["itens"] < by[(None, 1)]["itens"]
+    assert by[("C", 1)]["contexto"]["estrategia"] == "C"
+    rows = service.summarize([{"modelo": "m", "strategy": t.strategy, "status": t.status, "metrics": t.metrics,
+                               "gabarito": None, "notas": []} for t in trials])
+    assert {r["estrategia"]: r["tentativas"] for r in rows} == {"original": 2, "B": 2, "C": 2}
+    assert next(r for r in rows if r["estrategia"] == "B")["perda_top_k"]["n"] == 2
+
+
+async def test_strategy_b_in_a_real_run(scope_bytes, law_bytes):
+    run_id = await _setup(scope_bytes, law_bytes, strategy="B")
+    await drain()
+    async with session_scope() as s:
+        assert (await s.get(Run, run_id)).status == "waiting_human"
+        from openupexp.db.models import ContextPackageRow
+        pkg = await s.scalar(select(ContextPackageRow).join(TaskExecution, TaskExecution.id == ContextPackageRow.task_execution_id)
+                             .where(TaskExecution.run_id == run_id, TaskExecution.task_id == "1.1.3"))
+        assert pkg.strategy == "B-semantic@1.0"
+
+
+async def test_gold_api_and_csv(scope_bytes, law_bytes, client):
+    run_id, te_id = await _source(scope_bytes, law_bytes, "1.1.2")
+    async with session_scope() as s:
+        eng = await create_user(s, "eng@x.org", "Engenheira", "senha123")
+        run = await s.get(Run, run_id)
+        s.add(ProjectMember(project_id=run.project_id, user_id=eng.id, papel_plataforma="requirements_engineer"))
+        project_id = run.project_id
+    r = await client.post("/api/auth/login", json={"email": "eng@x.org", "password": "senha123"})
+    h = {"Authorization": f"Bearer {r.json()['access_token']}"}
+    cid = (await client.post("/api/lab/comparisons", headers=h, json={
+        "task_execution_id": str(te_id), "profiles": ["fake"], "strategies": ["original", "D"]})).json()["id"]
+    await drain(["lab.trial"])
+    r = await client.put("/api/lab/gold", headers=h, json={
+        "project_id": str(project_id), "task_id": "1.1.2", "artifact_type": "vision.stakeholders",
+        "itens": ["Solicitante", "Examinador", "Regulador", "Procurador", "Ministério"], "autoria": "teste"})
+    assert r.status_code == 200
+    d = (await client.get(f"/api/lab/comparisons/{cid}", headers=h)).json()
+    assert d["gabarito"]["artifact_type"] == "vision.stakeholders" and len(d["gabarito"]["itens"]) == 5
+    assert d["original"]["gabarito"]["esperados"] == 5
+    g = d["tentativas"][0]["gabarito"]
+    assert g["gerados"] > 0 and 0 <= g["f1"] <= 1
+    assert {x["estrategia"] for x in d["resumo"]} == {"original", "D"}
+    csv_text = (await client.get(f"/api/lab/comparisons/{cid}/export.csv", headers=h)).text
+    lines = csv_text.strip().splitlines()
+    assert lines[0].startswith("comparacao,tarefa,modelo") and len(lines) == 3

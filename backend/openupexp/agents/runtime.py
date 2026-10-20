@@ -171,7 +171,7 @@ async def execute_task(
         async with session_scope() as s:
             run = await s.get(Run, run_id)
             te = await s.get(TaskExecution, te_id)
-            package = await build_context(s, run, task)
+            package = await build_context(s, run, task, embedder=embedder)
             ctx = TaskContext(s, run, phase, task, package, gateway, embedder, te, iteration)
             results = await handler(ctx)
             if task.completeness != "none" and package.coverage.output_missing_ids:

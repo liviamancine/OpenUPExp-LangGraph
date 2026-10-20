@@ -88,7 +88,7 @@ class ContextPackage(BaseModel):
 | Estratégia | Como monta o contexto | Coverage guard | Uso |
 |---|---|---|---|
 | **A — Contexto integral** | Renderiza o documento Markdown completo atual (como o W5 faz hoje) e o entrega inteiro | não se aplica (tudo entra) | Linha de base experimental |
-| **B — Recuperação semântica** | Indexa os itens dos artefatos do projeto; recupera top-k por similaridade com a descrição da tarefa | **só mede, não corrige** | Experimental — mede a perda por top-k |
+| **B — Recuperação semântica** | Indexa os itens dos artefatos do projeto; recupera top-k por similaridade com a descrição da tarefa | **só mede, não corrige** | Experimental — mede a perda por top-k. [IMPLEMENTADO] (top-8; cap. 14 §14.5) |
 | **C — Contratos estruturados** | Entrega exatamente os `reads` declarados no manifesto, sem RAG adicional sobre artefatos | aplicado | Experimental e produção simples |
 | **D — Híbrida** (padrão) | C + digests das fases aprovadas + Reference Base híbrida + itens relacionados quando `related` ≠ none | **aplicado e obrigatório** | Produção |
 

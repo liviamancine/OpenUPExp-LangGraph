@@ -92,8 +92,8 @@ async def start_run(
         await _check_base_run(session, project_id, spec.requires_phase, base_run_id)
     elif base_run_id:
         raise DomainError(f"A Fase {phase} não parte de outra execução.", 422)
-    if context_strategy not in ("A", "C", "D"):
-        raise DomainError("Estratégias disponíveis: A, C, D (B prevista para o marco M4).", 422)
+    if context_strategy not in ("A", "B", "C", "D"):
+        raise DomainError("Estratégias disponíveis: A, B (experimental), C, D.", 422)
     await ensure_manifest(session)
     scope = await latest_scope_document(session, project_id)
     if scope is None:

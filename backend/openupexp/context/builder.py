@@ -4,7 +4,8 @@ Ver docs/architecture/05-contexto-e-evidencias.md.
 
 Estratégias:
   A — contexto integral: entradas declaradas + documento completo atual
-  B — recuperação semântica (prevista para o marco M4; ainda não implementada)
+  B — recuperação semântica: itens das entradas em lista reduzidos aos top-k mais próximos da
+      descrição da tarefa (experimental: só mede a perda por top-k, não a corrige)
   C — contratos estruturados: exatamente os reads do manifesto
   D — híbrida (padrão): C + digests de fases aprovadas + feedback humano
 """
@@ -26,7 +27,9 @@ from openupexp.process.manifest import ReadSpec, TaskSpec
 
 Origin = Literal["required", "previous", "digest", "retrieved", "related", "feedback", "document"]
 
-STRATEGY_VERSIONS = {"A": "A-full@1.0", "B": "B-semantic@0.0", "C": "C-contracts@1.0", "D": "D-hybrid@1.0"}
+STRATEGY_VERSIONS = {"A": "A-full@1.0", "B": "B-semantic@1.0", "C": "C-contracts@1.0", "D": "D-hybrid@1.0"}
+# itens mantidos por entrada em lista na estratégia B
+B_TOP_K = 8
 
 
 class MissingRequiredInput(Exception):
@@ -181,12 +184,83 @@ async def _digest_items(session: AsyncSession, run: Run) -> list[PackageItem]:
     return out
 
 
+def task_query(task: TaskSpec) -> str:
+    """Descrição da tarefa usada como consulta na estratégia B."""
+    return " ".join(x for x in [task.name, task.baml_function, task.theory_ref] if x)
+
+
+def semantic_select(item: PackageItem, query: str, embedder, k: int | None = None) -> PackageItem:
+    """Estratégia B: mantém só os k itens da lista mais próximos da consulta, na ordem original."""
+    k = k or B_TOP_K
+    at = ARTIFACT_TYPES.get(item.artifact or "")
+    if not (at and at.list_field and isinstance(item.content, dict)):
+        return item
+    rows = list(item.content.get(at.list_field) or [])
+    if len(rows) <= k:
+        return item
+    texts = [json.dumps(r, ensure_ascii=False)[:2000] for r in rows]
+    q = embedder.encode_query(query)
+    scored = []
+    for i, v in enumerate(embedder.encode_passages(texts)):
+        dot = sum(a * b for a, b in zip(q, v))
+        norm = (sum(a * a for a in q) ** 0.5) * (sum(b * b for b in v) ** 0.5)
+        scored.append((dot / norm if norm else 0.0, i))
+    keep = sorted(i for _, i in sorted(scored, reverse=True)[:k])
+    content = {**item.content, at.list_field: [rows[i] for i in keep]}
+    return item.model_copy(update={"content": content,
+                                   "reason": f"{item.reason}; estratégia B: top-{k} de {len(rows)} por similaridade"})
+
+
+def _included(item: PackageItem) -> list[str]:
+    at = ARTIFACT_TYPES.get(item.artifact or "")
+    if not (at and at.list_field and isinstance(item.content, dict)):
+        return []
+    return [r.get("id") for r in item.content.get(at.list_field, []) if r.get("id")]
+
+
+async def derive_package(session: AsyncSession, run: Run, task: TaskSpec, original: ContextPackage,
+                         strategy: str, embedder=None) -> tuple[ContextPackage, dict]:
+    """Pacote de outra estratégia a partir do pacote original de uma tarefa (laboratório, cap. 14).
+
+    As entradas declaradas e as versões anteriores vêm do pacote original (mesmas versões que a
+    tarefa recebeu). Digests e documento integral são os atuais da execução — informado em `notas`.
+    """
+    if strategy not in STRATEGY_VERSIONS:
+        raise ValueError(f"estratégia desconhecida: {strategy}")
+    base = [it for it in original.items if it.origin in ("required", "previous")]
+    feedback = [it for it in original.items if it.origin == "feedback"]
+    notes: dict = {"estado_atual": []}
+    if strategy == "B":
+        if embedder is None:
+            raise ValueError("a estratégia B precisa de um embedder")
+        query = task_query(task)
+        base = [semantic_select(it, query, embedder) if it.origin == "required" else it for it in base]
+    items = base + (feedback if strategy in ("A", "C", "D") else [])
+    if strategy == "D":
+        digests = [it for it in original.items if it.origin == "digest"] or await _digest_items(session, run)
+        if not any(it.origin == "digest" for it in original.items):
+            notes["estado_atual"].append("digests")
+        items += digests
+    if strategy == "A":
+        from openupexp.exports.documents import render_current_document
+
+        items.append(PackageItem(origin="document", ref=f"run:{run.id}:documento",
+                                 content=await render_current_document(session, run),
+                                 reason="estratégia A: documento integral atual"))
+        notes["estado_atual"].append("documento")
+    required_ids = list(original.coverage.required_ids)
+    included = {i for it in items if it.origin == "required" for i in _included(it)}
+    coverage = Coverage(required_ids=required_ids, included_ids=[i for i in required_ids if i in included])
+    coverage.missing_ids = sorted(set(required_ids) - included)
+    coverage.satisfied = not coverage.missing_ids
+    return ContextPackage(strategy=STRATEGY_VERSIONS[strategy], task_id=task.id, items=items,
+                          coverage=coverage), notes
+
+
 async def build_context(
-    session: AsyncSession, run: Run, task: TaskSpec, strategy: str | None = None
+    session: AsyncSession, run: Run, task: TaskSpec, strategy: str | None = None, embedder=None
 ) -> ContextPackage:
     strategy = strategy or run.context_strategy
-    if strategy == "B":
-        raise NotImplementedError("Estratégia B (semântica) prevista para o marco M4.")
     if strategy not in STRATEGY_VERSIONS:
         raise ValueError(f"estratégia desconhecida: {strategy}")
 
@@ -199,6 +273,9 @@ async def build_context(
             if read.required:
                 raise MissingRequiredInput(f"tarefa {task.id}: entrada obrigatória ausente: {read.artifact}")
             continue
+        if strategy == "B" and embedder is not None:
+            # experimental: a perda por top-k fica registrada em coverage.missing_ids, sem correção
+            item = semantic_select(item, task_query(task), embedder)
         pkg.add(item)
         at = ARTIFACT_TYPES.get(read.artifact)
         if read.select == "all_items" and at and at.list_field and item.version_id:
@@ -217,7 +294,7 @@ async def build_context(
                 reason="versão anterior do artefato produzido (preservação de IDs)",
             ))
 
-    if strategy in ("C", "D", "A"):
+    if strategy in ("B", "C", "D", "A"):
         for fb in await _feedback_items(session, run):
             pkg.add(fb)
     if strategy == "D":

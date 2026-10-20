@@ -57,7 +57,7 @@ def _seeds() -> list[Seed]:
         Seed("anthropic-sonnet", "Claude Sonnet (Anthropic)", "anthropic", "claude-sonnet-5-5", None,
              "ANTHROPIC_API_KEY", profile_slug="anthropic-sonnet", profile_nome="Claude Sonnet · Anthropic",
              params={"temperature": 0.0, "max_tokens": 8192}),
-        Seed("gemini-flash", "Gemini 2.5 Flash (Google)", "google-ai", "gemini-2.5-flash", None, "GEMINI_API_KEY",
+        Seed("gemini-flash", "Gemini 3.5 Flash (Google)", "google-ai", "gemini-3.5-flash", None, "GEMINI_API_KEY",
              profile_slug="gemini-flash", profile_nome="Gemini Flash · Google", params={"temperature": 0.0}),
         Seed("nuvem-com-reserva", "Nuvem com reserva (fallback)", "baml-named", "OpenUPExpDefault",
              meta={"chaves": ["GROQ_API_KEY", "OPENAI_API_KEY", "ANTHROPIC_API_KEY"],

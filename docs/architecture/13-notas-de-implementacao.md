@@ -199,3 +199,12 @@ ainda não medido.
 | D-30 | Trechos recuperados refeitos pelo handler, com verificação de igualdade | A busca é determinística para a mesma versão do corpus; a tela mostra quando não coincidir |
 | D-31 | nginx resolve o nome da API a cada 10 s | Ao recriar a API, o frontend mantinha o IP antigo e respondia 502 |
 
+## 13.10 Laboratório v2 e estratégia B (cap. 14, passo 4)
+
+| # | Decisão | Motivo |
+|---|---|---|
+| D-32 | Estratégia B implementada no ContextBuilder, compartilhada por etapas e laboratório | Uma única definição do que "B" significa |
+| D-33 | Estratégias do laboratório derivadas das versões do pacote original | Mantém fixo o estado dos artefatos; só A e digests ausentes usam o estado atual, e isso fica registrado |
+| D-34 | Gabarito por (projeto, tarefa), com emparelhamento textual transparente | Primeiro nível, auditável na tela; LLM-juiz fica para depois |
+| D-35 | Modelo do Gemini passou para `gemini-3.5-flash` | O `gemini-2.5-flash` foi descontinuado (404), detectado pelo teste de compatibilidade |
+

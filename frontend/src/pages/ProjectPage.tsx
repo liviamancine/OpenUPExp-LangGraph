@@ -19,6 +19,7 @@ const STRATEGIES = [
   { id: "D", label: "Equilibrada (recomendada)", help: "Entrega à IA só o necessário de cada tarefa, com resumos das etapas anteriores." },
   { id: "C", label: "Estruturada", help: "Só os dados estruturados das etapas anteriores." },
   { id: "A", label: "Tudo", help: "O documento inteiro a cada tarefa. Mais caro; útil para comparação." },
+  { id: "B", label: "Busca por semelhança (experimental)", help: "Só os itens mais parecidos com a tarefa. Pode deixar itens de fora — serve para medir essa perda." },
 ];
 
 type StepState = "done" | "running" | "waiting" | "failed" | "available" | "locked";

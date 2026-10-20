@@ -7,6 +7,15 @@ import { taskName } from "../bpmn/names";
 import Icon from "../components/Icon";
 import { Empty, ErrorBox, Loading, PhaseChip, fmtDate } from "../components/ui";
 
+export const STRATEGY_OPTIONS = [
+  { id: "original", label: "Como foi executada", help: "O mesmo material que a tarefa recebeu." },
+  { id: "C", label: "C · Só as entradas", help: "Apenas os resultados anteriores declarados." },
+  { id: "D", label: "D · Equilibrada", help: "Entradas + resumos das etapas anteriores." },
+  { id: "A", label: "A · Tudo", help: "Entradas + documento inteiro (versão atual)." },
+  { id: "B", label: "B · Por semelhança", help: "Só os itens mais parecidos com a tarefa (top-8)." },
+];
+export const STRATEGY_LABEL: Record<string, string> = Object.fromEntries(STRATEGY_OPTIONS.map((x) => [x.id, x.label]));
+
 const RUN_STATUS: Record<string, string> = {
   completed: "concluída", running: "em andamento", queued: "na fila", waiting_human: "aguardando decisão", failed: "com erro",
 };
@@ -79,11 +88,16 @@ function NewComparison({ initialTask, initialRun, onCancel }: {
   const profiles = useQuery({ queryKey: ["llm-profiles"], queryFn: () => api.get<LlmProfile[]>("/llm/profiles") });
   const [chosen, setChosen] = useState<string[]>([]);
   const [notes, setNotes] = useState("");
+  const [strategies, setStrategies] = useState<string[]>(["original"]);
+  const [reps, setReps] = useState(1);
+  const total = chosen.length * strategies.length * reps;
   const create = useMutation({
-    mutationFn: () => api.post<{ id: string }>("/lab/comparisons", { task_execution_id: taskExec, profiles: chosen, notes: notes || null }),
+    mutationFn: () => api.post<{ id: string }>("/lab/comparisons", {
+      task_execution_id: taskExec, profiles: chosen, notes: notes || null, strategies, repeticoes: reps }),
     onSuccess: (r) => navigate(`/laboratorio/${r.id}`),
   });
   const toggle = (id: string) => setChosen((xs) => xs.includes(id) ? xs.filter((x) => x !== id) : [...xs, id]);
+  const toggleStrategy = (id: string) => setStrategies((xs) => xs.includes(id) ? xs.filter((x) => x !== id) : [...xs, id]);
 
   return (
     <form className="card stack" onSubmit={(e) => { e.preventDefault(); create.mutate(); }}>
@@ -126,11 +140,31 @@ function NewComparison({ initialTask, initialRun, onCancel }: {
           <span><div className="title"><Icon name="zap" size={15} /> Modo de teste (simulado)</div><div className="help">Sem IA: útil para conhecer o laboratório.</div></span>
         </label>
       </div>
+      <details className="advanced" open={strategies.length > 1 || reps > 1}>
+        <summary>Experimento: estratégias de contexto e repetições</summary>
+        <div className="stack tight">
+          <div className="small muted">Além do modelo, você pode variar <strong>o quanto do material a IA recebe</strong>.
+            Cada combinação modelo × estratégia vira uma coluna; as repetições mostram a variação entre execuções.</div>
+          <div className="choices horizontal">
+            {STRATEGY_OPTIONS.map((x) => (
+              <label key={x.id} className={`choice ${strategies.includes(x.id) ? "selected" : ""}`}>
+                <input type="checkbox" checked={strategies.includes(x.id)} onChange={() => toggleStrategy(x.id)} />
+                <span><div className="title">{x.label}</div><div className="help">{x.help}</div></span>
+              </label>
+            ))}
+          </div>
+          <label style={{ maxWidth: 260 }}>Repetições de cada combinação
+            <select value={reps} onChange={(e) => setReps(Number(e.target.value))}>
+              {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n}</option>)}
+            </select></label>
+        </div>
+      </details>
       <label>Anotação (opcional)<input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="ex.: comparar o local com o Groq na identificação de stakeholders" /></label>
       <ErrorBox error={create.error} />
       <div className="row">
-        <button className="primary" disabled={!taskExec || chosen.length === 0 || chosen.length > 6 || create.isPending}>
-          <Icon name="play" />Comparar</button>
+        <button className="primary" disabled={!taskExec || chosen.length === 0 || chosen.length > 6 || !strategies.length || total > 30 || create.isPending}>
+          <Icon name="play" />Comparar ({total} tentativa{total === 1 ? "" : "s"})</button>
+        {total > 30 && <span className="badge err">máximo de 30 tentativas</span>}
         <button type="button" className="ghost" onClick={onCancel}>Cancelar</button>
         <span className="muted small">As tentativas rodam em fila; com o modelo local, cada uma pode levar minutos.</span>
       </div>
