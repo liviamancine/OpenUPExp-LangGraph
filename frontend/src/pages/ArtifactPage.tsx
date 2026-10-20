@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "../api/client";
 import type { Diff, VersionDetail } from "../api/types";
 import ArtifactView from "../components/ArtifactView";
+import Icon from "../components/Icon";
 import { ErrorBox, Loading, Status, fmtDate, show } from "../components/ui";
 
 export default function ArtifactPage() {
@@ -20,35 +21,35 @@ export default function ArtifactPage() {
   const d = v.data;
   return (
     <div className="stack">
-      <div className="small"><Link to={`/execucoes/${d.run_id}`}>← execução</Link></div>
+      <Link to={`/execucoes/${d.run_id}`} className="back"><Icon name="arrowLeft" size={14} />Voltar à etapa</Link>
       <div className="split">
         <div className="card"><ArtifactView versionId={versionId} onNewVersion={(id) => navigate(`/versoes/${id}`)} /></div>
         <div className="stack">
           <div className="card stack">
-            <h2>Histórico</h2>
+            <div className="card-head"><span className="icon-bubble"><Icon name="clock" /></span><h2>Versões</h2></div>
             <table className="small">
               <tbody>
                 {d.historico.map((h) => (
                   <tr key={h.id} className={`list-item ${h.id === versionId ? "active" : ""}`}>
                     <td><Link to={`/versoes/${h.id}`}>v{h.version_no}</Link></td>
                     <td><Status value={h.status} /></td><td><Status value={h.origin} /></td>
-                    <td>it{h.iteracao}</td><td className="muted">{fmtDate(h.created_at)}</td>
+                    <td>{h.iteracao}ª rodada</td><td className="muted">{fmtDate(h.created_at)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
-            <label>Comparar com
+            <label>Comparar com a versão
               <select value={compare} onChange={(e) => setCompare(e.target.value)}>
-                <option value="">—</option>
+                <option value="">Escolha…</option>
                 {d.historico.filter((h) => h.id !== versionId).map((h) => <option key={h.id} value={h.id}>v{h.version_no} ({h.origin})</option>)}
               </select>
             </label>
             {diff.data && <DiffView diff={diff.data} />}
           </div>
           <div className="card stack">
-            <h2>Proveniência</h2>
-            <div className="muted small">Versões que o agente efetivamente recebeu como entrada.</div>
-            {d.dependencias.length === 0 && <div className="muted">Sem dependências registradas.</div>}
+            <div className="card-head"><span className="icon-bubble"><Icon name="layers" /></span><h2>De onde veio</h2></div>
+            <div className="muted small">O que a IA leu para produzir esta versão.</div>
+            {d.dependencias.length === 0 && <div className="muted">Nada registrado.</div>}
             {d.dependencias.map((dep) => (
               <div key={dep.version_id} className="row small">
                 <Link to={`/versoes/${dep.version_id}`} className="mono">{dep.artifact}</Link>

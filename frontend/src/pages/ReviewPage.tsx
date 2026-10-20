@@ -4,20 +4,33 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../api/client";
 import type { ArtifactSummary, HitlDetail, ItemComment } from "../api/types";
 import ArtifactView from "../components/ArtifactView";
-import { DECISION_LABEL, ErrorBox, Loading, Markdown, Status, fmtDate } from "../components/ui";
+import Icon, { type IconName } from "../components/Icon";
+import { ErrorBox, Hint, Loading, Markdown, PHASES, PhaseIcon, Status, decisionHelp, decisionLabel, fmtDate } from "../components/ui";
 import { useRunEvents } from "../hooks";
 
 const PREVIEW = "__preview__";
-const POSITIONS = [
-  { id: "concordo", label: "Concordo" },
-  { id: "ressalvas", label: "Concordo com ressalvas" },
-  { id: "objecao", label: "Objeção (bloqueia o encerramento)" },
+const POSITIONS: { id: string; label: string; help: string; tone: string; icon: IconName }[] = [
+  { id: "concordo", label: "Concordo", help: "Está bom como está.", tone: "ok", icon: "thumbsUp" },
+  { id: "ressalvas", label: "Concordo, com observações", help: "Pode seguir, mas deixo sugestões.", tone: "warn", icon: "message" },
+  { id: "objecao", label: "Discordo", help: "Algo precisa mudar antes de seguir.", tone: "err", icon: "xCircle" },
 ];
 
-const KIND_INTRO: Record<string, string> = {
-  approval: "Aprovação individual do Engenheiro de Requisitos",
-  consensus: "Rodada de consenso: participantes registram posição; o Engenheiro encerra ou pede retorno",
-  input: "Entrada humana: material de elicitação para a tarefa 2.2.1",
+const KIND_INTRO: Record<string, { title: string; steps: string[] }> = {
+  approval: {
+    title: "Revise e aprove",
+    steps: ["Leia o documento (ou cada parte, no menu à esquerda).", "Confira a verificação automática.",
+      "Aprove, ou escolha qual parte a IA deve refazer e explique o que mudar."],
+  },
+  consensus: {
+    title: "Opinião da equipe",
+    steps: ["Cada pessoa lê o resultado e diz se concorda.", "Quem discorda explica o motivo.",
+      "O responsável encerra quando houver acordo ou pede para a IA ajustar."],
+  },
+  input: {
+    title: "Envie o material das conversas",
+    steps: ["Converse com as pessoas seguindo o roteiro ao lado.", "Envie as transcrições, atas ou anotações.",
+      "Clique em continuar: a IA lê o material e extrai as necessidades."],
+  },
 };
 
 export default function ReviewPage() {
@@ -42,54 +55,80 @@ export default function ReviewPage() {
   const participantRoles = (r.policy.participant_roles as string[] | undefined) ?? [];
   const canPosition = r.meu_papel === "admin" || participantRoles.includes(r.meu_papel);
   const done = () => { qc.invalidateQueries({ queryKey: ["inbox"] }); navigate(`/execucoes/${r.run_id}`); };
+  const intro = KIND_INTRO[r.kind] ?? KIND_INTRO.approval;
+  const phase = r.phase ?? r.task_id.split(".")[0];
+  const failing = r.review_report?.checks.filter((c) => !c.ok) ?? [];
 
   return (
     <div className="stack">
-      <div className="row">
-        <div className="grow">
-          <div className="small"><Link to={`/execucoes/${r.run_id}`}>← execução</Link> · {r.projeto?.nome}</div>
-          <h1>{r.payload.name ?? r.task_id} <span className="muted small">{r.task_id} · iteração {r.iteracao}</span></h1>
-          <div className="muted small">{KIND_INTRO[r.kind] ?? r.kind} · aberta em {fmtDate(r.created_at)}
-            {r.due_at && <> · prazo {fmtDate(r.due_at)}</>} · <Status value={r.status} /></div>
+      <div>
+        <Link to={`/execucoes/${r.run_id}`} className="back"><Icon name="arrowLeft" size={14} />Voltar à etapa · {r.projeto?.nome}</Link>
+        <div className="page-head">
+          <PhaseIcon phase={phase} size={26} />
+          <div className="grow">
+            <h1>{intro.title}</h1>
+            <div className="subtitle">Etapa {phase} · {PHASES[phase]?.titulo} · {r.payload.name ?? r.task_id}
+              {r.iteracao > 1 && <> · {r.iteracao}ª rodada</>} · desde {fmtDate(r.created_at)}
+              {r.due_at && <> · prazo {fmtDate(r.due_at)}</>}</div>
+          </div>
+          <Status value={r.status} />
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="journey" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 10 }}>
+          {intro.steps.map((s, i) => (
+            <div key={i} className="row" style={{ flexWrap: "nowrap", alignItems: "flex-start", gap: 10 }}>
+              <span className="avatar" style={{ width: 28, height: 28, fontSize: 13, background: "var(--accent)" }}>{i + 1}</span>
+              <span className="small">{s}</span>
+            </div>
+          ))}
         </div>
       </div>
 
       {r.kind === "input" ? (
         <div className="split">
           <div className="card">
-            {plan ? <ArtifactView versionId={plan.id} /> : <Loading what="Carregando o plano de elicitação" />}
+            {plan ? <ArtifactView versionId={plan.id} /> : <Loading what="Carregando o roteiro das conversas" />}
           </div>
           <InputForm r={r} isEngineer={isEngineer} onDone={done} />
         </div>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "260px minmax(0, 1fr) 340px", gap: 12, alignItems: "start" }}>
-          <div className="card stack">
-            <h3>Seções</h3>
+        <div className="review-grid">
+          <div className="card stack tight">
+            <h3>Partes do documento</h3>
             <div className={`list-item ${!current ? "active" : ""}`} onClick={() => setSelected(PREVIEW)}>
-              <div>Prévia do documento</div>
-              <div className="small muted">versões atuais, com suas edições</div>
+              <div className="row" style={{ gap: 8, flexWrap: "nowrap" }}><Icon name="file" size={16} /><strong>Documento completo</strong></div>
+              <div className="tiny muted">como vai ficar, com suas edições</div>
             </div>
-            {sections.map((a) => (
-              <div key={a.id} className={`list-item ${current?.id === a.id ? "active" : ""}`} onClick={() => setSelected(a.artifact_type)}>
-                <div className="row" style={{ gap: 6 }}>
-                  <span className="grow">{a.title}</span>
-                  {a.origin === "human_edit" && <span className="badge human_edit">editado</span>}
-                  {a.status === "stale" && <span className="badge stale">!</span>}
+            {sections.map((a) => {
+              const gaps = r.review_report?.lacunas_por_artefato?.[a.artifact_type];
+              return (
+                <div key={a.id} className={`list-item ${current?.id === a.id ? "active" : ""}`} onClick={() => setSelected(a.artifact_type)}>
+                  <div className="row" style={{ gap: 6, flexWrap: "nowrap" }}>
+                    <span className="grow small strong">{a.title}</span>
+                    {a.origin === "human_edit" && <span className="badge human_edit" title="editada por você"><Icon name="edit" size={11} /></span>}
+                    {a.status === "stale" && <span className="badge stale" title="desatualizada"><Icon name="alert" size={11} /></span>}
+                  </div>
+                  <div className="tiny muted">{a.itens != null ? `${a.itens} itens` : "texto"}{gaps ? ` · ${gaps} ponto(s) em aberto` : ""}</div>
                 </div>
-                <div className="small muted">v{a.version_no}{a.itens != null ? ` · ${a.itens} itens` : ""}
-                  {r.review_report?.lacunas_por_artefato?.[a.artifact_type] ? ` · ${r.review_report.lacunas_por_artefato[a.artifact_type]} lacunas` : ""}</div>
-              </div>
-            ))}
+              );
+            })}
             {r.review_report && (
               <>
-                <h3 style={{ marginTop: 8 }}>Checklist automático</h3>
-                <div className="muted small">Verificações objetivas da pré-revisão; não substituem sua revisão.</div>
-                {r.review_report.checks.map((c) => (
-                  <div key={c.id} className="small">
-                    <span className={`badge ${c.ok ? "ok" : "warn"}`}>{c.ok ? "ok" : "atenção"}</span> {c.descricao}
-                    {!c.ok && c.detalhes.length > 0 && <div className="muted mono">{c.detalhes.join(", ")}</div>}
-                  </div>
-                ))}
+                <h3 style={{ marginTop: 10 }}>Verificação automática</h3>
+                {failing.length === 0
+                  ? <div className="alert ok small"><Icon name="checkCircle" />Tudo certo nas {r.review_report.checks.length} verificações.</div>
+                  : <div className="alert warn small"><Icon name="alert" />{failing.length} ponto(s) para olhar com atenção.</div>}
+                <div className="checklist">
+                  {r.review_report.checks.map((c) => (
+                    <div key={c.id} className={`check-item small ${c.ok ? "ok" : "todo"}`}>
+                      <Icon name={c.ok ? "checkCircle" : "alert"} size={15} />
+                      <span>{c.descricao}{!c.ok && c.detalhes.length > 0 && <div className="muted mono">{c.detalhes.join(", ")}</div>}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="tiny muted">A verificação ajuda, mas não substitui a sua leitura.</div>
               </>
             )}
           </div>
@@ -107,7 +146,7 @@ export default function ReviewPage() {
               onPosted={() => { setItemComments([]); req.refetch(); }} />}
             {isEngineer
               ? <DecisionForm r={r} itemComments={itemComments} setItemComments={setItemComments} onDone={done} />
-              : <div className="card muted small">A decisão deste ponto cabe ao Engenheiro de Requisitos.</div>}
+              : <div className="card"><Hint>Quem decide este ponto é o responsável pelos requisitos.</Hint></div>}
           </div>
         </div>
       )}
@@ -131,39 +170,42 @@ function DecisionForm({ r, itemComments, setItemComments, onDone }: {
     && (tally.objecao > 0 || tally.participantes === 0);
   const commentRequired = !!outcome?.comment_required || closeNeedsJustification;
   const approvalBlocked = decision === "approve" && r.stale.length > 0;
+  const isRevisit = decision.startsWith("revisit_");
 
   return (
     <form className="card stack" onSubmit={(e) => { e.preventDefault(); submit.mutate(); }}>
-      <h2>Decisão</h2>
-      {r.kind === "approval" && <div className="muted small">Conforme o BPMN, o Engenheiro decide qual subprocesso revisitar com base no problema identificado.</div>}
-      {outcomes.map((k) => (
-        <label key={k} className="inline">
-          <input type="radio" name="decision" value={k} checked={decision === k} onChange={() => setDecision(k)} />
-          {DECISION_LABEL[k] ?? k}
-        </label>
-      ))}
-      <label>Comentário {commentRequired && "(obrigatório)"}
+      <div className="card-head"><span className="icon-bubble"><Icon name="flag" /></span><h2>Sua decisão</h2></div>
+      <div className="choices">
+        {outcomes.map((k) => (
+          <label key={k} className={`choice ${decision === k ? "selected" : ""} ${k.startsWith("revisit_") || k === "no_material" ? "tone-warn" : "tone-ok"}`}>
+            <input type="radio" name="decision" value={k} checked={decision === k} onChange={() => setDecision(k)} />
+            <span><div className="title">{decisionLabel(k)}</div><div className="help">{decisionHelp(k)}</div></span>
+          </label>
+        ))}
+      </div>
+      <label>{isRevisit ? "O que a IA deve mudar?" : "Comentário"} {commentRequired ? "(obrigatório)" : "(opcional)"}
         <textarea value={comment} onChange={(e) => setComment(e.target.value)}
-          placeholder="O que precisa mudar? O comentário é entregue aos agentes que refazem o subprocesso." />
+          placeholder={isRevisit ? "Ex.: faltou considerar o regulador; as prioridades estão invertidas…" : "Algo que valha registrar?"} />
       </label>
-      {closeNeedsJustification && tally && <div className="alert warn small">
-        {tally.participantes === 0 ? "Nenhum participante registrou posição." : `${tally.objecao} objeção(ões) registrada(s).`}
-        {" "}Encerrar exige justificativa, que fica registrada no ERD.</div>}
+      {closeNeedsJustification && tally && <div className="alert warn small"><Icon name="alert" />
+        <div>{tally.participantes === 0 ? "Ninguém deu opinião ainda." : `${tally.objecao} pessoa(s) discordaram.`}
+          {" "}Para encerrar mesmo assim, explique o motivo — fica registrado no documento.</div></div>}
       {itemComments.length > 0 && (
-        <div className="stack small">
-          <strong>Comentários por item ({itemComments.length})</strong>
+        <div className="stack tight small">
+          <strong>Comentários nos itens ({itemComments.length})</strong>
           {itemComments.map((c, i) => (
-            <div key={i} className="row" style={{ gap: 6 }}>
-              <span className="mono">{c.alvo}</span><span className="grow">{c.texto}</span>
-              <button type="button" onClick={() => setItemComments(itemComments.filter((_, j) => j !== i))}>×</button>
+            <div key={i} className="row" style={{ gap: 6, flexWrap: "nowrap" }}>
+              <span className="badge">{c.alvo.split("#").pop()}</span><span className="grow">{c.texto}</span>
+              <button type="button" className="ghost small" aria-label="Remover comentário"
+                onClick={() => setItemComments(itemComments.filter((_, j) => j !== i))}><Icon name="x" size={14} /></button>
             </div>
           ))}
         </div>
       )}
-      {approvalBlocked && <div className="alert warn small">Há artefatos desatualizados: {r.stale.join(", ")}. Solicite retorno.</div>}
+      {approvalBlocked && <div className="alert warn small"><Icon name="alert" />Algumas partes estão desatualizadas ({r.stale.join(", ")}). Peça para a IA refazer antes de aprovar.</div>}
       <ErrorBox error={submit.error} />
-      <button className="primary" disabled={r.status !== "open" || (commentRequired && !comment.trim()) || approvalBlocked || submit.isPending}>
-        Registrar decisão</button>
+      <button className="primary big" disabled={r.status !== "open" || (commentRequired && !comment.trim()) || approvalBlocked || submit.isPending}>
+        <Icon name="check" />{submit.isPending ? "Registrando…" : "Confirmar decisão"}</button>
       <History r={r} />
     </form>
   );
@@ -182,36 +224,41 @@ function ConsensusPanel({ r, canPosition, itemComments, onPosted }: {
   const positions = r.respostas.filter((x) => POSITIONS.some((p) => p.id === x.decision));
   return (
     <form className="card stack" onSubmit={(e) => { e.preventDefault(); post.mutate(); }}>
-      <h2>Consenso</h2>
-      <div className="muted small">Regra provisória (A-13): o consenso fecha sem objeção bloqueante. Vale a última posição de cada pessoa.</div>
+      <div className="card-head"><span className="icon-bubble"><Icon name="users" /></span><h2>Opinião da equipe</h2></div>
       {tally && (
         <div className="row small">
-          <span className="badge ok">{tally.concordo} concordo</span>
-          <span className="badge warn">{tally.ressalvas} ressalvas</span>
-          <span className="badge err">{tally.objecao} objeções</span>
-          <span className="muted">{tally.participantes} participante(s)</span>
+          <span className="badge ok"><Icon name="thumbsUp" size={12} />{tally.concordo} concordam</span>
+          <span className="badge warn"><Icon name="message" size={12} />{tally.ressalvas} com observações</span>
+          <span className="badge err"><Icon name="xCircle" size={12} />{tally.objecao} discordam</span>
         </div>
       )}
+      <div className="tiny muted">Só dá para encerrar sem justificativa quando ninguém discorda. Vale a última opinião de cada pessoa.</div>
       {positions.map((x) => (
-        <div key={x.id} className="small"><strong>{x.user_nome ?? "—"}</strong> · <Status value={x.decision} />
-          {x.comentario && <> — {x.comentario}</>}
-          {x.item_comments.map((c, i) => <div key={i} className="muted"><span className="mono">{c.alvo}</span>: {c.texto}</div>)}
+        <div key={x.id} className="small row" style={{ alignItems: "flex-start", flexWrap: "nowrap" }}>
+          <span className="avatar" style={{ width: 28, height: 28, fontSize: 12 }}>{(x.user_nome ?? "?").slice(0, 1)}</span>
+          <span className="grow"><strong>{x.user_nome ?? "—"}</strong> <Status value={x.decision} />
+            {x.comentario && <div>{x.comentario}</div>}
+            {x.item_comments.map((c, i) => <div key={i} className="muted"><span className="badge">{c.alvo.split("#").pop()}</span> {c.texto}</div>)}</span>
         </div>
       ))}
       {canPosition && r.status === "open" && (
         <>
-          <h3>Sua posição</h3>
-          {POSITIONS.map((p) => (
-            <label key={p.id} className="inline">
-              <input type="radio" name="posicao" checked={posicao === p.id} onChange={() => setPosicao(p.id)} /> {p.label}
-            </label>
-          ))}
-          <label>Comentário {posicao !== "concordo" && "(obrigatório)"}
+          <h3>A sua opinião</h3>
+          <div className="choices">
+            {POSITIONS.map((p) => (
+              <label key={p.id} className={`choice tone-${p.tone} ${posicao === p.id ? "selected" : ""}`}>
+                <input type="radio" name="posicao" checked={posicao === p.id} onChange={() => setPosicao(p.id)} />
+                <span><div className="title"><Icon name={p.icon} size={14} /> {p.label}</div><div className="help">{p.help}</div></span>
+              </label>
+            ))}
+          </div>
+          <label>Comentário {posicao !== "concordo" ? "(obrigatório)" : "(opcional)"}
             <textarea value={comment} onChange={(e) => setComment(e.target.value)} placeholder="O que falta ou precisa mudar?" />
           </label>
-          {itemComments.length > 0 && <div className="muted small">{itemComments.length} comentário(s) por item serão anexados.</div>}
+          {itemComments.length > 0 && <div className="muted small">{itemComments.length} comentário(s) em itens serão anexados.</div>}
           <ErrorBox error={post.error} />
-          <button disabled={post.isPending || (posicao !== "concordo" && !comment.trim() && !itemComments.length)}>Registrar posição</button>
+          <button disabled={post.isPending || (posicao !== "concordo" && !comment.trim() && !itemComments.length)}>
+            <Icon name="message" />Registrar minha opinião</button>
         </>
       )}
     </form>
@@ -236,26 +283,28 @@ function InputForm({ r, isEngineer, onDone }: { r: HitlDetail; isEngineer: boole
   return (
     <div className="stack">
       <div className="card stack">
-        <h2>Material de elicitação</h2>
+        <div className="card-head"><span className="icon-bubble"><Icon name="upload" /></span><h2>Material das conversas</h2></div>
         <div className="muted small">
-          Conduza a elicitação conforme o plano ao lado e envie o material (transcrições, atas, respostas de questionários).
-          Cada stakeholder recebe só os trechos do material relacionados a ele, recuperados por busca híbrida; toda necessidade
-          extraída precisa citar um trecho literal, conferido mecanicamente.
+          A IA lê, para cada pessoa, só os trechos do material que falam dela. Toda necessidade que ela extrair
+          precisa citar um trecho literal do material — a plataforma confere.
         </div>
-        {material.length === 0 ? <div className="alert warn small">Nenhum documento de elicitação enviado.</div> : (
-          <ul className="small">{material.map((m) => <li key={m.id}>{m.arquivo} {m.paginas ? `· ${m.paginas} p.` : ""}</li>)}</ul>
+        {material.length === 0 ? <div className="alert warn small"><Icon name="alert" />Nenhum material enviado ainda.</div> : (
+          <div className="stack tight">{material.map((m) => (
+            <div key={m.id} className="row small" style={{ gap: 8 }}><Icon name="file" size={16} />{m.arquivo}
+              {m.paginas ? <span className="muted">· {m.paginas} p.</span> : null}</div>))}</div>
         )}
         {isEngineer && r.status === "open" && (
           <>
             <input type="file" multiple accept=".pdf,.txt,.md" onChange={(e) => setFiles(e.target.files)} />
             <ErrorBox error={upload.error} />
-            <button type="button" disabled={!files?.length || upload.isPending} onClick={() => upload.mutate()}>Enviar documentos</button>
+            <button type="button" disabled={!files?.length || upload.isPending} onClick={() => upload.mutate()}>
+              <Icon name="upload" />{upload.isPending ? "Enviando…" : "Enviar arquivos"}</button>
           </>
         )}
       </div>
       {isEngineer
         ? <DecisionForm r={r} itemComments={[]} setItemComments={() => undefined} onDone={onDone} />
-        : <div className="card muted small">O envio do material cabe ao Engenheiro de Requisitos.</div>}
+        : <div className="card"><Hint>O envio do material cabe ao responsável pelos requisitos.</Hint></div>}
     </div>
   );
 }
@@ -264,9 +313,9 @@ function History({ r }: { r: HitlDetail }) {
   const decisions = r.respostas.filter((x) => !POSITIONS.some((p) => p.id === x.decision));
   if (!decisions.length) return null;
   return (
-    <div className="stack small">
-      <strong>Histórico</strong>
-      {decisions.map((x) => <div key={x.id}>{fmtDate(x.created_at)} · {DECISION_LABEL[x.decision] ?? x.decision} {x.comentario && `— ${x.comentario}`}</div>)}
+    <div className="stack tight small">
+      <strong>Decisões anteriores</strong>
+      {decisions.map((x) => <div key={x.id} className="muted">{fmtDate(x.created_at)} · {decisionLabel(x.decision)} {x.comentario && `— ${x.comentario}`}</div>)}
     </div>
   );
 }
@@ -275,8 +324,8 @@ function DraftPreview({ runId }: { runId: string }) {
   const doc = useQuery({ queryKey: ["artifacts", runId, "doc"], queryFn: () => api.get<string>(`/runs/${runId}/document`) });
   return doc.data ? (
     <div className="stack">
-      <div className="alert info small">Prévia do documento com as versões atuais (inclui suas edições). Comente nas seções à esquerda.</div>
+      <Hint>Assim vai ficar o documento. Para comentar ou editar um item, abra a parte correspondente no menu à esquerda.</Hint>
       <Markdown>{doc.data}</Markdown>
     </div>
-  ) : <Loading />;
+  ) : <Loading what="Montando o documento" />;
 }

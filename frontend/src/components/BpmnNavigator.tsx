@@ -19,7 +19,7 @@ export default function BpmnNavigator({ manifest, tasks, selected, onSelect }: P
   const host = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const viewer = useRef<any>(null);
-  const [stack, setStack] = useState<Level[]>([{ file: manifest.root.bpmn_file, label: "OpenUPExp" }]);
+  const [stack, setStack] = useState<Level[]>([{ file: manifest.root.bpmn_file, label: "Processo completo" }]);
   const [error, setError] = useState<string | null>(null);
   const [loadedFile, setLoadedFile] = useState<string | null>(null);
   const current = stack[stack.length - 1];
@@ -92,15 +92,15 @@ export default function BpmnNavigator({ manifest, tasks, selected, onSelect }: P
           </span>
         ))}
         <span className="muted small grow" style={{ textAlign: "right" }}>
-          Clique em um subprocesso para detalhar; em uma tarefa para ver a execução.
+          Clique em um bloco para entrar nele; em uma tarefa para ver o que aconteceu.
         </span>
       </div>
       {error && <div className="alert err">{error}</div>}
       <div className="bpmn-host" ref={host} />
       <div className="row small muted">
-        <span className="badge completed">concluída</span><span className="badge running">executando</span>
-        <span className="badge waiting_human">aguardando humano</span><span className="badge failed">falhou</span>
-        <span>Diagramas originais do OpenUPExp ({manifest.bpmn_commit?.slice(0, 7) ?? "sem commit"})</span>
+        <span className="badge completed">feito</span><span className="badge running">em andamento</span>
+        <span className="badge waiting_human">aguardando pessoas</span><span className="badge failed">com erro</span>
+        <span className="tiny">Diagramas originais do processo OpenUPExp</span>
       </div>
     </div>
   );

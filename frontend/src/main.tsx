@@ -5,6 +5,12 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import App from "./App";
 import "./styles.css";
 
+// tema escolhido pela pessoa (o padrão segue o sistema)
+try {
+  const theme = localStorage.getItem("theme");
+  if (theme === "light" || theme === "dark") document.documentElement.dataset.theme = theme;
+} catch { /* sem armazenamento disponível */ }
+
 const queryClient = new QueryClient({
   defaultOptions: { queries: { refetchOnWindowFocus: false, retry: 1 } },
 });

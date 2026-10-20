@@ -1,3 +1,5 @@
+<p align="center"><img src="frontend/public/logo-horizontal.svg" alt="OpenUPExp" width="360"></p>
+
 # OpenUPExp — plataforma
 
 Engenharia de requisitos de explicabilidade orientada ao processo **OpenUPExp**, com agentes de IA

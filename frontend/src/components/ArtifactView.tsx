@@ -4,7 +4,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../api/client";
 import type { Evidence, ItemComment, VersionDetail } from "../api/types";
 import { SchemaForm } from "./SchemaForm";
-import { ErrorBox, Loading, Markdown, Status, show } from "./ui";
+import Icon from "./Icon";
+import { ErrorBox, Loading, Markdown, Status, fieldLabel, show } from "./ui";
 
 const LIST_FIELD: Record<string, string> = {
   "vision.stakeholders": "stakeholders", "vision.stakeholder_needs": "solicitacoes", "vision.domain_terms": "termos",
@@ -47,19 +48,19 @@ export default function ArtifactView({ versionId, onComment, onNewVersion }: {
       <div className="row">
         <h2 className="grow" style={{ margin: 0 }}>{d.title} <span className="muted small">v{d.version_no}</span></h2>
         <Status value={d.status} /><Status value={d.origin} />
-        <Link to={`/versoes/${d.id}`} className="small">histórico e diff</Link>
-        {d.editavel && !editing && <button onClick={() => { setDraft(structuredClone(d.content)); setEditing(true); }}>Editar</button>}
+        <Link to={`/versoes/${d.id}`} className="small">versões anteriores</Link>
+        {d.editavel && !editing && <button onClick={() => { setDraft(structuredClone(d.content)); setEditing(true); }}><Icon name="edit" size={15} />Editar</button>}
       </div>
-      {d.status === "stale" && <div className="alert warn">Desatualizado: uma entrada deste artefato mudou. Solicite retorno ao subprocesso.</div>}
+      {d.status === "stale" && <div className="alert warn"><Icon name="alert" />Desatualizado: algo de que esta parte depende mudou. Peça para a IA refazer.</div>}
 
       {editing ? (
         <div className="stack">
-          {schema.data ? <SchemaForm schema={schema.data} value={draft} onChange={setDraft} /> : <Loading what="Carregando contrato" />}
+          {schema.data ? <SchemaForm schema={schema.data} value={draft} onChange={setDraft} /> : <Loading what="Carregando o formulário" />}
           <ErrorBox error={save.error} />
           <div className="row">
-            <button className="primary" onClick={() => save.mutate()} disabled={save.isPending}>Salvar como nova versão</button>
+            <button className="primary" onClick={() => save.mutate()} disabled={save.isPending}><Icon name="check" />Salvar</button>
             <button onClick={() => setEditing(false)}>Cancelar</button>
-            <span className="muted small">A edição gera uma versão "edição humana"; a anterior é preservada.</span>
+            <span className="muted small">Sua edição vira uma nova versão; a anterior continua guardada.</span>
           </div>
         </div>
       ) : d.documento ? (
@@ -73,7 +74,7 @@ export default function ArtifactView({ versionId, onComment, onNewVersion }: {
           ))}
           {discarded.length > 0 && (
             <div className="item-card">
-              <h3>Itens não incorporados</h3>
+              <h3>Itens deixados de fora</h3>
               {discarded.map((x) => <div key={x.origem_id} className="small"><span className="badge warn">{x.origem_id}</span> {x.motivo}</div>)}
             </div>
           )}
@@ -93,10 +94,10 @@ function ItemCard({ item, evidences, onComment }: {
   return (
     <div className="item-card">
       <div className="item-head">
-        {item.id ? <span className="badge">{String(item.id)}</span> : null}
+        {item.id ? <span className="badge item-id">{String(item.id)}</span> : null}
         {"fundamentacao_verificada" in item && (
           <span className={`badge ${item.fundamentacao_verificada ? "ok" : "warn"}`}>
-            {item.fundamentacao_verificada ? "fundamentação verificada" : "sem fundamentação verificada"}</span>)}
+            {item.fundamentacao_verificada ? "fonte conferida" : "sem fonte conferida"}</span>)}
         {item.alerta ? <span className="badge err">{String(item.alerta)}</span> : null}
         <span className="grow" />
         {onComment && <CommentButton onSubmit={onComment} />}
@@ -109,8 +110,8 @@ function ItemCard({ item, evidences, onComment }: {
       {(lacunas.length > 0 || lacuna) && (
         <div className="stack small" style={{ marginTop: 6 }}>
           {[...lacunas, ...(lacuna ? [{ campo: "resposta", ...lacuna }] : [])].map((l, i) => (
-            <div key={i} className="alert warn">Lacuna em <strong>{l.campo}</strong>: {l.motivo}
-              {l.pergunta_sugerida && <> — <em>pergunta sugerida: {l.pergunta_sugerida}</em></>}</div>
+            <div key={i} className="gap"><Icon name="help" size={16} /><span>Falta informação em <strong>{fieldLabel(l.campo)}</strong>: {l.motivo}
+              {l.pergunta_sugerida && <> — <em>pergunte: {l.pergunta_sugerida}</em></>}</span></div>
           ))}
         </div>
       )}
@@ -120,7 +121,7 @@ function ItemCard({ item, evidences, onComment }: {
 }
 
 function FragmentKV({ k, v }: { k: string; v: unknown }) {
-  return <><dt>{k.replace(/_/g, " ")}</dt><dd>{show(v)}</dd></>;
+  return <><dt>{fieldLabel(k)}</dt><dd>{show(v)}</dd></>;
 }
 
 function ObjectView({ value, onComment }: { value: Record<string, unknown>; onComment?: (t: string) => void }) {
@@ -141,10 +142,10 @@ function ObjectView({ value, onComment }: { value: Record<string, unknown>; onCo
 function CommentButton({ onSubmit }: { onSubmit: (texto: string) => void }) {
   const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
-  if (!open) return <button className="small" onClick={() => setOpen(true)}>Comentar</button>;
+  if (!open) return <button className="small" onClick={() => setOpen(true)}><Icon name="message" size={14} />Comentar</button>;
   return (
     <div className="row" style={{ flex: "1 1 100%" }}>
-      <input className="grow" value={text} onChange={(e) => setText(e.target.value)} placeholder="Comentário para o retorno" autoFocus />
+      <input className="grow" value={text} onChange={(e) => setText(e.target.value)} placeholder="O que precisa mudar neste item?" autoFocus />
       <button className="primary" disabled={!text.trim()} onClick={() => { onSubmit(text.trim()); setText(""); setOpen(false); }}>Adicionar</button>
       <button onClick={() => setOpen(false)}>×</button>
     </div>
@@ -152,8 +153,8 @@ function CommentButton({ onSubmit }: { onSubmit: (texto: string) => void }) {
 }
 
 const KIND_LABEL: Record<string, string> = {
-  OBRIGACAO_NORMATIVA: "obrigação normativa", RECOMENDACAO_TECNICA: "recomendação técnica", DERIVADO_VISAO: "derivado da Visão",
-  ELICITACAO: "material de elicitação", VISAO: "solicitação da Visão",
+  OBRIGACAO_NORMATIVA: "exigência legal", RECOMENDACAO_TECNICA: "recomendação técnica", DERIVADO_VISAO: "vem da Visão",
+  ELICITACAO: "conversa com as pessoas", VISAO: "pedido registrado na Visão",
 };
 
 export function EvidenceCard({ evidence }: { evidence: Evidence }) {
@@ -175,8 +176,8 @@ export function EvidenceCard({ evidence }: { evidence: Evidence }) {
       <div className="small" style={{ marginTop: 6 }}>"{evidence.citacao}"</div>
       {c && <pre className="small" style={{ marginTop: 6, maxHeight: 240, overflow: "auto" }}>{highlight(c.texto, evidence.citacao)}</pre>}
       <div className="row" style={{ marginTop: 6 }}>
-        <button className="small" onClick={() => review.mutate("accepted")}>Aceitar</button>
-        <button className="small danger" onClick={() => review.mutate("rejected")}>Rejeitar</button>
+        <button className="small" onClick={() => review.mutate("accepted")}><Icon name="check" size={14} />A fonte confirma</button>
+        <button className="small danger" onClick={() => review.mutate("rejected")}><Icon name="x" size={14} />Não confirma</button>
       </div>
     </details>
   );
