@@ -155,3 +155,26 @@ export interface AdminOverview {
   padrao_efetivo: string; modelos: AdminModel[];
   parametros: Record<string, { tipo: string; min: number | null; max: number | null }>;
 }
+
+export interface LabSource { task_execution_id: string; task_id: string; nome: string; funcao: string | null; iteracao: number; inicio: string; tokens_contexto: number }
+export interface LabMetrics {
+  contrato_valido?: boolean; itens?: number; lacunas?: number; itens_faltantes?: string[];
+  evidencias?: { total: number; verificadas: number; nao_verificadas: number };
+  recuperacao?: { identica: boolean; trechos: number; so_na_original: string[]; so_nesta: string[] };
+  chamadas?: number; chamadas_com_erro?: number; input_tokens?: number; output_tokens?: number; latency_ms?: number; duracao_ms?: number | null;
+  artefatos?: { artifact: string; titulo: string; itens: number | null; lacunas: number }[];
+}
+export interface LabOutput { artifact: string; titulo: string; content: Record<string, unknown> }
+export interface LabTrialT {
+  id: string; modelo: string | null; local: boolean | null; provider: string | null; model: string | null; model_digest: string | null;
+  status: string; error: string | null; metrics: LabMetrics; output: LabOutput[];
+  calls: { function: string; status: string; latency_ms: number; input_tokens?: number; output_tokens?: number; error?: string }[];
+  started_at: string | null; finished_at: string | null; notas: { nota: number; comentario: string | null; minha: boolean }[];
+}
+export interface LabDetail {
+  id: string; projeto: string; project_id: string; run_id: string; fase: string; task_id: string; nome: string; funcao: string | null;
+  notes: string | null; created_at: string; prompts_mudaram: boolean; package_sha256: string; pode_editar: boolean;
+  original: { nome: string; modelo: string; output: LabOutput[]; metrics: LabMetrics };
+  tentativas: LabTrialT[];
+}
+export interface LabSummary { id: string; projeto: string; task_id: string; fase: string; nome: string; created_at: string; modelos: (string | null)[]; situacao: string[] }

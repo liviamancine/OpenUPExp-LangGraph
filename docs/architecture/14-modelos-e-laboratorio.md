@@ -8,7 +8,7 @@ Nada aqui vem da teoria OpenUPExp: é decisão de arquitetura da plataforma.
 | 0 | Este capítulo: arquitetura, modelo de dados e plano | [IMPLEMENTADO] |
 | 1 | Ollama opcional no Compose, modelo local protegido, escolha do perfil por execução, registro da configuração usada | [IMPLEMENTADO] |
 | 2 | Administração de modelos e perfis, com teste de conexão, teste de compatibilidade e lista de servidores permitidos | [IMPLEMENTADO] |
-| 3 | Laboratório v1: reexecutar tarefas reais com o mesmo pacote de contexto em vários modelos | [PROPOSTA] |
+| 3 | Laboratório v1: reexecutar tarefas reais com o mesmo pacote de contexto em vários modelos | [IMPLEMENTADO] |
 | 4 | Laboratório v2: estratégias A–D (com a B), matriz modelo × estratégia, gabaritos (M4) | [PROPOSTA] |
 
 ## 14.1 Princípios
@@ -161,6 +161,37 @@ Verificado com o modelo local real: conexão em 28 ms; compatibilidade aprovada 
 (714/505 tokens, 3 stakeholders identificados).
 
 ## 14.5 Laboratório (passos 3 e 4)
+
+### Implementação do passo 3 [IMPLEMENTADO]
+
+Tela **Pesquisa → Laboratório de modelos** (`/laboratorio`), também acessível pelo botão
+"Comparar modelos nesta tarefa" no painel de uma tarefa. Código: `backend/openupexp/lab/service.py`.
+
+- **Como a tarefa é refeita.** O laboratório executa o *handler* da tarefa com o pacote de contexto
+  guardado, sem os itens que o próprio handler acrescenta durante a execução (trechos recuperados e
+  relacionados). O handler refaz a busca sobre a mesma versão do corpus e o mesmo embedder; a
+  tentativa registra se os trechos coincidiram com os da execução original ("mesmos trechos
+  recuperados"). Quando coincidem, o material de entrada é idêntico; quando não, a diferença fica
+  visível em vez de contaminar a comparação em silêncio.
+- **Sem efeitos colaterais.** Gateway próprio (não grava `llm_call` na execução original) e sessão
+  de banco desfeita no fim: nenhuma versão de artefato é criada. Há teste automatizado para isso.
+- **Tabelas** `lab_comparison`, `lab_trial` e `lab_rating` (migração `d9a1b5c3e7f2`). Cada
+  tentativa guarda o snapshot do perfil, a saída, as métricas e as chamadas.
+- **Fila**: uma tentativa por job (`lab.trial`); com um worker, rodam uma de cada vez (o modelo local
+  em CPU não suporta paralelismo). Tentativas na fila podem ser canceladas.
+- **Métricas automáticas**: formato aceito (contrato), itens produzidos, itens que faltaram, pontos
+  em aberto (lacunas), citações conferidas, mesmos trechos recuperados, chamadas, tokens, tempo.
+  A execução original entra como coluna de referência, com as mesmas métricas.
+- **Nota humana**: 1 a 5 por tentativa, uma por pessoa, com comentário opcional e média.
+- **Aviso de versão dos prompts**: se `baml_src` mudou desde a execução original, a tela avisa que
+  a coluna de referência usou outra versão dos prompts.
+- **Acesso**: membros do projeto veem; responsáveis pelos requisitos, pesquisadores e
+  administradores criam comparações.
+
+Verificado com o modelo local: tarefa 1.1.2 (INPI) — formato aceito, 4 stakeholders, mesmos
+trechos, 1.643/959 tokens, 220 s; a mesma tarefa no modo simulado, como controle.
+
+### Plano original
 
 Objetivo: comparar modelos **com tudo o mais fixo**.
 

@@ -389,7 +389,7 @@ mark { background: #fde68a; color: #1e1b4b; border-radius: 3px; }
 
 /* painel de boas-vindas */
 .hero {
-  position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 18px; padding: 28px 30px;
+  position: relative; overflow: hidden; overflow: clip; display: flex; flex-direction: column; gap: 18px; padding: 28px 30px;
   border-radius: 20px; color: #fff; box-shadow: var(--shadow-lg);
   background: radial-gradient(500px 300px at 95% 0%, rgba(20, 184, 166, 0.45), transparent 60%),
     linear-gradient(135deg, #312e81, #5b21b6 60%, #7c3aed);

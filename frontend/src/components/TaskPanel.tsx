@@ -78,6 +78,10 @@ function ExecutionDetail({ exec }: { exec: TaskExec }) {
       <div className="row"><Status value={exec.status} /><span className="muted small">{fmtDate(exec.inicio)} → {fmtDate(exec.fim)}</span></div>
       {d.erro && <div className="alert err small"><pre>{d.erro}</pre></div>}
       {hitl && <Link to={`/decisoes/${hitl}`}>Abrir a decisão →</Link>}
+      {exec.status === "completed" && d.context_package && d.llm_calls.length > 0 && (
+        <Link to={`/laboratorio?tarefa=${exec.id}`} className="btn small" style={{ alignSelf: "flex-start" }}>
+          <Icon name="chart" size={14} />Comparar modelos nesta tarefa</Link>
+      )}
       {versions.length > 0 && (
         <div className="row small">Resultados gerados: {versions.map((v) => <Link key={v} to={`/versoes/${v}`} className="mono">{v.slice(0, 8)}</Link>)}</div>
       )}

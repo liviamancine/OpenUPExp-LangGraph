@@ -514,3 +514,53 @@ class InferenceProfile(Base):
         # exatamente um perfil padrão
         Index("uq_inference_profile_default", "is_default", unique=True, postgresql_where=text("is_default")),
     )
+
+
+# ---------------------------------------------------------------------------
+# Laboratório de modelos — cap. 14 §14.5
+# ---------------------------------------------------------------------------
+
+
+class LabComparison(Base):
+    __tablename__ = "lab_comparison"
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    source_task_execution_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("task_execution.id", ondelete="CASCADE"))
+    run_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("run.id", ondelete="CASCADE"))
+    project_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("project.id", ondelete="CASCADE"))
+    task_id: Mapped[str] = mapped_column(String(20))
+    # versão dos prompts no momento da comparação × na execução original
+    baml_src_sha: Mapped[str | None] = mapped_column(String(64))
+    source_baml_src_sha: Mapped[str | None] = mapped_column(String(64))
+    package_sha256: Mapped[str] = mapped_column(String(64))
+    notes: Mapped[str | None] = mapped_column(Text)
+    created_by: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("app_user.id"))
+    created_at: Mapped[datetime] = _created()
+
+
+class LabTrial(Base):
+    __tablename__ = "lab_trial"
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    comparison_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("lab_comparison.id", ondelete="CASCADE"))
+    position: Mapped[int] = mapped_column(Integer, default=0)
+    # snapshot do perfil (mesmo formato de run.model_profile); {"provider": "fake"} no modo de teste
+    profile_snapshot: Mapped[dict] = mapped_column(JSONB, default=dict)
+    # queued | running | completed | failed | cancelled
+    status: Mapped[str] = mapped_column(String(20), default="queued")
+    output: Mapped[list] = mapped_column(JSONB, default=list)
+    metrics: Mapped[dict] = mapped_column(JSONB, default=dict)
+    calls: Mapped[list] = mapped_column(JSONB, default=list)
+    error: Mapped[str | None] = mapped_column(Text)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = _created()
+
+
+class LabRating(Base):
+    __tablename__ = "lab_rating"
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    trial_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("lab_trial.id", ondelete="CASCADE"))
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("app_user.id", ondelete="CASCADE"))
+    nota: Mapped[int] = mapped_column(Integer)
+    comentario: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = _created()
+    __table_args__ = (UniqueConstraint("trial_id", "user_id", name="uq_lab_rating_user"),)

@@ -191,3 +191,11 @@ ainda não medido.
 | D-27 | Perfil só é habilitado após teste de compatibilidade; mudanças no modelo invalidam o teste | O teste reflete exatamente a configuração em uso |
 | D-28 | Teste de compatibilidade no worker, não na API | Com o modelo local, leva minutos; a API responde na hora e a tela acompanha |
 
+## 13.9 Laboratório de modelos (cap. 14, passo 3)
+
+| # | Decisão | Motivo |
+|---|---|---|
+| D-29 | Reexecutar o handler com o pacote guardado, e não reenviar prompts gravados | A plataforma não guarda as entradas das chamadas; o handler reconstrói as mesmas a partir do pacote e preserva o map/reduce e as verificações |
+| D-30 | Trechos recuperados refeitos pelo handler, com verificação de igualdade | A busca é determinística para a mesma versão do corpus; a tela mostra quando não coincidir |
+| D-31 | nginx resolve o nome da API a cada 10 s | Ao recriar a API, o frontend mantinha o IP antigo e respondia 502 |
+

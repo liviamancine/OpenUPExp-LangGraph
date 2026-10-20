@@ -12,6 +12,8 @@ import ReviewPage from "./pages/ReviewPage";
 import InboxPage from "./pages/InboxPage";
 import ArtifactPage from "./pages/ArtifactPage";
 import AdminModelsPage from "./pages/AdminModelsPage";
+import LabPage from "./pages/LabPage";
+import LabComparisonPage from "./pages/LabComparisonPage";
 
 type Theme = "light" | "dark" | null;
 
@@ -71,6 +73,8 @@ function Sidebar() {
           <Icon name="bell" /><span className="text">O que precisa de mim</span>
           {pending > 0 && <span className="count" aria-label={`${pending} pendentes`}>{pending}</span>}
         </NavLink>
+        <div className="nav-label">Pesquisa</div>
+        <NavLink to="/laboratorio"><Icon name="chart" /><span className="text">Laboratório de modelos</span></NavLink>
         {me.data?.papel_global === "admin" && (
           <>
             <div className="nav-label">Administração</div>
@@ -113,6 +117,8 @@ export default function App() {
           <Route path="/decisoes/:requestId" element={<ReviewPage />} />
           <Route path="/versoes/:versionId" element={<ArtifactPage />} />
           <Route path="/admin/modelos" element={<AdminModelsPage />} />
+          <Route path="/laboratorio" element={<LabPage />} />
+          <Route path="/laboratorio/:comparisonId" element={<LabComparisonPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

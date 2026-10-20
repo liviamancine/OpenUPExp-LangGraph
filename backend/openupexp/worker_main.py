@@ -104,6 +104,10 @@ async def process_job(job) -> None:
             embedder = get_embedder(payload.get("provider"), payload.get("model"))
             cv = await build_corpus_version(s, uuid.UUID(payload["project_id"]), embedder)
             log.info("corpus %s pronto: %s", cv.id, cv.stats)
+    elif kind == "lab.trial":
+        from openupexp.lab.service import run_trial
+
+        log.info("laboratório: tentativa %s %s", payload["trial_id"], await run_trial(uuid.UUID(payload["trial_id"])))
     elif kind == "llm.compat":
         from openupexp.llm.admin import run_compat_test
 
