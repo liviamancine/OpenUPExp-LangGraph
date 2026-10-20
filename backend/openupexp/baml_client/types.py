@@ -37,7 +37,7 @@ def get_checks(checks: typing.Dict[CheckName, Check]) -> typing.List[Check]:
 def all_succeeded(checks: typing.Dict[CheckName, Check]) -> bool:
     return all(check.status == "succeeded" for check in get_checks(checks))
 # #########################################################################
-# Generated enums (13)
+# Generated enums (16)
 # #########################################################################
 
 class ComplementaryCategory(str, Enum):
@@ -78,6 +78,17 @@ class EvidenceKind(str, Enum):
     RECOMENDACAO_TECNICA = "RECOMENDACAO_TECNICA"
     DERIVADO_VISAO = "DERIVADO_VISAO"
 
+class ExplanationDetailLevel(str, Enum):
+    RESUMIDO = "RESUMIDO"
+    INTERMEDIARIO = "INTERMEDIARIO"
+    DETALHADO = "DETALHADO"
+
+class ExplanationFormat(str, Enum):
+    TEXTUAL = "TEXTUAL"
+    VISUAL = "VISUAL"
+    TABULAR = "TABULAR"
+    COMBINADO = "COMBINADO"
+
 class ExplanationGoal(str, Enum):
     COMPREENSAO = "COMPREENSAO"
     JUSTIFICATIVA = "JUSTIFICATIVA"
@@ -87,6 +98,12 @@ class ExplanationGoal(str, Enum):
     CONFORMIDADE_REGULATORIA = "CONFORMIDADE_REGULATORIA"
     CONFIANCA = "CONFIANCA"
     OUTRO = "OUTRO"
+
+class ExplanationMoment(str, Enum):
+    ANTES = "ANTES"
+    DURANTE = "DURANTE"
+    APOS = "APOS"
+    SOB_DEMANDA = "SOB_DEMANDA"
 
 class ExplanationType(str, Enum):
     FEATURE_IMPORTANCE = "FEATURE_IMPORTANCE"
@@ -128,8 +145,27 @@ class RequirementKind(str, Enum):
     COMPLEMENTAR = "COMPLEMENTAR"
 
 # #########################################################################
-# Generated classes (81)
+# Generated classes (94)
 # #########################################################################
+
+class AcceptanceCriteria(BaseModel):
+    id: typing.Optional[str] = Field(default=None, description='CA-n existente; null se novo')
+    hu_id: str = Field(description='HU-n a que os cenários se aplicam')
+    cenarios: typing.List["AcceptanceScenario"]
+    lacunas: typing.List["Lacuna"]
+
+class AcceptanceCriteriaArtifact(BaseModel):
+    criterios: typing.List["AcceptanceCriteria"]
+
+class AcceptanceInput(BaseModel):
+    historias: typing.List["UserStory"]
+    requisitos: typing.List["SpecificationPlanEntry"]
+    criterios_existentes: typing.List["AcceptanceCriteria"]
+
+class AcceptanceScenario(BaseModel):
+    dado: str = Field(description='Contexto/pré-condição')
+    quando: str = Field(description='Evento ou ação')
+    entao: str = Field(description='Resultado observável e verificável')
 
 class AspectClassification(BaseModel):
     id: typing.Optional[str] = Field(default=None, description='ASP-n existente; null se novo')
@@ -145,6 +181,13 @@ class AspectsArtifact(BaseModel):
 class CaptureTermsInput(BaseModel):
     documento_escopo: str
     problema: "ExplainabilityProblem"
+
+class CharacteristicsInput(BaseModel):
+    historias: typing.List["UserStory"]
+    requisitos: typing.List["SpecificationPlanEntry"]
+    criterios: typing.List["AcceptanceCriteria"]
+    limites_visao: typing.List["LimitAnswer"] = Field(description='Respostas do checklist de limites da Visão (forma, momento, etc.)')
+    caracteristicas_existentes: typing.List["ExplanationCharacteristics"]
 
 class CharacterizeInput(BaseModel):
     requisito: "ConsolidatedRequirement"
@@ -344,6 +387,21 @@ class ExplainabilityRequirement(BaseModel):
 
 class ExplainabilityRequirementsArtifact(BaseModel):
     requisitos: typing.List["ExplainabilityRequirement"]
+
+class ExplanationCharacteristics(BaseModel):
+    id: typing.Optional[str] = Field(default=None, description='CEX-n existente; null se novo')
+    hu_id: str
+    objetivo: typing.Optional[str] = Field(default=None, description='Objetivo da explicação')
+    publico_alvo: typing.List[str] = Field(description='STK-n que recebem a explicação')
+    contexto_utilizacao: typing.Optional[str] = None
+    nivel_detalhamento: typing.Optional[ExplanationDetailLevel] = None
+    formato: typing.Optional[ExplanationFormat] = None
+    momento: typing.Optional[ExplanationMoment] = None
+    requisitos_qualidade: typing.List[str] = Field(description='Requisitos de qualidade da explicação presentes nas entradas')
+    lacunas: typing.List["Lacuna"]
+
+class ExplanationCharacteristicsArtifact(BaseModel):
+    caracteristicas: typing.List["ExplanationCharacteristics"]
 
 class ExplanationTypeMapping(BaseModel):
     id: typing.Optional[str] = Field(default=None, description='MAP-n existente; null se novo')
@@ -567,6 +625,24 @@ class SimilarPair(BaseModel):
     b: str
     similaridade: float
 
+class SpecificationPlanEntry(BaseModel):
+    req_id: str
+    enunciado: str
+    prioridade: typing.Optional[str] = Field(default=None, description='MoSCoW aprovado na Fase 3')
+    stakeholder_ids: typing.List[str]
+    need_ids: typing.List[str]
+    aspecto_predominante: typing.Optional[str] = None
+    tipos_explicacao: typing.List[str]
+    contexto_uso: typing.Optional[str] = None
+    decisao_apoiada: typing.Optional[str] = None
+    objetivo_principal: typing.Optional[str] = None
+    restricoes: typing.List[str] = Field(description='Restrições da Fase 3 (tipo: descrição)')
+
+class SpecifyStoriesInput(BaseModel):
+    requisitos: typing.List["SpecificationPlanEntry"]
+    stakeholders: typing.List["Stakeholder"]
+    historias_existentes: typing.List["UserStory"]
+
 class Stakeholder(BaseModel):
     id: typing.Optional[str] = Field(default=None, description='STK-n de um stakeholder existente; null se for novo')
     nome: str
@@ -588,21 +664,53 @@ class StakeholderNeedsArtifact(BaseModel):
 class StakeholdersArtifact(BaseModel):
     stakeholders: typing.List["Stakeholder"]
 
+class TraceabilityMatrix(BaseModel):
+    linhas: typing.List["TraceabilityRow"]
+
+class TraceabilityRow(BaseModel):
+    id: typing.Optional[str] = None
+    hu: str
+    req: str
+    rer: typing.Optional[str] = None
+    stakeholder: str
+    necessidades: typing.List[str]
+    origens: typing.List[str] = Field(description='RI-n/RC-n da Fase 2 consolidados no requisito')
+    ca: typing.Optional[str] = None
+    cex: typing.Optional[str] = None
+    prioridade: typing.Optional[str] = None
+
+class UserStoriesArtifact(BaseModel):
+    historias: typing.List["UserStory"]
+
+class UserStory(BaseModel):
+    id: typing.Optional[str] = Field(default=None, description='HU-n existente; null se nova')
+    req_id: str = Field(description='REQ-n especificado pela história')
+    stakeholder_id: str = Field(description='STK-n do \'Como\'')
+    como: str = Field(description='Nome do stakeholder, como está na entrada')
+    quero: str = Field(description='Necessidade de explicabilidade, sem detalhes de implementação')
+    para: str = Field(description='Benefício esperado')
+    lacunas: typing.List["Lacuna"]
+
 # #########################################################################
 # Generated type aliases (0)
 # #########################################################################
 
 
 # #########################################################################
-# Model rebuilds (81)
+# Model rebuilds (94)
 # #########################################################################
 # Resolve string forward references now that every model above is defined so
 # class declaration order never breaks Pydantic construction (issue #793).
 # Recursive models are intentionally omitted (Pydantic resolves those lazily;
 # eagerly rebuilding them can recurse).
+AcceptanceCriteria.model_rebuild()
+AcceptanceCriteriaArtifact.model_rebuild()
+AcceptanceInput.model_rebuild()
+AcceptanceScenario.model_rebuild()
 AspectClassification.model_rebuild()
 AspectsArtifact.model_rebuild()
 CaptureTermsInput.model_rebuild()
+CharacteristicsInput.model_rebuild()
 CharacterizeInput.model_rebuild()
 CharacterizedRequirement.model_rebuild()
 CharacterizedRequirementsArtifact.model_rebuild()
@@ -638,6 +746,8 @@ ExplainabilityNeedsArtifact.model_rebuild()
 ExplainabilityProblem.model_rebuild()
 ExplainabilityRequirement.model_rebuild()
 ExplainabilityRequirementsArtifact.model_rebuild()
+ExplanationCharacteristics.model_rebuild()
+ExplanationCharacteristicsArtifact.model_rebuild()
 ExplanationTypeMapping.model_rebuild()
 ExplanationTypesArtifact.model_rebuild()
 ExtractNeedsInput.model_rebuild()
@@ -677,7 +787,13 @@ RequirementConstraint.model_rebuild()
 RequirementIndexEntry.model_rebuild()
 RequirementPair.model_rebuild()
 SimilarPair.model_rebuild()
+SpecificationPlanEntry.model_rebuild()
+SpecifyStoriesInput.model_rebuild()
 Stakeholder.model_rebuild()
 StakeholderNeed.model_rebuild()
 StakeholderNeedsArtifact.model_rebuild()
 StakeholdersArtifact.model_rebuild()
+TraceabilityMatrix.model_rebuild()
+TraceabilityRow.model_rebuild()
+UserStoriesArtifact.model_rebuild()
+UserStory.model_rebuild()

@@ -52,18 +52,19 @@ def _by_req(content: dict | None, field: str) -> dict[str, dict]:
     return {i.get("req_id"): i for i in _items(content, field)}
 
 
-async def _per_requirement(ctx: TaskContext, reqs: list[dict], call, field: str) -> list[dict]:
+async def _per_requirement(ctx: TaskContext, reqs: list[dict], call, field: str, key: str = "req_id") -> list[dict]:
     """Executa call(lote) em lotes e garante exatamente uma saída por requisito.
 
     Faltas geram uma nova chamada só com os faltantes; persistindo, a tarefa falha (coverage).
-    O ID anterior do item do mesmo requisito é preservado.
+    O ID anterior do item do mesmo requisito é preservado. `key` é o campo da saída que aponta
+    para o id da entrada (req_id; hu_id na Fase 4).
     """
     wanted = {r["id"] for r in reqs}
     found: dict[str, dict] = {}
 
     async def run(batch_reqs: list[dict]) -> None:
         for item in await call(batch_reqs):
-            rid = item.get("req_id")
+            rid = item.get(key)
             if rid in wanted and rid not in found:
                 found[rid] = item
 
@@ -75,7 +76,7 @@ async def _per_requirement(ctx: TaskContext, reqs: list[dict], call, field: str)
     if missing:
         ctx.package.coverage.output_missing_ids = [r["id"] for r in reqs if r["id"] not in found]
 
-    previous = _by_req(ctx.package.previous(ctx.task.writes[0].artifact), field)
+    previous = {i.get(key): i for i in _items(ctx.package.previous(ctx.task.writes[0].artifact), field)}
     out = []
     for r in reqs:
         item = found.get(r["id"])

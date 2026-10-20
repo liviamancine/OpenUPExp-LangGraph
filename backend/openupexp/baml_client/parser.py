@@ -83,6 +83,12 @@ class LlmResponseParser:
         __result__ = self.__options.merge_options(baml_options).parse_response(function_name="CreateInitialGlossary", llm_response=llm_response, mode="request")
         return typing.cast(types.GlossaryArtifact, __result__)
 
+    def DefineAcceptanceCriteria(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> types.AcceptanceCriteriaArtifact:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="DefineAcceptanceCriteria", llm_response=llm_response, mode="request")
+        return typing.cast(types.AcceptanceCriteriaArtifact, __result__)
+
     def DefineExplainabilityLimits(
         self, llm_response: str, baml_options: BamlCallOptions = {},
     ) -> types.ExplainabilityLimitsArtifact:
@@ -161,6 +167,18 @@ class LlmResponseParser:
         __result__ = self.__options.merge_options(baml_options).parse_response(function_name="RefineComplementaryRequirements", llm_response=llm_response, mode="request")
         return typing.cast(types.PhaseComplementaryArtifact, __result__)
 
+    def SpecifyExplanationCharacteristics(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> types.ExplanationCharacteristicsArtifact:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="SpecifyExplanationCharacteristics", llm_response=llm_response, mode="request")
+        return typing.cast(types.ExplanationCharacteristicsArtifact, __result__)
+
+    def SpecifyUserStories(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> types.UserStoriesArtifact:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="SpecifyUserStories", llm_response=llm_response, mode="request")
+        return typing.cast(types.UserStoriesArtifact, __result__)
+
     
 
 class LlmStreamParser:
@@ -228,6 +246,12 @@ class LlmStreamParser:
     ) -> stream_types.GlossaryArtifact:
         __result__ = self.__options.merge_options(baml_options).parse_response(function_name="CreateInitialGlossary", llm_response=llm_response, mode="stream")
         return typing.cast(stream_types.GlossaryArtifact, __result__)
+
+    def DefineAcceptanceCriteria(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> stream_types.AcceptanceCriteriaArtifact:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="DefineAcceptanceCriteria", llm_response=llm_response, mode="stream")
+        return typing.cast(stream_types.AcceptanceCriteriaArtifact, __result__)
 
     def DefineExplainabilityLimits(
         self, llm_response: str, baml_options: BamlCallOptions = {},
@@ -306,5 +330,17 @@ class LlmStreamParser:
     ) -> stream_types.PhaseComplementaryArtifact:
         __result__ = self.__options.merge_options(baml_options).parse_response(function_name="RefineComplementaryRequirements", llm_response=llm_response, mode="stream")
         return typing.cast(stream_types.PhaseComplementaryArtifact, __result__)
+
+    def SpecifyExplanationCharacteristics(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> stream_types.ExplanationCharacteristicsArtifact:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="SpecifyExplanationCharacteristics", llm_response=llm_response, mode="stream")
+        return typing.cast(stream_types.ExplanationCharacteristicsArtifact, __result__)
+
+    def SpecifyUserStories(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> stream_types.UserStoriesArtifact:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="SpecifyUserStories", llm_response=llm_response, mode="stream")
+        return typing.cast(stream_types.UserStoriesArtifact, __result__)
 
     

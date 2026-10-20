@@ -2,7 +2,7 @@
 
 > **Atualização (manifesto 0.2.0):** a Fase 2 foi implementada com interpretações provisórias,
 > listadas no cap. 12 §12.4 e detalhadas no cap. 13 §13.4. A Fase 3 foi implementada no manifesto
-> 0.3.0 (cap. 12 §12.5, cap. 13 §13.5). A Fase 4 continua preliminar.
+> 0.3.0 (cap. 12 §12.5, cap. 13 §13.5) e a Fase 4 no manifesto 0.4.0 (cap. 12 §12.6, cap. 13 §13.6).
 
 > Este capítulo é **preliminar**. As tarefas e os data objects vêm do BPMN [TEORIA]. Os
 > contratos ainda não podem ser fechados porque os templates dessas fases não existem

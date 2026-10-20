@@ -84,6 +84,22 @@ ARTIFACT_TYPES: dict[str, ArtifactType] = {
         ArtifactType("analysis.review_report", None, title="Checklist de pré-revisão"),
         ArtifactType("analysis.draft", None, title="Documento de Requisitos de Explicabilidade"),
         ArtifactType("digest.analysis", T.PhaseDigest, title="Digest da Análise"),
+        # Fase 4 — formatos dos passos de tarefas/especificar-requisitos.md; provisórios (A-14, A-21)
+        ArtifactType("specification.baseline", None, title="Análise aprovada (linha de base)"),
+        ArtifactType("specification.plan", None, title="Fichas de especificação"),
+        ArtifactType("specification.user_stories", T.UserStoriesArtifact, "historias", T.UserStory, "HU",
+                     lambda i: f"{i.get('req_id')} {i.get('stakeholder_id')} {i.get('quero')}",
+                     "Histórias de Usuário"),
+        ArtifactType("specification.acceptance_criteria", T.AcceptanceCriteriaArtifact, "criterios",
+                     T.AcceptanceCriteria, "CA", lambda i: i.get("hu_id") or "", "Critérios de aceitação"),
+        ArtifactType("specification.characteristics", T.ExplanationCharacteristicsArtifact, "caracteristicas",
+                     T.ExplanationCharacteristics, "CEX", lambda i: i.get("hu_id") or "",
+                     "Características da explicação"),
+        ArtifactType("specification.traceability", T.TraceabilityMatrix, "linhas", T.TraceabilityRow, "TR",
+                     lambda i: i.get("hu") or "", "Matriz de rastreabilidade"),
+        ArtifactType("specification.review_report", None, title="Checklist de pré-revisão"),
+        ArtifactType("specification.draft", None, title="Documento de Requisitos de Explicabilidade (DRE)"),
+        ArtifactType("digest.specification", T.PhaseDigest, title="Digest da Especificação"),
     ]
 }
 
@@ -118,11 +134,20 @@ ANALYSIS_EDITABLE = [
     "analysis.priorities",
 ]
 
+SPECIFICATION_EDITABLE = [
+    "specification.user_stories",
+    "specification.acceptance_criteria",
+    "specification.characteristics",
+    "specification.traceability",
+]
+
 # Por fase: seções editáveis (em ordem), documento da fase e checklist de pré-revisão.
-PHASE_EDITABLE = {"1": VISION_EDITABLE, "2": REQUIREMENTS_EDITABLE, "3": ANALYSIS_EDITABLE}
-PHASE_DOCUMENT = {"1": "vision.draft", "2": "requirements.draft", "3": "analysis.draft"}
+PHASE_EDITABLE = {"1": VISION_EDITABLE, "2": REQUIREMENTS_EDITABLE, "3": ANALYSIS_EDITABLE,
+                  "4": SPECIFICATION_EDITABLE}
+PHASE_DOCUMENT = {"1": "vision.draft", "2": "requirements.draft", "3": "analysis.draft",
+                  "4": "specification.draft"}
 PHASE_REVIEW_REPORT = {"1": "vision.review_report", "2": "requirements.review_report",
-                       "3": "analysis.review_report"}
+                       "3": "analysis.review_report", "4": "specification.review_report"}
 
 
 def items_from_content(artifact_type: str, content: dict) -> list[tuple[str, dict]]:

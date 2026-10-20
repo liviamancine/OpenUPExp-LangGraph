@@ -79,7 +79,7 @@ def _links_from_item(item: dict) -> list[tuple[str, str, str]]:
         if "-" in r and len(r) <= 40 and r.split("-")[0].isupper():
             links.append((item["id"], r, "derives_from"))
     for field_name, kind in [("stakeholder_id", "relates_to"), ("termo_origem_id", "derives_from"),
-                             ("req_id", "refines")]:
+                             ("req_id", "refines"), ("hu_id", "specifies")]:
         if item.get(field_name):
             links.append((item["id"], item[field_name], kind))
     for field_name, kind in [("stakeholder_ids", "relates_to"), ("solicitacao_ids", "derives_from"),

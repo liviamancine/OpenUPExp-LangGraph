@@ -1,0 +1,104 @@
+{#- Parte da Fase 4 do DRE (especificação). Passos de OpenUPExp/tarefas/especificar-requisitos.md;
+    a teoria não traz template para HU, critérios e características (provisório, A-14/A-21). -#}
+# Especificação dos Requisitos de Explicabilidade (Fase 4)
+
+> **Projeto:** {{ meta.projeto }}
+> **Data:** {{ meta.data }}
+> **Versão:** {{ meta.versao }}
+> **Execução:** `{{ meta.run_id }}` · estratégia de contexto {{ meta.estrategia }} · manifesto {{ meta.manifesto }}
+> **Análise de base:** execução `{{ meta.base_run_id }}`
+> **Status:** {{ meta.status }}
+>
+> _Estrutura provisória: a teoria ainda não define templates para Histórias de Usuário, critérios de aceitação e características da explicação._
+
+---
+
+## 1. Histórias de Usuário de Explicabilidade
+
+{% for r in requirements -%}
+### {{ r.ficha.req_id }} — {{ r.ficha.enunciado | t }}
+
+_Prioridade (MoSCoW): {{ r.ficha.prioridade | c }} · Tipos de explicação (Análise): {{ r.ficha.tipos_explicacao | lst | c }}_
+
+{% for s in r.historias -%}
+#### {{ s.hu.id }} · {{ s.hu.stakeholder_id }}
+
+> **Como** {{ s.hu.como | t }}
+> **Quero** {{ s.hu.quero | t }}
+> **Para** {{ s.hu.para | t }}
+
+**Critérios de aceitação{% if s.ca.id %} ({{ s.ca.id }}){% endif %}**
+
+{% for c in s.ca.cenarios or [] -%}
+{{ loop.index }}. **Dado** {{ c.dado | t }} **Quando** {{ c.quando | t }} **Então** {{ c.entao | t }}
+{% else -%}
+_Pendente._
+{% endfor %}
+
+| Características da explicação{% if s.cex.id %} ({{ s.cex.id }}){% endif %} | |
+|---|---|
+| Objetivo | {{ s.cex.objetivo | c }} |
+| Público-alvo | {{ s.cex.publico_alvo | lst | c }} |
+| Contexto de utilização | {{ s.cex.contexto_utilizacao | c }} |
+| Nível de detalhamento | {{ s.cex.nivel_detalhamento | c }} |
+| Formato | {{ s.cex.formato | c }} |
+| Momento | {{ s.cex.momento | c }} |
+| Requisitos de qualidade | {{ s.cex.requisitos_qualidade | lst | c }} |
+
+{% else %}
+_Nenhuma história especificada._
+
+{% endfor %}
+{% else %}
+_Pendente._
+{% endfor %}
+
+---
+
+## 2. Matriz de rastreabilidade
+
+| HU | Requisito | RER | Stakeholder | Necessidades | Origens (Fase 2) | Critérios | Características | Prioridade |
+|---|---|---|---|---|---|---|---|---|
+{% for r in rows -%}
+| {{ r.hu }} | {{ r.req }} | {{ r.rer | c }} | {{ r.stakeholder | c }} | {{ r.necessidades | lst | c }} | {{ r.origens | lst | c }} | {{ r.ca | c }} | {{ r.cex | c }} | {{ r.prioridade | c }} |
+{% else -%}
+| — | — | — | — | — | — | — | — | — |
+{% endfor %}
+
+{% if fora %}
+**Requisitos não especificados nesta versão:**
+
+{% for f in fora -%}
+- {{ f.req_id }}: {{ f.motivo }}
+{% endfor %}
+{% endif %}
+
+---
+
+## 3. Registro de consenso
+
+{% if consensus %}
+{% for c in consensus -%}
+- **Rodada {{ c.iteracao }}:** {{ c.resultado }}{% if c.justificativa %} — {{ c.justificativa }}{% endif +%}
+{% for p in c.posicoes -%}
+  - {{ p.nome }}: **{{ p.posicao }}**{% if p.comentario %} — {{ p.comentario }}{% endif +%}
+{% endfor %}
+{% endfor %}
+{% else %}
+_Consenso ainda não realizado._
+{% endif %}
+
+---
+
+## Lacunas registradas
+
+{% for origem, l in lacunas -%}
+- **{{ origem }} · {{ l.campo }}:** {{ l.motivo | t }}{% if l.pergunta_sugerida %} — *Pergunta sugerida:* {{ l.pergunta_sugerida }}{% endif +%}
+{% else -%}
+_Nenhuma._
+{% endfor %}
+
+---
+
+> Documento gerado pela plataforma OpenUPExp a partir de artefatos estruturados e versionados.
+> Conteúdo produzido por agentes de IA e sujeito à validação do Engenheiro de Requisitos.

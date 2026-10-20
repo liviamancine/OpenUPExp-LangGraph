@@ -234,6 +234,20 @@ class BamlSyncClient:
                 "entrada": entrada,"contexto": contexto,
             })
             return typing.cast(types.GlossaryArtifact, __result__.cast_to(types, types, stream_types, False, __runtime__))
+    def DefineAcceptanceCriteria(self, entrada: types.AcceptanceInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> types.AcceptanceCriteriaArtifact:
+        # Check if on_tick is provided
+        if 'on_tick' in baml_options:
+            __stream__ = self.stream.DefineAcceptanceCriteria(entrada=entrada,contexto=contexto,
+                baml_options=baml_options)
+            return __stream__.get_final_response()
+        else:
+            # Original non-streaming code
+            __result__ = self.__options.merge_options(baml_options).call_function_sync(function_name="DefineAcceptanceCriteria", args={
+                "entrada": entrada,"contexto": contexto,
+            })
+            return typing.cast(types.AcceptanceCriteriaArtifact, __result__.cast_to(types, types, stream_types, False, __runtime__))
     def DefineExplainabilityLimits(self, entrada: types.LimitsInput,contexto: typing.List["types.ContextItem"],
         baml_options: BamlCallOptions = {},
     ) -> types.ExplainabilityLimitsArtifact:
@@ -416,6 +430,34 @@ class BamlSyncClient:
                 "entrada": entrada,"contexto": contexto,
             })
             return typing.cast(types.PhaseComplementaryArtifact, __result__.cast_to(types, types, stream_types, False, __runtime__))
+    def SpecifyExplanationCharacteristics(self, entrada: types.CharacteristicsInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> types.ExplanationCharacteristicsArtifact:
+        # Check if on_tick is provided
+        if 'on_tick' in baml_options:
+            __stream__ = self.stream.SpecifyExplanationCharacteristics(entrada=entrada,contexto=contexto,
+                baml_options=baml_options)
+            return __stream__.get_final_response()
+        else:
+            # Original non-streaming code
+            __result__ = self.__options.merge_options(baml_options).call_function_sync(function_name="SpecifyExplanationCharacteristics", args={
+                "entrada": entrada,"contexto": contexto,
+            })
+            return typing.cast(types.ExplanationCharacteristicsArtifact, __result__.cast_to(types, types, stream_types, False, __runtime__))
+    def SpecifyUserStories(self, entrada: types.SpecifyStoriesInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> types.UserStoriesArtifact:
+        # Check if on_tick is provided
+        if 'on_tick' in baml_options:
+            __stream__ = self.stream.SpecifyUserStories(entrada=entrada,contexto=contexto,
+                baml_options=baml_options)
+            return __stream__.get_final_response()
+        else:
+            # Original non-streaming code
+            __result__ = self.__options.merge_options(baml_options).call_function_sync(function_name="SpecifyUserStories", args={
+                "entrada": entrada,"contexto": contexto,
+            })
+            return typing.cast(types.UserStoriesArtifact, __result__.cast_to(types, types, stream_types, False, __runtime__))
     
 
 
@@ -543,6 +585,18 @@ class BamlStreamClient:
           __result__,
           lambda x: typing.cast(stream_types.GlossaryArtifact, x.cast_to(types, types, stream_types, True, __runtime__)),
           lambda x: typing.cast(types.GlossaryArtifact, x.cast_to(types, types, stream_types, False, __runtime__)),
+          __ctx__,
+        )
+    def DefineAcceptanceCriteria(self, entrada: types.AcceptanceInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.BamlSyncStream[stream_types.AcceptanceCriteriaArtifact, types.AcceptanceCriteriaArtifact]:
+        __ctx__, __result__ = self.__options.merge_options(baml_options).create_sync_stream(function_name="DefineAcceptanceCriteria", args={
+            "entrada": entrada,"contexto": contexto,
+        })
+        return baml_py.BamlSyncStream[stream_types.AcceptanceCriteriaArtifact, types.AcceptanceCriteriaArtifact](
+          __result__,
+          lambda x: typing.cast(stream_types.AcceptanceCriteriaArtifact, x.cast_to(types, types, stream_types, True, __runtime__)),
+          lambda x: typing.cast(types.AcceptanceCriteriaArtifact, x.cast_to(types, types, stream_types, False, __runtime__)),
           __ctx__,
         )
     def DefineExplainabilityLimits(self, entrada: types.LimitsInput,contexto: typing.List["types.ContextItem"],
@@ -701,6 +755,30 @@ class BamlStreamClient:
           lambda x: typing.cast(types.PhaseComplementaryArtifact, x.cast_to(types, types, stream_types, False, __runtime__)),
           __ctx__,
         )
+    def SpecifyExplanationCharacteristics(self, entrada: types.CharacteristicsInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.BamlSyncStream[stream_types.ExplanationCharacteristicsArtifact, types.ExplanationCharacteristicsArtifact]:
+        __ctx__, __result__ = self.__options.merge_options(baml_options).create_sync_stream(function_name="SpecifyExplanationCharacteristics", args={
+            "entrada": entrada,"contexto": contexto,
+        })
+        return baml_py.BamlSyncStream[stream_types.ExplanationCharacteristicsArtifact, types.ExplanationCharacteristicsArtifact](
+          __result__,
+          lambda x: typing.cast(stream_types.ExplanationCharacteristicsArtifact, x.cast_to(types, types, stream_types, True, __runtime__)),
+          lambda x: typing.cast(types.ExplanationCharacteristicsArtifact, x.cast_to(types, types, stream_types, False, __runtime__)),
+          __ctx__,
+        )
+    def SpecifyUserStories(self, entrada: types.SpecifyStoriesInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.BamlSyncStream[stream_types.UserStoriesArtifact, types.UserStoriesArtifact]:
+        __ctx__, __result__ = self.__options.merge_options(baml_options).create_sync_stream(function_name="SpecifyUserStories", args={
+            "entrada": entrada,"contexto": contexto,
+        })
+        return baml_py.BamlSyncStream[stream_types.UserStoriesArtifact, types.UserStoriesArtifact](
+          __result__,
+          lambda x: typing.cast(stream_types.UserStoriesArtifact, x.cast_to(types, types, stream_types, True, __runtime__)),
+          lambda x: typing.cast(types.UserStoriesArtifact, x.cast_to(types, types, stream_types, False, __runtime__)),
+          __ctx__,
+        )
     
 
 class BamlHttpRequestClient:
@@ -776,6 +854,13 @@ class BamlHttpRequestClient:
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
         __result__ = self.__options.merge_options(baml_options).create_http_request_sync(function_name="CreateInitialGlossary", args={
+            "entrada": entrada,"contexto": contexto,
+        }, mode="request")
+        return __result__
+    def DefineAcceptanceCriteria(self, entrada: types.AcceptanceInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        __result__ = self.__options.merge_options(baml_options).create_http_request_sync(function_name="DefineAcceptanceCriteria", args={
             "entrada": entrada,"contexto": contexto,
         }, mode="request")
         return __result__
@@ -867,6 +952,20 @@ class BamlHttpRequestClient:
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
         __result__ = self.__options.merge_options(baml_options).create_http_request_sync(function_name="RefineComplementaryRequirements", args={
+            "entrada": entrada,"contexto": contexto,
+        }, mode="request")
+        return __result__
+    def SpecifyExplanationCharacteristics(self, entrada: types.CharacteristicsInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        __result__ = self.__options.merge_options(baml_options).create_http_request_sync(function_name="SpecifyExplanationCharacteristics", args={
+            "entrada": entrada,"contexto": contexto,
+        }, mode="request")
+        return __result__
+    def SpecifyUserStories(self, entrada: types.SpecifyStoriesInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        __result__ = self.__options.merge_options(baml_options).create_http_request_sync(function_name="SpecifyUserStories", args={
             "entrada": entrada,"contexto": contexto,
         }, mode="request")
         return __result__
@@ -948,6 +1047,13 @@ class BamlHttpStreamRequestClient:
             "entrada": entrada,"contexto": contexto,
         }, mode="stream")
         return __result__
+    def DefineAcceptanceCriteria(self, entrada: types.AcceptanceInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        __result__ = self.__options.merge_options(baml_options).create_http_request_sync(function_name="DefineAcceptanceCriteria", args={
+            "entrada": entrada,"contexto": contexto,
+        }, mode="stream")
+        return __result__
     def DefineExplainabilityLimits(self, entrada: types.LimitsInput,contexto: typing.List["types.ContextItem"],
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
@@ -1036,6 +1142,20 @@ class BamlHttpStreamRequestClient:
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
         __result__ = self.__options.merge_options(baml_options).create_http_request_sync(function_name="RefineComplementaryRequirements", args={
+            "entrada": entrada,"contexto": contexto,
+        }, mode="stream")
+        return __result__
+    def SpecifyExplanationCharacteristics(self, entrada: types.CharacteristicsInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        __result__ = self.__options.merge_options(baml_options).create_http_request_sync(function_name="SpecifyExplanationCharacteristics", args={
+            "entrada": entrada,"contexto": contexto,
+        }, mode="stream")
+        return __result__
+    def SpecifyUserStories(self, entrada: types.SpecifyStoriesInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        __result__ = self.__options.merge_options(baml_options).create_http_request_sync(function_name="SpecifyUserStories", args={
             "entrada": entrada,"contexto": contexto,
         }, mode="stream")
         return __result__

@@ -16,6 +16,18 @@ from . import stream_types
 
 type_map = {
 
+    "types.AcceptanceCriteria": types.AcceptanceCriteria,
+    "stream_types.AcceptanceCriteria": stream_types.AcceptanceCriteria,
+
+    "types.AcceptanceCriteriaArtifact": types.AcceptanceCriteriaArtifact,
+    "stream_types.AcceptanceCriteriaArtifact": stream_types.AcceptanceCriteriaArtifact,
+
+    "types.AcceptanceInput": types.AcceptanceInput,
+    "stream_types.AcceptanceInput": stream_types.AcceptanceInput,
+
+    "types.AcceptanceScenario": types.AcceptanceScenario,
+    "stream_types.AcceptanceScenario": stream_types.AcceptanceScenario,
+
     "types.AspectClassification": types.AspectClassification,
     "stream_types.AspectClassification": stream_types.AspectClassification,
 
@@ -24,6 +36,9 @@ type_map = {
 
     "types.CaptureTermsInput": types.CaptureTermsInput,
     "stream_types.CaptureTermsInput": stream_types.CaptureTermsInput,
+
+    "types.CharacteristicsInput": types.CharacteristicsInput,
+    "stream_types.CharacteristicsInput": stream_types.CharacteristicsInput,
 
     "types.CharacterizeInput": types.CharacterizeInput,
     "stream_types.CharacterizeInput": stream_types.CharacterizeInput,
@@ -129,6 +144,12 @@ type_map = {
 
     "types.ExplainabilityRequirementsArtifact": types.ExplainabilityRequirementsArtifact,
     "stream_types.ExplainabilityRequirementsArtifact": stream_types.ExplainabilityRequirementsArtifact,
+
+    "types.ExplanationCharacteristics": types.ExplanationCharacteristics,
+    "stream_types.ExplanationCharacteristics": stream_types.ExplanationCharacteristics,
+
+    "types.ExplanationCharacteristicsArtifact": types.ExplanationCharacteristicsArtifact,
+    "stream_types.ExplanationCharacteristicsArtifact": stream_types.ExplanationCharacteristicsArtifact,
 
     "types.ExplanationTypeMapping": types.ExplanationTypeMapping,
     "stream_types.ExplanationTypeMapping": stream_types.ExplanationTypeMapping,
@@ -247,6 +268,12 @@ type_map = {
     "types.SimilarPair": types.SimilarPair,
     "stream_types.SimilarPair": stream_types.SimilarPair,
 
+    "types.SpecificationPlanEntry": types.SpecificationPlanEntry,
+    "stream_types.SpecificationPlanEntry": stream_types.SpecificationPlanEntry,
+
+    "types.SpecifyStoriesInput": types.SpecifyStoriesInput,
+    "stream_types.SpecifyStoriesInput": stream_types.SpecifyStoriesInput,
+
     "types.Stakeholder": types.Stakeholder,
     "stream_types.Stakeholder": stream_types.Stakeholder,
 
@@ -258,6 +285,18 @@ type_map = {
 
     "types.StakeholdersArtifact": types.StakeholdersArtifact,
     "stream_types.StakeholdersArtifact": stream_types.StakeholdersArtifact,
+
+    "types.TraceabilityMatrix": types.TraceabilityMatrix,
+    "stream_types.TraceabilityMatrix": stream_types.TraceabilityMatrix,
+
+    "types.TraceabilityRow": types.TraceabilityRow,
+    "stream_types.TraceabilityRow": stream_types.TraceabilityRow,
+
+    "types.UserStoriesArtifact": types.UserStoriesArtifact,
+    "stream_types.UserStoriesArtifact": stream_types.UserStoriesArtifact,
+
+    "types.UserStory": types.UserStory,
+    "stream_types.UserStory": stream_types.UserStory,
 
 
     "types.ComplementaryCategory": types.ComplementaryCategory,
@@ -272,7 +311,13 @@ type_map = {
 
     "types.EvidenceKind": types.EvidenceKind,
 
+    "types.ExplanationDetailLevel": types.ExplanationDetailLevel,
+
+    "types.ExplanationFormat": types.ExplanationFormat,
+
     "types.ExplanationGoal": types.ExplanationGoal,
+
+    "types.ExplanationMoment": types.ExplanationMoment,
 
     "types.ExplanationType": types.ExplanationType,
 

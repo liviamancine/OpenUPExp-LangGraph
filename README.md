@@ -4,7 +4,7 @@ Engenharia de requisitos de explicabilidade orientada ao processo **OpenUPExp**,
 (LangGraph + BAML), validação humana nos pontos de decisão do BPMN, rastreabilidade e gestão de contexto.
 
 - **Arquitetura e decisões:** [`docs/architecture/`](docs/architecture/README.md)
-- **Manifesto do processo (BPMN → execução):** [`process/manifest/openupexp-0.3.0.yaml`](process/manifest/openupexp-0.3.0.yaml)
+- **Manifesto do processo (BPMN → execução):** [`process/manifest/openupexp-0.4.0.yaml`](process/manifest/openupexp-0.4.0.yaml)
 - **BPMN de referência** (cópia fixada do repositório teórico): [`process/bpmn/`](process/bpmn/)
 - **Estudo de caso INPI** (escopo e base de referência): [`experiments/cases/inpi/`](experiments/cases/inpi/)
 - **Protótipo original** (6 workers, linha de base experimental): [`legacy/`](legacy/README.md)
@@ -19,7 +19,7 @@ Engenharia de requisitos de explicabilidade orientada ao processo **OpenUPExp**,
 | M3 Frontend (BPMN com status, decisões, edição, evidências, métricas) | implementado (MVP) |
 | M4 Experimentos (estratégia B, harness, gabaritos, avaliação) | pendente |
 | M5 Fase 2 + consenso | implementado com formatos provisórios (manifesto 0.2.0; ver cap. 12 §12.4) |
-| M6 Fases 3–4 | Fase 3 implementada (manifesto 0.3.0; cap. 12 §12.5); Fase 4 pendente |
+| M6 Fases 3–4 | implementado com formatos provisórios (manifestos 0.3.0 e 0.4.0; cap. 12 §12.5–§12.6) |
 
 As interpretações de trabalho adotadas para as decisões pendentes da autora estão em
 [`docs/architecture/12-decisoes-pendentes.md`](docs/architecture/12-decisoes-pendentes.md).
@@ -82,7 +82,7 @@ backend/
     observability/     chamadas LLM via Collector do BAML
     api/               FastAPI (REST + SSE), autenticação e papéis
   migrations/          Alembic
-  tests/               unidade, banco, fluxo completo da Fase 1, API
+  tests/               unidade, banco, fluxos completos das Fases 1–4, API
 frontend/              React + Vite + TypeScript + bpmn-js
 process/               manifesto versionado e BPMN de referência
 experiments/cases/     escopo e corpus de cada estudo de caso (INPI)

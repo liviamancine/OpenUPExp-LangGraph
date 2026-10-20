@@ -17,7 +17,7 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.types import interrupt
 from sqlalchemy import select, text
 
-from openupexp.agents import phase1, phase2, phase3
+from openupexp.agents import phase1, phase2, phase3, phase4
 from openupexp.agents.gateway import AgentGateway
 from openupexp.agents.registry import ARTIFACT_TYPES, PHASE_DOCUMENT, VISION_EDITABLE
 from openupexp.agents.runtime import TaskContext, WriteResult, execute_task
@@ -31,7 +31,7 @@ from openupexp.exports.vision import _meta, render_vision_markdown
 from openupexp.process.manifest import Manifest, Outcome, PhaseSpec, TaskSpec
 from openupexp.retrieval.embeddings import Embedder
 
-HANDLERS = {**phase1.HANDLERS, **phase2.HANDLERS, **phase3.HANDLERS}
+HANDLERS = {**phase1.HANDLERS, **phase2.HANDLERS, **phase3.HANDLERS, **phase4.HANDLERS}
 
 
 class RunState(TypedDict, total=False):

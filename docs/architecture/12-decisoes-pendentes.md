@@ -27,6 +27,7 @@ roadmap (cap. 11) que depende da decisão.
 | A-18 | Relação entre **1.2.2** e **2.2.3** (mesmo nome: Identify Complementary Requirements) | — | 2.2.3 refina 1.2.2 com os requisitos elicitados | M5 |
 | A-19 | A **Lista de Itens de Trabalho** está no escopo da plataforma? | Citada em várias tarefas, marcada "VALIDAR" | Fora do MVP | — |
 | A-20 | Corrigir os nomes no BPMN ("Draf", "3.1.2Consolidate", "Reach Consensus" sem número…) e o vocabulário "Workers" no template (I-11)? | I-07, I-11 | O manifesto usa IDs BPMN, então não bloqueia | — |
+| A-21 | Requisitos com prioridade **WONT** entram na Especificação? E uma HU por requisito ou uma por stakeholder? | `especificar-requisitos.md` passo 1 ("uma necessidade principal por história") | WONT fica fora da versão, registrado no DRE; uma ou mais HU por requisito, cada uma com um stakeholder | M6 |
 
 ## 12.2 Para a equipe [PENDENTE-EQUIPE]
 
@@ -97,3 +98,25 @@ Código: `backend/baml_src/analysis_3_analyze.baml`, `backend/openupexp/agents/p
 | A-13 / A-20 — Reach Consensus sem número | Tratado como 3.2.7, com a mesma regra provisória da Fase 2; retorno apenas a 3.2 | Passo 8; BPMN sem numeração |
 | A-01 — Retorno do gateway 3.3 | Revisitar 3.1 ou 3.2, com comentário obrigatório | Anotação BPMN em 3.3 |
 | A-12 — ERD | ERD da Fase 3 = ERD aprovado da Fase 2 (Visão + Requisitos) + Parte 3 (RER, conflitos, MoSCoW, consenso, lacunas) | "Consolidate Explainability Requirement Document" |
+
+## 12.6 Interpretações provisórias adotadas na Fase 4 [PROPOSTA]
+
+Manifesto 0.4.0. `tarefas/especificar-requisitos.md` define os passos, os formatos recomendados
+(HU "Como / Quero / Para"; critérios "Dado / Quando / Então") e a lista de características da
+explicação, mas não traz templates — `artefatos/DRE.md` contém apenas a Visão e o Glossário. A
+tarefa também tem trechos marcados "(confirmar)" e "???" no texto. O que segue é escolha de engenharia.
+Código: `backend/baml_src/specification_4_specify.baml`, `backend/openupexp/agents/phase4.py`.
+
+| Pendência | Interpretação provisória | Base na teoria |
+|---|---|---|
+| A-21 — Escopo | Entram os requisitos `EXPLICABILIDADE` analisados na Fase 3, exceto os `WONT`, que aparecem no DRE como "não especificados nesta versão" | Definição de WONT no passo 7 da Análise |
+| 4.1.2 — Preparar | Determinística: uma **ficha por requisito** com enunciado, prioridade aprovada, stakeholders, necessidades, aspecto, tipos de explicação, caracterização (RER) e restrições. As tarefas 4.2.x só recebem fichas | Entradas da tarefa (Visão + requisitos analisados) |
+| A-14 / A-21 — HU (4.2.1) | `HU-n` com `req_id`, `stakeholder_id`, Como, Quero, Para. Ao menos uma HU por requisito; mais de uma quando há stakeholders com necessidades distintas. A prioridade não é campo da HU: vem da ficha | Passo 1 (formato recomendado; "uma necessidade principal por história") |
+| A-14 — Critérios (4.2.2) | `CA-n` por HU, com um ou mais cenários Dado / Quando / Então. Valores mensuráveis só se estiverem nas entradas; senão, lacuna | Passo 2 |
+| A-14 — Características (4.2.3) | `CEX-n` por HU com os sete itens do passo 3; nível (resumido/intermediário/detalhado), formato (textual/visual/tabular/combinado) e momento (antes/durante/após/sob demanda) como listas fechadas. Usa as respostas do checklist de limites da Visão | Passo 3; checklist "Limite da Explicabilidade" (momento, forma) |
+| A-14 — Rastreabilidade (4.2.4) | **Calculada, sem LLM**: uma linha por HU com requisito, RER, stakeholder, necessidades, origens da Fase 2 (RI/RC), critérios, características e prioridade; registra requisitos sem HU e HU órfãs. Links `specifies` (CA/CEX → HU) e `refines` (HU → REQ) | Passo 4 (lista dos elementos e "rastreabilidade bidirecional") |
+| A-13 / A-20 — Reach Consensus (4.2.5) | Mesma regra provisória das Fases 2–3; retorno apenas a 4.2. O passo 1 sugere validar as HU antes dos critérios, mas o BPMN tem um só consenso, depois de 4.2.4 — seguimos o BPMN | Passo 6; BPMN 4.2 |
+| 4.3.1 — Pré-revisão | Checklist das boas práticas: formato das HU e dos cenários, stakeholder coerente, cobertura de critérios e características, matriz completa, consenso, ausência de stale, e uma **heurística** de termos vagos sem número no "Então" | Boas práticas dos passos 1, 2, 4 e 5 |
+| A-01 — Retorno do gateway 4.3 | Revisitar 4.1 ou 4.2, com comentário obrigatório | Anotação BPMN em 4.3 |
+| A-11 / A-12 — DRE | DRE final = ERD aprovado da Fase 3 (Visão, Requisitos, Análise) + Parte 4 (HU com critérios e características, matriz, consenso, lacunas) | Passo 5 ("único Documento de Requisitos de Explicabilidade") |
+

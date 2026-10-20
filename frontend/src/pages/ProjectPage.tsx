@@ -106,6 +106,7 @@ export default function ProjectPage() {
                   <option value="1">1 — Define Explainability Vision</option>
                   <option value="2">2 — Elicit Explainability Requirements</option>
                   <option value="3">3 — Analyze Explainability Requirements</option>
+                  <option value="4">4 — Define Explainability Specification</option>
                 </select>
               </label>
               {phase !== "1" && (

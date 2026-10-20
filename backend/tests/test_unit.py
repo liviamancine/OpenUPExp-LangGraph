@@ -67,6 +67,24 @@ def test_phase3_tasks_have_handlers_and_read_earlier_outputs():
     assert set(manifest.task("3.2.7").outcomes) == {"close", "revisit_3_2"}
 
 
+def test_phase4_tasks_have_handlers_and_read_earlier_outputs():
+    from openupexp.agents.phase4 import HANDLERS as P4
+
+    manifest = load_manifest()
+    phase = manifest.phase("4")
+    assert phase.implemented and phase.requires_phase == "3"
+    produced = {w.artifact for p in ("1", "2", "3") for t in manifest.phase(p).tasks() for w in t.writes}
+    for t in phase.tasks():
+        if t.mechanism in ("agent", "deterministic"):
+            assert t.id in P4, f"tarefa {t.id} sem handler"
+        for r in t.reads:
+            if r.required:
+                assert r.artifact in produced, f"{t.id} lê {r.artifact} antes de ser produzido"
+        produced |= {w.artifact for w in t.writes}
+    assert set(manifest.task("4.3.gate").outcomes) == {"approve", "revisit_4_1", "revisit_4_2"}
+    assert set(manifest.task("4.2.5").outcomes) == {"close", "revisit_4_2"}
+
+
 def test_phase3_taxonomies_follow_theory():
     from openupexp.baml_client import types as T
 
@@ -176,3 +194,16 @@ async def test_phase2_prompt_renders_only_given_context():
     )
     content = str(req.body.json())
     assert "Pessoa A" in content and "chunk:entrevista:p1:c0" in content and "UM stakeholder" in content
+
+
+async def test_phase4_story_prompt_renders_recommended_format():
+    from openupexp.baml_client import types as T
+    from openupexp.baml_client.async_client import b
+
+    ficha = T.SpecificationPlanEntry(req_id="REQ-01", enunciado="Explicar a recomendação", prioridade="MUST",
+                                     stakeholder_ids=["STK-01"], need_ids=[], tipos_explicacao=["LOCAL"],
+                                     restricoes=[])
+    req = await b.request.SpecifyUserStories(
+        T.SpecifyStoriesInput(requisitos=[ficha], stakeholders=[], historias_existentes=[]), [])
+    content = str(req.body.json())
+    assert "REQ-01" in content and "Como <stakeholder>" in content and "NÃO INVENÇÃO" in content

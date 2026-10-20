@@ -12,7 +12,7 @@ const LABELS: Record<string, string> = {
   approval: "aprovação", consensus: "consenso", input: "entrada de material",
 };
 
-export const PHASE_NAMES: Record<string, string> = { "1": "Visão", "2": "Elicitação", "3": "Análise" };
+export const PHASE_NAMES: Record<string, string> = { "1": "Visão", "2": "Elicitação", "3": "Análise", "4": "Especificação" };
 
 export const DECISION_LABEL: Record<string, string> = {
   approve: "Aprovar",
@@ -22,6 +22,8 @@ export const DECISION_LABEL: Record<string, string> = {
   revisit_2_2: "Revisitar 2.2 Elicit Explainability Requirements",
   revisit_3_1: "Revisitar 3.1 Prepare Explainability Analysis",
   revisit_3_2: "Revisitar 3.2 Analyze Explainability Requirements",
+  revisit_4_1: "Revisitar 4.1 Prepare Explainability Specification",
+  revisit_4_2: "Revisitar 4.2 Specify Explainability Requirements",
   submit: "Material enviado: prosseguir com a extração",
   no_material: "Prosseguir sem material de elicitação (justifique)",
   close: "Encerrar o consenso",

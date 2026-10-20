@@ -411,3 +411,46 @@ def PrioritizeRequirements(entrada: T.PrioritizeInput, contexto) -> T.Priorities
         out.append(T.PriorityAssignment(id=None, req_id=r.id, prioridade=level,
                                         justificativa="Sugestão simulada a partir de conflitos e aspecto."))
     return T.PrioritiesArtifact(prioridades=out)
+
+
+# ---------------------------------------------------------------------------
+# Fase 4 — Especificação
+# ---------------------------------------------------------------------------
+
+
+def SpecifyUserStories(entrada: T.SpecifyStoriesInput, contexto) -> T.UserStoriesArtifact:
+    names = {s.id: s.nome for s in entrada.stakeholders}
+    existing = {(h.req_id, h.stakeholder_id): h.id for h in entrada.historias_existentes}
+    out = []
+    for f in entrada.requisitos:
+        # uma HU por stakeholder do requisito (até dois), para exercitar o caso 1:N
+        for stk in f.stakeholder_ids[:2] or [""]:
+            out.append(T.UserStory(
+                id=existing.get((f.req_id, stk)), req_id=f.req_id, stakeholder_id=stk,
+                como=names.get(stk, stk), quero=f"receber uma explicação sobre: {f.enunciado[:120]}",
+                para=f"apoiar a decisão ({f.objetivo_principal or 'objetivo a confirmar'})",
+                lacunas=[] if f.objetivo_principal else [_lacuna("para", "Qual benefício a explicação traz?")]))
+    return T.UserStoriesArtifact(historias=out)
+
+
+def DefineAcceptanceCriteria(entrada: T.AcceptanceInput, contexto) -> T.AcceptanceCriteriaArtifact:
+    existing = {c.hu_id: c.id for c in entrada.criterios_existentes}
+    out = [T.AcceptanceCriteria(
+        id=existing.get(h.id), hu_id=h.id or "",
+        cenarios=[T.AcceptanceScenario(dado=f"que {h.como} acessa o resultado de uma decisão do sistema",
+                                       quando="solicitar a explicação",
+                                       entao="o sistema apresenta os critérios que fundamentaram a decisão")],
+        lacunas=[_lacuna("cenarios.entao", "Em quanto tempo a explicação deve estar disponível?")],
+    ) for h in entrada.historias]
+    return T.AcceptanceCriteriaArtifact(criterios=out)
+
+
+def SpecifyExplanationCharacteristics(entrada: T.CharacteristicsInput, contexto) -> T.ExplanationCharacteristicsArtifact:
+    existing = {c.hu_id: c.id for c in entrada.caracteristicas_existentes}
+    out = [T.ExplanationCharacteristics(
+        id=existing.get(h.id), hu_id=h.id or "", objetivo=h.para, publico_alvo=[h.stakeholder_id],
+        contexto_utilizacao=None, nivel_detalhamento=None, formato=T.ExplanationFormat.TEXTUAL,
+        momento=T.ExplanationMoment.APOS, requisitos_qualidade=[],
+        lacunas=[_lacuna("nivel_detalhamento", "Qual nível de detalhe este stakeholder espera?")],
+    ) for h in entrada.historias]
+    return T.ExplanationCharacteristicsArtifact(caracteristicas=out)

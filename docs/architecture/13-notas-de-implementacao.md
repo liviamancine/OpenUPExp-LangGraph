@@ -137,3 +137,27 @@ Validação: fluxo completo coberto por teste (objeção → retorno a 3.2 com f
 aprovação → ERD com as três partes) e executado na interface com agentes simulados
 (execução `519abefa`). Comportamento com LLM real ainda não medido.
 
+## 13.6 Fase 4 — Especificação (manifesto 0.4.0)
+
+A Fase 4 parte de uma execução da Fase 3 concluída e aprovada. Interpretações em cap. 12 §12.6.
+
+- **Fichas em vez de documentos.** 4.1.2 junta, sem LLM, o requisito e os resultados da Análise
+  numa ficha por requisito. As tarefas 4.2.1–4.2.3 recebem só as fichas do lote, e não o ERD
+  acumulado — o tamanho da entrada depende do lote, não do histórico do projeto.
+- **Map por requisito e por HU.** 4.2.1 roda em lotes de fichas e aceita várias HU por requisito
+  (cobertura: ao menos uma). 4.2.2 e 4.2.3 rodam em lotes de HU, com `_per_requirement`
+  generalizado para a chave `hu_id`. IDs das HU são preservados entre iterações pela dupla
+  (requisito, stakeholder).
+- **Rastreabilidade calculada.** A matriz (4.2.4) é montada a partir dos IDs, sem LLM; não há
+  como o agente "esquecer" uma linha.
+- **DRE.** 4.3.2 acrescenta a Parte 4 ao ERD aprovado da Fase 3 e exporta `dre-*.md`.
+
+| # | Decisão | Motivo |
+|---|---|---|
+| D-21 | Prioridade fora do contrato da HU; vem da Análise aprovada pela ficha | Evitar que o agente altere uma decisão humana da Fase 3 |
+| D-22 | Heurística de termos vagos no checklist 4.3.1 é só alerta | Boa prática do passo 2; a decisão continua humana |
+
+Validação: fluxo completo coberto por teste (objeção → retorno a 4.2 com feedback e IDs
+preservados → consenso → aprovação → DRE com as quatro partes). Comportamento com LLM real
+ainda não medido.
+
