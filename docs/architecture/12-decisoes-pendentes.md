@@ -52,7 +52,7 @@ interpretação provisória em uso.
 | A-11 | **Nome canônico** do documento (DRE × ERD; "Documento de Requisitos de Explicabilidade" × "Documento de Referência de Especificação") | I-04 | DRE em português, ERD como alias | M2 |
 | A-12 | **Composição do ERD** em cada fase | I-05 | Visão + Glossário (F1) + Requisitos (F2) + Análise (F3) + Especificação (F4) | M5 |
 | A-13 | Quem participa de cada **Reach Consensus** e qual a regra de fechamento? | I-08; BPMN com lane única | `no_blocking_objection`; no timeout, o Engenheiro decide | M5 |
-| A-14 | Templates das fases 2–4: Plano de Elicitação, RER, História de Usuário, Critério de Aceitação, Características da Explicação, Matriz de Rastreabilidade | I-09 | — | M5/M6 |
+| A-14 | Templates das fases 2–4: Plano de Elicitação, RER, História de Usuário, Critério de Aceitação, Características da Explicação, Matriz de Rastreabilidade | I-09 | Formatos provisórios derivados dos passos de cada tarefa, descritos nas seções 12.4 a 12.6 | M5/M6 |
 | A-15 | Taxonomias de aspectos e de tipos de explicação são **fechadas** ou extensíveis? | `analisar-requisito.md` passos 2–3 | Fechadas com "outro (justificar)" | M6 |
 | A-16 | Quem decide o **MoSCoW**? | 3.2.6 | IA sugere, humanos decidem no consenso | M6 |
 | A-17 | É permitido **reabrir** uma macroatividade aprovada? | `Fase Concepção.md`: "DRE continuamente atualizado" | Sim, com justificativa e invalidação em cascata | M5 |
