@@ -124,3 +124,14 @@ export interface Metrics {
   total: RunDetail["metricas"];
   por_tarefa: { task_id: string; iteracao: number; function: string; chamadas: number; input_tokens: number; output_tokens: number; latency_ms: number; custo_usd: number | null }[];
 }
+
+export interface LlmProfile {
+  id: string; slug: string; nome: string; padrao: boolean; protegido: boolean; disponivel: boolean;
+  params: Record<string, unknown>;
+  modelo: { slug: string; nome: string; provider: string; model: string; local: boolean; protegido: boolean; descricao: string | null };
+}
+
+export interface ModelSnapshot {
+  profile_id?: string; profile_slug?: string; profile_nome?: string; provider?: string; model?: string;
+  local?: boolean; model_digest?: string | null;
+}

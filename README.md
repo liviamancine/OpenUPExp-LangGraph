@@ -40,8 +40,21 @@ docker compose exec worker openupexp create-user eng@exemplo.org "Engenheira"
 docker compose exec worker openupexp seed-inpi --owner-email eng@exemplo.org
 ```
 
+### Modelo local (opcional)
+
+O modelo local (Qwen3 4B via Ollama) **não sobe por padrão**: sem placa de vídeo ele é lento
+(~1,5 min por chamada) e ocupa ~3 GB de RAM e boa parte da CPU. Para ligar:
+
+```bash
+# no .env: LOCAL_LLM_ENABLED=true (e, se quiser, OLLAMA_CPUS / OLLAMA_MEM_LIMIT)
+docker compose --profile local-llm up -d   # baixa ~2,5 GB na primeira vez
+```
+
+Também é possível apontar `OLLAMA_URL` para um Ollama em outra máquina. Detalhes no
+[cap. 14](docs/architecture/14-modelos-e-laboratorio.md).
+
 Acesse <http://localhost:5173>, entre como a engenheira, abra o projeto e inicie a Fase 1.
-Sem chave de LLM, escolha **Agentes: Simulado** para percorrer o processo (HITL, retornos,
+Sem chave de LLM nem modelo local, escolha **Modo de teste** para percorrer o processo (HITL, retornos,
 versões, exportação) com saídas determinísticas.
 
 Com a Visão aprovada, inicie a **Fase 2** escolhendo essa execução como base. A execução

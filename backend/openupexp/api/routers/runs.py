@@ -39,6 +39,7 @@ class RunIn(BaseModel):
     agent_gateway: str | None = None
     model_profile: dict | None = None
     base_run_id: uuid.UUID | None = None
+    llm_profile_id: uuid.UUID | None = None
 
 
 async def _run_for(session: AsyncSession, run_id: uuid.UUID, user: AppUser, roles=None) -> Run:
@@ -54,7 +55,8 @@ async def start_run(project_id: uuid.UUID, body: RunIn, user: AppUser = Depends(
                     session: AsyncSession = Depends(get_session)):
     await require_member(session, project_id, user, ("requirements_engineer", "researcher"))
     run = await services.start_run(session, project_id, body.phase, body.context_strategy, body.agent_gateway,
-                                   body.model_profile, user.id, base_run_id=body.base_run_id)
+                                   body.model_profile, user.id, base_run_id=body.base_run_id,
+                                   llm_profile_id=body.llm_profile_id)
     return run_summary(run)
 
 

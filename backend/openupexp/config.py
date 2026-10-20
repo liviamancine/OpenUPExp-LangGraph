@@ -24,6 +24,11 @@ class Settings(BaseSettings):
 
     agent_gateway: str = "baml"  # ou "fake"
     llm_profile: str = "OpenUPExpDefault"
+    # modelo local (cap. 14): opcional; variante criada pelo serviço ollama-pull (perfil local-llm)
+    local_llm_enabled: bool = False
+    ollama_url: str = "http://ollama:11434"
+    ollama_model: str = "openupexp-qwen3-4b"
+    ollama_base_model: str = "qwen3:4b-instruct-2507-q4_K_M"
 
     worker_poll_seconds: float = 1.0
     job_stale_minutes: int = 30

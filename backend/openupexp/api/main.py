@@ -6,7 +6,9 @@ from fastapi.responses import JSONResponse
 
 from openupexp.api.auth import bootstrap_admin
 from openupexp.api.events import broadcaster
-from openupexp.api.routers import artifacts, hitl, process, projects, runs
+from openupexp.db.session import session_scope
+from openupexp.llm.catalog import ensure_catalog
+from openupexp.api.routers import artifacts, hitl, llm, process, projects, runs
 from openupexp.context.builder import MissingRequiredInput
 from openupexp.domain.services import DomainError
 from openupexp.queue.jobs import JobAlreadyActive
@@ -15,6 +17,8 @@ from openupexp.queue.jobs import JobAlreadyActive
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await bootstrap_admin()
+    async with session_scope() as session:
+        await ensure_catalog(session)
     broadcaster.start()
     yield
     await broadcaster.stop()
@@ -23,7 +27,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="OpenUPExp", version="0.1.0", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
-for r in (projects, runs, artifacts, hitl, process):
+for r in (projects, runs, artifacts, hitl, process, llm):
     app.include_router(r.router)
 
 

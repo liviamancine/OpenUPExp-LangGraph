@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { api, downloadUrl } from "../api/client";
-import type { ArtifactSummary, Manifest, Metrics, RunDetail, TaskExec, TaskSpec } from "../api/types";
+import type { ArtifactSummary, Manifest, Metrics, ModelSnapshot, RunDetail, TaskExec, TaskSpec } from "../api/types";
 import { taskName } from "../bpmn/names";
 import BpmnNavigator from "../components/BpmnNavigator";
 import Icon from "../components/Icon";
@@ -64,7 +64,7 @@ export default function RunPage() {
           <div className="grow">
             <h1>Etapa {r.phase}: {info?.titulo ?? ""}</h1>
             <div className="subtitle">
-              {info?.nome} · iniciada em {fmtDate(r.created_at)} · {r.agent_gateway === "fake" ? "modo de teste (sem IA)" : "com IA"}
+              {info?.nome} · iniciada em {fmtDate(r.created_at)} · {r.agent_gateway === "fake" ? "modo de teste (sem IA)" : `IA: ${(r.model_profile as ModelSnapshot).profile_nome ?? "configuração anterior"}`}
               {r.base_run_id && <> · a partir do <Link to={`/execucoes/${r.base_run_id}`}>resultado aprovado da etapa {Number(r.phase) - 1}</Link></>}
             </div>
           </div>

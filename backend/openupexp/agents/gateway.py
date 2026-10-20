@@ -38,11 +38,26 @@ class BamlGateway:
 
     def _options(self, collector: Collector) -> dict:
         opts: dict = {"collector": collector}
-        client = self.profile.get("client")
-        if client:
+        provider = self.profile.get("provider")
+        if provider == "baml-named":
+            # perfil que aponta para um cliente de clients.baml (ex.: fallback entre famílias)
+            cr = ClientRegistry()
+            cr.set_primary(self.profile["model"])
+            opts["client_registry"] = cr
+        elif provider:
+            # perfil cadastrado (cap. 14): um único modelo, sem fallback silencioso
+            from openupexp.llm.catalog import client_options
+
+            name = f"Perfil_{self.profile.get('profile_slug', 'execucao').replace('-', '_')}"
+            baml_provider, options = client_options(self.profile)
+            cr = ClientRegistry()
+            cr.add_llm_client(name, baml_provider, options, retry_policy="PadraoRetry")
+            cr.set_primary(name)
+            opts["client_registry"] = cr
+        elif self.profile.get("client"):
             # Experimentos: força um único cliente nomeado (sem fallback silencioso).
             cr = ClientRegistry()
-            cr.set_primary(client)
+            cr.set_primary(self.profile["client"])
             opts["client_registry"] = cr
         return opts
 

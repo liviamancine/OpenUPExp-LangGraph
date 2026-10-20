@@ -44,6 +44,7 @@ arquiteturais nunca devem ser lidas como definições originais do modelo OpenUP
 | 11 | [Roadmap, testes e riscos](11-roadmap-testes-riscos.md) | equipe, orientador |
 | 12 | [Decisões pendentes](12-decisoes-pendentes.md) | todos |
 | 13 | [Notas de implementação (M0–M3, Fases 2 a 4)](13-notas-de-implementacao.md) | equipe |
+| 14 | [Modelos de linguagem, modelo local e laboratório](14-modelos-e-laboratorio.md) | equipe, orientador |
 
 Para gerar uma versão PDF única para discussão (sem criar documentos divergentes):
 

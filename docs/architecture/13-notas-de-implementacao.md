@@ -161,3 +161,20 @@ Validação: fluxo completo coberto por teste (objeção → retorno a 4.2 com f
 preservados → consenso → aprovação → DRE com as quatro partes). Comportamento com LLM real
 ainda não medido.
 
+
+## 13.7 Modelos de linguagem e modelo local (cap. 14, passo 1)
+
+- Tabelas `llm_model` e `inference_profile` (migração `b7e3f1c2d4a6`); catálogo semeado por
+  `openupexp/llm/catalog.py` na subida da API e ao iniciar execuções. O modelo local é restaurado
+  a partir do seed (não aceita edição); os demais só são criados se faltarem.
+- `run.model_profile` guarda o snapshot do perfil resolvido, com o `digest` dos pesos do Ollama.
+- O worker monta o cliente com `ClientRegistry.add_llm_client` a partir do snapshot; a chave é
+  lida da variável indicada em `api_key_env`, nunca gravada.
+- O Ollama é **opcional** (perfil `local-llm` do Compose, `LOCAL_LLM_ENABLED`), com teto de CPU e
+  memória. Desligado, o modelo local aparece indisponível e o padrão passa a ser a nuvem com reserva.
+
+| # | Decisão | Motivo |
+|---|---|---|
+| D-23 | Variante Qwen3 4B Instruct-2507 (sem modo de raciocínio) | Evita o bloco de pensamento, que na CPU multiplica o tempo e atrapalha a saída estruturada |
+| D-24 | Modelo local desligado por padrão | Máquinas sem GPU podem travar; ligar é uma decisão explícita da instalação |
+| D-25 | Variante do modelo criada por Modelfile com `num_ctx` 16384 | O contexto padrão do Ollama é menor que os prompts da plataforma |

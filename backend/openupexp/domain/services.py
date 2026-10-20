@@ -20,6 +20,7 @@ from openupexp.db.models import (
 )
 from openupexp.domain import artifacts as store
 from openupexp.domain.events import audit, emit
+from openupexp.llm.catalog import resolve_profile
 from openupexp.observability.llm import baml_src_sha
 from openupexp.process.manifest import bpmn_source_commit, get_manifest
 from openupexp.queue.jobs import enqueue
@@ -81,6 +82,7 @@ async def start_run(
     user_id: uuid.UUID | None = None,
     experiment_id: uuid.UUID | None = None,
     base_run_id: uuid.UUID | None = None,
+    llm_profile_id: uuid.UUID | None = None,
 ) -> Run:
     manifest = get_manifest()
     spec = manifest.phase(phase)
@@ -97,13 +99,20 @@ async def start_run(
     if scope is None:
         raise DomainError("O projeto não tem documento de escopo (source_kind=escopo).", 422)
     corpus = await latest_corpus_version(session, project_id)
+    gateway = agent_gateway or get_settings().agent_gateway
+    if gateway == "baml" and not model_profile:
+        # snapshot do perfil escolhido (ou do padrão) congelado na execução — cap. 14
+        try:
+            model_profile = await resolve_profile(session, llm_profile_id)
+        except LookupError as exc:
+            raise DomainError(str(exc), 422) from exc
 
     run_id = uuid.uuid4()
     run = Run(
         id=run_id, project_id=project_id, manifest_version=manifest.manifest_version,
         corpus_version_id=corpus.id if corpus else None, scope_document_id=scope.id, phase=phase,
         context_strategy=context_strategy, model_profile=model_profile or {},
-        agent_gateway=agent_gateway or get_settings().agent_gateway, baml_src_sha=baml_src_sha(),
+        agent_gateway=gateway, baml_src_sha=baml_src_sha(),
         thread_id=f"run-{run_id}", status="queued", created_by=user_id, experiment_id=experiment_id,
         base_run_id=base_run_id,
     )

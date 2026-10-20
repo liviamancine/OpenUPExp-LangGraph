@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../api/client";
-import type { ProjectDetail, RunSummary, User } from "../api/types";
+import type { LlmProfile, ProjectDetail, RunSummary, User } from "../api/types";
 import Icon, { type IconName } from "../components/Icon";
 import { Empty, ErrorBox, Hint, Loading, PHASES, PhaseChip, ROLE_LABEL, Status, Tabs, fmtDate } from "../components/ui";
 
@@ -83,11 +83,16 @@ function Journey({ project: p, isEngineer, goTo }: {
   project: ProjectDetail; isEngineer: boolean; goTo: (t: "documentos" | "equipe") => void;
 }) {
   const navigate = useNavigate();
-  const [gateway, setGateway] = useState("baml");
+  const profiles = useQuery({ queryKey: ["llm-profiles"], queryFn: () => api.get<LlmProfile[]>("/llm/profiles") });
+  const [choice, setChoice] = useState<string | null>(null);  // id do perfil ou "fake"
   const [strategy, setStrategy] = useState("D");
+  const usable = profiles.data?.filter((x) => x.disponivel) ?? [];
+  const selected = choice ?? (usable.find((x) => x.padrao) ?? usable[0])?.id ?? "fake";
+  const gateway = selected === "fake" ? "fake" : "baml";
   const start = useMutation({
     mutationFn: ({ phase, base }: { phase: string; base: string | null }) => api.post<RunSummary>(
-      `/projects/${p.id}/runs`, { phase, context_strategy: strategy, agent_gateway: gateway, base_run_id: base }),
+      `/projects/${p.id}/runs`, { phase, context_strategy: strategy, agent_gateway: gateway, base_run_id: base,
+        llm_profile_id: gateway === "baml" ? selected : null }),
     onSuccess: (r) => navigate(`/execucoes/${r.id}`),
   });
 
@@ -151,16 +156,32 @@ function Journey({ project: p, isEngineer, goTo }: {
         {isEngineer && (
           <div className="card stack">
             <div className="card-head"><span className="icon-bubble"><Icon name="settings" /></span><h2>Como a IA vai trabalhar</h2></div>
-            <div className="choices horizontal">
-              <label className={`choice ${gateway === "baml" ? "selected" : ""}`}>
-                <input type="radio" name="gw" checked={gateway === "baml"} onChange={() => setGateway("baml")} />
-                <span><div className="title"><Icon name="sparkles" size={15} /> IA de verdade</div><div className="help">Usa o modelo de linguagem configurado.</div></span>
-              </label>
-              <label className={`choice ${gateway === "fake" ? "selected" : ""}`}>
-                <input type="radio" name="gw" checked={gateway === "fake"} onChange={() => setGateway("fake")} />
-                <span><div className="title"><Icon name="zap" size={15} /> Modo de teste</div><div className="help">Respostas simuladas, sem custo — para conhecer o processo.</div></span>
+            <div className="small muted">Qual modelo de IA vai executar as próximas etapas:</div>
+            <div className="choices">
+              {profiles.data?.map((x) => (
+                <label key={x.id} className={`choice ${selected === x.id ? "selected" : ""}`}
+                  style={x.disponivel ? undefined : { opacity: 0.55, cursor: "not-allowed" }}>
+                  <input type="radio" name="gw" checked={selected === x.id} disabled={!x.disponivel} onChange={() => setChoice(x.id)} />
+                  <span className="grow">
+                    <div className="title row" style={{ gap: 6 }}>
+                      <Icon name={x.modelo.local ? "lock" : "sparkles"} size={15} />{x.nome}
+                      {x.padrao && <span className="badge ok">padrão</span>}
+                      {x.modelo.local && <span className="badge">no seu computador</span>}
+                    </div>
+                    <div className="help">{x.modelo.local
+                      ? x.disponivel
+                        ? "Modelo de referência, sem enviar documentos para fora. Na CPU é lento: uma etapa pode levar bastante tempo."
+                        : "Desligado nesta instalação (opcional, pesado sem placa de vídeo)."
+                      : x.disponivel ? (x.modelo.descricao ?? `${x.modelo.provider} · ${x.modelo.model}`) : "Sem chave configurada no servidor."}</div>
+                  </span>
+                </label>
+              ))}
+              <label className={`choice ${selected === "fake" ? "selected" : ""}`}>
+                <input type="radio" name="gw" checked={selected === "fake"} onChange={() => setChoice("fake")} />
+                <span><div className="title"><Icon name="zap" size={15} /> Modo de teste</div><div className="help">Respostas simuladas, sem IA e sem custo — para conhecer o processo.</div></span>
               </label>
             </div>
+            <ErrorBox error={profiles.error} />
             <details className="advanced">
               <summary>Opções avançadas</summary>
               <div className="stack tight">

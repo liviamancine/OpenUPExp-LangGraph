@@ -471,3 +471,45 @@ class AuditEvent(Base):
     entity_id: Mapped[str | None] = mapped_column(String(80))
     dados: Mapped[dict] = mapped_column(JSONB, default=dict)
     at: Mapped[datetime] = _created()
+
+
+# ---------------------------------------------------------------------------
+# Modelos de linguagem e perfis de inferência — docs/architecture/14-modelos-e-laboratorio.md
+# ---------------------------------------------------------------------------
+
+
+class LlmModel(Base):
+    __tablename__ = "llm_model"
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    slug: Mapped[str] = mapped_column(String(80), unique=True)
+    nome: Mapped[str] = mapped_column(String(120))
+    # ollama | openai-generic | openai | openai-responses | anthropic | google-ai | baml-named
+    provider: Mapped[str] = mapped_column(String(40))
+    base_url: Mapped[str | None] = mapped_column(String(300))
+    model: Mapped[str] = mapped_column(String(160))
+    api_key_env: Mapped[str | None] = mapped_column(String(80))  # nome da variável, nunca o valor
+    local: Mapped[bool] = mapped_column(Boolean, default=False)
+    protected: Mapped[bool] = mapped_column(Boolean, default=False)
+    enabled: Mapped[bool] = mapped_column(Boolean, default=True)
+    meta: Mapped[dict] = mapped_column(JSONB, default=dict)
+    created_at: Mapped[datetime] = _created()
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+
+class InferenceProfile(Base):
+    __tablename__ = "inference_profile"
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    model_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("llm_model.id", ondelete="CASCADE"))
+    slug: Mapped[str] = mapped_column(String(80), unique=True)
+    nome: Mapped[str] = mapped_column(String(120))
+    params: Mapped[dict] = mapped_column(JSONB, default=dict)  # temperature, max_tokens, num_ctx, think
+    protected: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_default: Mapped[bool] = mapped_column(Boolean, default=False)
+    enabled: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = _created()
+    __table_args__ = (
+        # exatamente um perfil padrão
+        Index("uq_inference_profile_default", "is_default", unique=True, postgresql_where=text("is_default")),
+    )
