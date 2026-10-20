@@ -1,36 +1,62 @@
-# 11 — Roadmap incremental, testes e riscos [PROPOSTA]
+# 11 — Roteiro, testes e riscos
 
-## 11.1 Roadmap
+> **Em poucas palavras.** A plataforma foi construída em marcos, um de cada vez, cada um com um
+> critério de "pronto" verificável. Quase todos estão concluídos; o que falta é sobretudo
+> **pesquisa** (gabaritos, estudos de caso, repetições) e as **decisões da autora** (cap. 12).
 
-Os marcos são sequenciais. Cada um tem um critério de saída verificável. Datas não são
-propostas aqui; dependem da disponibilidade da equipe e das decisões do cap. 12.
+## 11.1 Roteiro
 
 ```mermaid
 flowchart LR
-  M0["M0 Fundações"] --> M1["M1 Retrieval e evidências"]
-  M1 --> M2["M2 Fase 1 executável<br/>(sem UI)"]
-  M2 --> M3["M3 Frontend MVP<br/>Fase 1"]
-  M3 --> M4["M4 Observabilidade e<br/>harness experimental"]
-  M4 --> M5["M5 Fase 2<br/>+ consenso"]
-  M5 --> M6["M6 Fases 3–4"]
-  T[["Decisões da autora<br/>(cap. 12)"]] -.bloqueia.-> M5
-  T -.bloqueia.-> M6
-  T -.parcial.-> M2
+  M0["M0 Fundações ✓"] --> M1["M1 Busca e evidências ✓"]
+  M1 --> M2["M2 Etapa 1 executável ✓"]
+  M2 --> M3["M3 Interface ✓"]
+  M3 --> M5["M5 Etapa 2 + consenso ✓"]
+  M5 --> M6["M6 Etapas 3 e 4 ✓"]
+  M6 --> M7["M7 Modelos de IA<br/>e modelo local ✓"]
+  M7 --> M8["M8 Laboratório ✓"]
+  M8 --> M4["M4 Experimentos<br/>(parcial)"]
+  T[["Decisões da autora<br/>(cap. 12)"]] -. substituem as<br/>interpretações provisórias .-> M5 & M6
 ```
+
+| Marco | O que entrega | Situação |
+|---|---|---|
+| **M0 Fundações** | Projeto organizado, Docker Compose, banco, fila, migrações, testes automáticos | Concluído |
+| **M1 Busca e evidências** | Divisão de leis por artigo e de manuais por seção, busca híbrida, conferência de citações | Concluído |
+| **M2 Etapa 1 executável** | Visão de ponta a ponta, com aprovação, retorno a 1.1/1.2 e documento exportado | Concluído |
+| **M3 Interface** | Interface web; depois **redesenhada** com linguagem simples, identidade visual e diagramas em português | Concluído |
+| **M5 Etapa 2 + consenso** | Elicitação com envio de material, consenso e aprovação | Concluído (formatos provisórios) |
+| **M6 Etapas 3 e 4** | Análise e Especificação; DRE completo | Concluído (formatos provisórios) |
+| **M7 Modelos de IA** | Catálogo de modelos, administração, testes de conexão e compatibilidade, **modelo local opcional** | Concluído (cap. 14) |
+| **M8 Laboratório** | Mesma tarefa em vários modelos e estratégias de contexto, repetições, gabarito, notas e CSV | Concluído (cap. 14) |
+| **M4 Experimentos** | Gabaritos de especialistas, juiz por IA, ≥ 2 novos domínios, campanha com repetições | **Parcial**: as ferramentas existem (M8); faltam os gabaritos, os casos e a campanha |
+
+### O que falta
+
+1. **Conduzir um projeto inteiro com IA real** (até agora: tarefas avulsas no laboratório e o
+   processo completo em modo de teste).
+2. **Decisões da autora** (cap. 12), substituindo os formatos provisórios.
+3. **Gabaritos feitos por especialistas** e medida de concordância entre eles.
+4. **Juiz por IA** para emparelhar respostas e gabaritos além da semelhança de texto.
+5. **Novos estudos de caso** em outros domínios (E-09).
+
+### Plano original dos marcos
+
+O texto abaixo é o plano escrito no início, mantido como registro.
 
 | Marco | Escopo | Critério de saída |
 |---|---|---|
 | **M0 Fundações** | `pyproject.toml` com versões fixadas; `generators.baml`; reorganização de diretórios e `legacy/`; `docker-compose` (db, api, worker, frontend vazio); Alembic; job runner com SKIP LOCKED; CI (lint, testes); correção do `"\\n"` (P-10) no legado | `docker compose up` sobe tudo; o legado roda e reproduz `blackboard.json`; teste da fila passa |
 | **M1 Retrieval e evidências** | Ingestão com chunkers estruturais (lei, manual); `corpus_version`; embeddings escolhidos; busca híbrida RRF; filtro por referência explícita; verificação mecânica de citação | Conjunto de 20–30 consultas de teste com trechos esperados (ex.: "Art. 20 LGPD") — recall@10 medido e superior ao Chroma atual |
-| **M2 Fase 1 executável** | Manifesto 0.1 da Fase 1 + teste manifesto↔BPMN; Artifact Store (versões, itens, dependências, invalidação); ContextBuilder C e D; contratos BAML novos da Fase 1; subgrafos 1.1/1.2/1.3 com `PostgresSaver`; `ApprovalGate` com `revisit_1_1`/`revisit_1_2`; API mínima + CLI para aprovar | Execução completa INPI: pausa em 1.3, retomada após reinício do worker, *revisit* 1.2 com invalidação correta, aprovação final, export `.md` no template da Visão |
-| **M3 Frontend MVP** | Navegador BPMN com overlays; linha do tempo com SSE; inbox; tela de aprovação com edição e comentários; evidências; diff de versões; login e RBAC básico | Um Engenheiro conduz a Fase 1 inteira pela web, sem terminal |
-| **M4 Observabilidade e experimentos** | `llm_call` via Collector; custos; ContextBuilder A e B; `experiment.batch`; pacote de reprodução; gabarito INPI da Visão; rubrica e avaliação humana; LLM-juiz calibrado | Experimento piloto: 4 estratégias × 1 caso × 5 repetições, com relatório de métricas e variância |
-| **M5 Fase 2 + consenso** | Templates da Fase 2 (da autora); upload e ingestão de transcrições de elicitação; `ConsensusGate`; detecção de duplicatas por similaridade | Fase 2 do INPI concluída com um consenso real de ≥ 2 participantes |
-| **M6 Fases 3–4** | Map/reduce por requisito; coverage guard `all_items`/`all_pairs`; conflitos e dependências; MoSCoW; histórias, critérios de aceitação, matriz de rastreabilidade derivada de `trace_link` | DRE completo do INPI; experimento das estratégias nas fases 3–4 |
+| **M2 Fase 1 executável** | Manifesto 0.1 da Fase 1 + teste manifesto↔BPMN; Artifact Store; ContextBuilder C e D; contratos BAML da Fase 1; subgrafos 1.1/1.2/1.3; `ApprovalGate`; API mínima | Execução completa INPI: pausa em 1.3, retomada, *revisit* 1.2 com invalidação correta, aprovação final, export `.md` |
+| **M3 Frontend MVP** | Navegador BPMN com overlays; linha do tempo com SSE; inbox; aprovação com edição e comentários; evidências; diff; login e RBAC | Um Engenheiro conduz a Fase 1 inteira pela web |
+| **M4 Observabilidade e experimentos** | `llm_call`; custos; ContextBuilder A e B; experimentos; gabarito; rubrica e avaliação humana; LLM-juiz | Experimento piloto: 4 estratégias × 1 caso × 5 repetições |
+| **M5 Fase 2 + consenso** | Templates da Fase 2; ingestão de transcrições; `ConsensusGate`; duplicatas por similaridade | Fase 2 do INPI com consenso real de ≥ 2 participantes |
+| **M6 Fases 3–4** | Map/reduce por requisito; coverage guard; conflitos e dependências; MoSCoW; histórias, critérios, matriz | DRE completo do INPI |
 
-**Fase 1 sem decisões da autora:** M2 pode começar com as interpretações de trabalho
-documentadas no cap. 02. Se a autora decidir diferente, o impacto fica restrito ao
-manifesto e a alguns contratos, porque a arquitetura não muda.
+**Sem esperar as decisões da autora:** todas as etapas foram construídas com interpretações de
+trabalho documentadas (cap. 02 e cap. 12). Quando a autora decidir diferente, o impacto fica
+restrito ao manifesto e a alguns contratos dos agentes, porque a arquitetura não muda.
 
 ## 11.2 Estratégia de testes
 
@@ -57,7 +83,7 @@ manifesto e a alguns contratos, porque a arquitetura não muda.
 | R-03 | Efeitos duplicados na retomada de `interrupt()` | Média | Alto | Nó de gate sem efeitos; UPSERT idempotente; teste de retomada dupla |
 | R-04 | Não determinismo do LLM invalida comparações | Alta | Alto | Repetições, temperatura fixa, sem fallback, registro completo |
 | R-05 | Extração de PDF ruim (manuais extensos, páginas digitalizadas) | Média | Alto | Avaliar extração antes de M1; OCR se necessário; inspeção amostral dos chunks |
-| R-06 | Provedor ou modelo descontinuado (já ocorreu: `gemini-1.5-flash`) | Alta | Médio | Perfis por papel; registro de versões; arquivamento das saídas brutas |
+| R-06 | Provedor ou modelo descontinuado (já ocorreu duas vezes: `gemini-1.5-flash` e `gemini-2.5-flash`) | Alta | Médio | Catálogo administrável; teste de compatibilidade detecta a falha; registro da versão usada em cada execução |
 | R-07 | Custo de LLM nas fases 3–4 (map por requisito, pares) | Média | Médio | Geração de candidatos por similaridade; perfis baratos para tarefas simples; orçamento por execução |
 | R-08 | Dados pessoais em transcrições de elicitação (LGPD) | Média | Alto | Consentimento; pseudonimização na ingestão; política de retenção; provedores com termos adequados |
 | R-09 | Export BPMN com referências quebradas (I-02) quebra o viewer | Média | Baixo | Testar no bpmn-js; pedir re-export à autora; fallback para SVG do Bizagi |
@@ -65,6 +91,8 @@ manifesto e a alguns contratos, porque a arquitetura não muda.
 | R-11 | Juiz LLM com viés | Média | Alto | Família diferente, calibração humana, cegamento |
 | R-12 | Embedding pesado no worker (memória) | Baixa | Baixo | Serviço de embedding separado, se necessário |
 | R-13 | Repositório pesado (PDFs e `chroma_db` versionados — P-15) | Alta | Baixo | Mover o corpus para o volume ou Git LFS; não versionar índices |
+| R-14 | Modelo local trava máquinas sem placa de vídeo | Alta | Médio | Modelo local **desligado por padrão**; teto de CPU e memória; opção de rodá-lo em um servidor (cap. 14) |
+| R-15 | Chaves de API expostas | Média | Alto | Chaves só no `.env` do servidor (fora do Git); cadastro guarda apenas o nome da variável; lista de servidores permitidos |
 
 ## 11.4 Decisões arquiteturais registradas (ADR resumido)
 
@@ -82,3 +110,6 @@ manifesto e a alguns contratos, porque a arquitetura não muda.
 | ADR-010 | Markdown como export versionado; JSON tipado como fonte de verdade | Aceita (equipe) |
 | ADR-011 | Observabilidade via BAML Collector + tabelas próprias | Proposta |
 | ADR-012 | Conformidade processual e qualidade avaliadas separadamente | Proposta |
+| ADR-013 | Catálogo de modelos administrável, com snapshot por execução | Aceita (equipe) |
+| ADR-014 | Modelo local como referência opcional, desligado por padrão | Aceita (equipe) |
+| ADR-015 | Laboratório reexecuta tarefas com o pacote de contexto guardado | Aceita (equipe) |

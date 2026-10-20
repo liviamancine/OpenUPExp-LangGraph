@@ -1,12 +1,30 @@
-# 03 — Arquitetura preliminar das Fases 2–4
+# 03 — Fases 2 a 4: como foram desenhadas
 
-> **Atualização (manifesto 0.2.0):** a Fase 2 foi implementada com interpretações provisórias,
-> listadas no cap. 12 §12.4 e detalhadas no cap. 13 §13.4. A Fase 3 foi implementada no manifesto
-> 0.3.0 (cap. 12 §12.5, cap. 13 §13.5) e a Fase 4 no manifesto 0.4.0 (cap. 12 §12.6, cap. 13 §13.6).
+> **Em poucas palavras.** Este capítulo mostra, tarefa por tarefa, como as etapas de
+> **Elicitação, Análise e Especificação** do BPMN viraram trabalho da IA, trabalho automático
+> ou decisão de pessoas. Ele foi escrito *antes* da implementação, como plano; as três etapas
+> hoje **funcionam de ponta a ponta**. Onde o plano mudou, a seção "Como ficou" de cada etapa
+> explica o que foi feito.
 
-> Este capítulo é **preliminar**. As tarefas e os data objects vêm do BPMN [TEORIA]. Os
-> contratos ainda não podem ser fechados porque os templates dessas fases não existem
-> (I-05, I-09). Cada linha marca a dependência teórica correspondente.
+## Situação
+
+| Etapa | Situação | Formatos provisórios | Detalhes técnicos |
+|---|---|---|---|
+| 2 · Elicitação | [IMPLEMENTADO] (manifesto 0.2.0) | cap. 12 §12.4 | cap. 13 §13.4 |
+| 3 · Análise | [IMPLEMENTADO] (manifesto 0.3.0) | cap. 12 §12.5 | cap. 13 §13.5 |
+| 4 · Especificação | [IMPLEMENTADO] (manifesto 0.4.0) | cap. 12 §12.6 | cap. 13 §13.6 |
+
+### Legenda das tabelas
+
+- **DET** — automático, sem IA (por exemplo, carregar o que foi aprovado ou montar uma matriz).
+- **AG** — feito por um agente de IA.
+- **HA** — aprovação individual do Engenheiro de Requisitos (gateway do BPMN).
+- **HC** — consenso da equipe ("Reach Consensus").
+- **Map** — a IA trata um item de cada vez (por exemplo, um requisito por chamada), o que
+  mantém o material pequeno; **Reduce** — a IA vê todos os itens de uma vez, de forma resumida.
+
+As tarefas e os documentos (data objects) vêm do BPMN [TEORIA]. As colunas "Dependência
+teórica" mostram onde a teoria ainda não define um formato (I-05, I-09 no cap. 01).
 
 ## 3.1 Fase 2 — Elicit Explainability Requirements
 
@@ -40,6 +58,17 @@ flowchart LR
 extenso** se justifica de fato. Transcrições de entrevistas podem ter dezenas de páginas
 por stakeholder e precisam ser fatiadas e recuperadas, não passadas inteiras.
 
+### Como ficou
+
+- **2.1.2** gera um roteiro de conversas por stakeholder, com perguntas e lacunas da Visão a
+  aprofundar.
+- **2.2.1** pausa a etapa: o Engenheiro envia o material das conversas, ou segue sem ele com
+  justificativa. Cada stakeholder recebe só os trechos do material que falam dele, e toda
+  necessidade extraída cita um trecho literal, conferido automaticamente.
+- **2.2.4** junta requisitos equivalentes, sugeridos por semelhança; nenhum requisito pode
+  sumir sem motivo registrado.
+- **2.2.5** é uma rodada de consenso; **2.3** é a aprovação, com retorno a 2.1 ou 2.2.
+
 ## 3.2 Fase 3 — Analyze Explainability Requirements
 
 ```mermaid
@@ -68,6 +97,13 @@ flowchart LR
 | `Id_6f62d3b8…` | Gateway approved? | **HA** | — | I-01 |
 | `Id_c14bfa88…` 3.3.2 | Consolidate ERD | DET | — | I-05 |
 
+### Como ficou
+
+- As tarefas por requisito rodam em lotes pequenos, cada lote só com o material dos próprios
+  requisitos, e há uma verificação de que todo requisito recebeu sua análise.
+- Conflitos são avaliados par a par, e a quantidade de pares avaliados fica registrada.
+- A IA **sugere** o MoSCoW; o consenso (3.2.7) e a aprovação (3.3) confirmam.
+
 ## 3.3 Fase 4 — Define Explainability Specification
 
 | BPMN | Tarefa | Padrão [PROPOSTA] | Saída | Dependência teórica |
@@ -86,6 +122,14 @@ flowchart LR
 **Ponto arquitetural:** a matriz de rastreabilidade **não deve ser gerada por LLM**.
 Ela é uma *consulta* sobre `trace_link`, que é preenchido incrementalmente desde a
 Fase 1. O LLM apenas propõe links candidatos, que precisam ser aceitos.
+
+### Como ficou
+
+- **4.1.2** monta, sem IA, uma "ficha" por requisito com tudo o que a Análise aprovou; as tarefas
+  seguintes recebem só as fichas. Requisitos WONT ficam fora desta versão (A-21).
+- **4.2.1** escreve histórias de usuário (uma ou mais por requisito); **4.2.2** os critérios
+  "Dado / Quando / Então"; **4.2.3** as características da explicação.
+- **4.2.4** monta a matriz de rastreabilidade de forma **calculada**, como previsto abaixo.
 
 ## 3.4 Padrões de execução reutilizados nas Fases 2–4 [PROPOSTA]
 
@@ -113,6 +157,9 @@ flowchart LR
   sistema refaz a chamada só para os IDs faltantes; se persistir, falha de forma visível.
 
 ## 3.5 Lista de dependências teóricas das Fases 2–4 [PENDENTE-AUTORA]
+
+Todas têm hoje uma interpretação provisória em uso; a lista consolidada, com as respostas
+sugeridas, está no cap. 12.
 
 1. Template do *Explainability Elicitation Plan* (2.1.2).
 2. Fontes válidas de elicitação e tratamento de dados pessoais de entrevistados (2.2.1).

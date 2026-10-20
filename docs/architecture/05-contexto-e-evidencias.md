@@ -1,4 +1,14 @@
-# 05 — ContextBuilder, recuperação e evidências [PROPOSTA]
+# 05 — Contexto e evidências
+
+> **Em poucas palavras.** Este capítulo responde a duas perguntas. *O que cada agente recebe
+> para ler?* — só o necessário para a sua tarefa, escolhido por uma de quatro estratégias (A, B,
+> C, D), com verificação de que nada obrigatório ficou de fora. *Como saber se uma citação é
+> verdadeira?* — leis e manuais são divididos por artigo e seção, a busca combina palavras e
+> significado, e toda citação é conferida contra o texto original.
+>
+> **Situação:** estratégias A, C e D e a busca híbrida estão em uso desde a Etapa 1; a **B**
+> (por semelhança) foi implementada no passo 4 do cap. 14 [IMPLEMENTADO].
+
 
 ## 5.1 Problema
 

@@ -1,106 +1,144 @@
-# Arquitetura da Plataforma OpenUPExp — Documento de Referência
+# Plataforma OpenUPExp — documentação de arquitetura
 
-> **Status:** rascunho para discussão (v0.1) · **Branch:** `docs/arquitetura-plataforma`
-> **Escopo:** documentação apenas — nenhum código, agente ou template foi alterado.
-> **Referência teórica:** repositório `OpenUPExp` (BPMN, tarefas, papéis, templates).
-> **Projeto executável:** este repositório (`OpenUPExp-LangGraph`).
+> **Para quem é este material:** para a autora da teoria OpenUPExp, para a orientação e para a
+> equipe que desenvolve a plataforma. Ele explica *o que* foi construído, *por que* foi construído
+> assim e *o que ainda depende de decisões da teoria*.
+>
+> **Repositório da teoria:** `OpenUPExp` (BPMN, tarefas, papéis, templates).
+> **Repositório da plataforma:** este (`OpenUPExp-LangGraph`), branch `docs/arquitetura-plataforma`.
 
-Este conjunto de documentos é a referência técnica e científica para transformar o
-protótipo atual (seis workers LangGraph/BAML executados em linha de comando) numa
-plataforma web de Engenharia de Requisitos de Explicabilidade orientada ao processo
-OpenUPExp, com agentes de IA, validação humana, rastreabilidade e gestão de contexto.
+## Comece por aqui
 
----
+A plataforma transforma o processo OpenUPExp em um sistema web. Agentes de IA preparam
+os artefatos de cada etapa — Visão, requisitos, análise e especificação — e **as pessoas
+continuam decidindo**: aprovam, pedem ajustes e chegam a consenso nos mesmos pontos em que
+o BPMN prevê decisões humanas.
 
-## Legenda obrigatória
+Toda a teoria continua vindo do repositório OpenUPExp. A plataforma **lê** os diagramas
+BPMN e os textos das tarefas; ela não os altera. Quando a teoria ainda não define algo
+(um template, uma regra de consenso), a plataforma adota uma **interpretação provisória**,
+registrada e marcada como tal, para que a autora possa confirmar ou corrigir.
 
-Todo conteúdo deste documento é marcado com uma das etiquetas abaixo. **Decisões
-arquiteturais nunca devem ser lidas como definições originais do modelo OpenUPExp.**
+Se você tem pouco tempo, leia nesta ordem:
 
-| Etiqueta | Significado | Fonte |
+1. **[00 — A plataforma em linguagem simples](00-visao-geral.md)**: um passeio por um projeto
+   do início ao fim, sem jargão.
+2. **[12 — Decisões pendentes](12-decisoes-pendentes.md)**: as perguntas que dependem da
+   autora e as interpretações que adotamos enquanto isso.
+3. **[03 — Como as Fases 2 a 4 foram desenhadas](03-fases-2-4-preliminar.md)** e
+   **[02 — Fase 1](02-mapeamento-fase-1-visao.md)**: como cada tarefa do BPMN virou trabalho
+   da IA ou decisão de pessoas.
+
+## Onde estamos hoje
+
+| O quê | Situação |
+|---|---|
+| As quatro etapas do processo (Visão, Elicitação, Análise, Especificação) | **Funcionam de ponta a ponta**, com aprovação e consenso nos pontos do BPMN |
+| Documento final (DRE) | Gerado ao fim de cada etapa e acumulado até a Especificação |
+| Rastreabilidade e evidências | Cada item aponta para sua origem; citações de leis e manuais são conferidas automaticamente |
+| Interface web | Redesenhada com linguagem simples, cores por etapa, tema escuro e textos dos diagramas em português |
+| Modelos de IA | Vários provedores (OpenAI, Google, Groq, Anthropic) e um **modelo local opcional** |
+| Laboratório de modelos | Compara modelos e estratégias de contexto na mesma tarefa, com métricas, gabarito e notas humanas |
+| Interpretações provisórias | Fases 2, 3 e 4 têm formatos provisórios, à espera da autora (cap. 12) |
+| Uso com IA real | Testado tarefa a tarefa (laboratório); ainda falta conduzir um projeto inteiro com IA real |
+
+## Como ler as etiquetas
+
+Cada trecho importante vem marcado. A regra principal: **nada marcado como proposta deve
+ser lido como definição original do OpenUPExp.**
+
+| Etiqueta | O que quer dizer |
+|---|---|
+| **[TEORIA]** | Vem do modelo OpenUPExp (BPMN, tarefas, papéis, templates) |
+| **[IMPLEMENTADO]** | Já existe e funciona na plataforma |
+| **[PROPOSTA]** | Escolha de engenharia da equipe — pode mudar |
+| **[PENDENTE-AUTORA]** | Precisa de uma definição da autora da teoria (lista no cap. 12) |
+| **[PENDENTE-EQUIPE]** | Decisão técnica ainda em aberto na equipe |
+
+## Capítulos
+
+| # | Capítulo | O que você encontra | Para quem |
+|---|---|---|---|
+| 00 | [A plataforma em linguagem simples](00-visao-geral.md) | O caminho de um projeto, o que a IA faz e o que as pessoas decidem | todos — **comece aqui** |
+| 01 | [Teoria e estado inicial](01-teoria-e-estado-atual.md) | O que a teoria define, as inconsistências encontradas e o protótipo de onde partimos | autora, orientação |
+| 02 | [Fase 1 — Visão, tarefa por tarefa](02-mapeamento-fase-1-visao.md) | Como cada tarefa do BPMN da Visão foi mapeada | autora, equipe |
+| 03 | [Fases 2 a 4 — como foram desenhadas](03-fases-2-4-preliminar.md) | O desenho das etapas de Elicitação, Análise e Especificação | autora, equipe |
+| 04 | [Arquitetura de software](04-arquitetura-de-software.md) | As peças do sistema e como conversam | equipe |
+| 05 | [Contexto e evidências](05-contexto-e-evidencias.md) | O que a IA recebe para ler e como as citações são conferidas | equipe, orientação |
+| 06 | [Modelo de dados](06-modelo-de-dados.md) | Como versões, itens e decisões são guardados | equipe |
+| 07 | [Pessoas no processo: aprovação e consenso](07-human-in-the-loop.md) | Como funcionam as decisões humanas | autora, equipe |
+| 08 | [Contratos dos agentes (BAML)](08-contratos-baml.md) | O formato que cada agente precisa respeitar | equipe |
+| 09 | [Medição e metodologia experimental](09-observabilidade-e-metodologia.md) | Como avaliar a qualidade e o custo | orientação, equipe |
+| 10 | [Interface web](10-interface-web.md) | As telas e a linguagem usada | autora, equipe |
+| 11 | [Roteiro, testes e riscos](11-roadmap-testes-riscos.md) | O que já foi feito, o que falta, os riscos | equipe, orientação |
+| 12 | [Decisões pendentes](12-decisoes-pendentes.md) | Perguntas para a autora e interpretações provisórias | **autora** |
+| 13 | [Notas de implementação](13-notas-de-implementacao.md) | Diário técnico: o que foi feito e por quê | equipe |
+| 14 | [Modelos de IA, modelo local e laboratório](14-modelos-e-laboratorio.md) | Escolha de modelos, modelo local e comparação científica | orientação, equipe |
+
+## Pequeno glossário
+
+Termos técnicos que aparecem ao longo dos capítulos, explicados sem rodeios.
+
+| Termo | Em palavras simples |
+|---|---|
+| **Agente** | Um pedido bem delimitado a um modelo de IA, com entradas e formato de saída definidos — por exemplo, "identifique os stakeholders a partir do escopo" |
+| **Modelo de linguagem (LLM)** | O "motor" de IA que lê e escreve texto (GPT, Gemini, Qwen…) |
+| **Modelo local** | Um modelo que roda no próprio computador ou servidor, sem enviar documentos para fora |
+| **BAML** | A linguagem em que escrevemos os pedidos aos agentes e o formato exato das respostas |
+| **LangGraph** | A ferramenta que encadeia as tarefas, pausa para as decisões humanas e retoma depois |
+| **Manifesto do processo** | Um arquivo que liga cada tarefa do BPMN ao que a plataforma executa nela |
+| **Artefato** | Cada resultado estruturado (lista de stakeholders, requisitos, histórias…) — o DRE é montado a partir deles |
+| **Versão desatualizada (stale)** | Um artefato cuja entrada mudou depois que ele foi feito; precisa ser refeito |
+| **Lacuna** | Uma informação que a IA declarou não encontrar nas entradas — vira pergunta para as pessoas |
+| **Evidência** | Um trecho literal de lei, manual ou entrevista que sustenta um item; a plataforma confere se o trecho existe |
+| **Contexto** | O material que a IA recebe para ler em cada tarefa |
+| **Estratégia de contexto (A, B, C, D)** | Formas diferentes de escolher esse material, comparadas na pesquisa |
+| **Busca híbrida / recuperação** | Encontrar nos documentos os trechos mais relacionados a uma pergunta |
+| **Embedding** | Uma "impressão digital" numérica do texto que permite achar textos parecidos |
+| **Token** | Pedaço de palavra; é a unidade de tamanho e de custo dos modelos |
+| **Gateway / aprovação** | O ponto do BPMN em que o Engenheiro de Requisitos aprova ou pede retorno |
+| **Consenso** | A rodada em que a equipe registra se concorda, concorda com observações ou discorda |
+| **Digest** | Um resumo de uma etapa já aprovada, usado como contexto nas etapas seguintes |
+| **Laboratório** | A área que refaz uma mesma tarefa com modelos ou estratégias diferentes, para comparar |
+| **Gabarito** | A lista de itens que uma resposta correta deveria conter, feita por especialistas |
+
+## Princípios que guiaram a construção [PROPOSTA]
+
+1. **O BPMN é a referência, não o motor.** A plataforma segue os diagramas da teoria por meio
+   do manifesto, conferido automaticamente contra os arquivos `.bpmn`.
+2. **Dados estruturados primeiro, documento depois.** Cada artefato é guardado de forma
+   estruturada e versionada; o DRE em Markdown é gerado a partir deles.
+3. **A IA recebe só o necessário.** O contexto de cada tarefa é montado sob medida, com
+   verificação de que nada obrigatório ficou de fora.
+4. **Afirmações normativas precisam de evidência conferível.** Requisitos que vêm de leis e
+   manuais apontam para o trecho exato, e a citação é verificada mecanicamente.
+5. **Decisões humanas ficam registradas.** Aprovações, retornos e consensos não se apagam;
+   versões anteriores são preservadas.
+6. **Seguir o processo ≠ produzir bons requisitos.** As duas coisas são medidas separadamente.
+7. **Independente de domínio.** O caso INPI é o primeiro estudo de caso; o domínio vive nos
+   documentos do projeto, nunca nos prompts.
+8. **Reprodutível.** Cada execução guarda a versão do processo, dos prompts, do modelo e dos
+   documentos que usou.
+9. **Simples de operar.** Um único banco (PostgreSQL) guarda dados, fila e busca; componentes
+   pesados, como o modelo local, são opcionais.
+
+## Principais decisões técnicas [PROPOSTA]
+
+| Tema | Decisão | Capítulo |
 |---|---|---|
-| **[TEORIA]** | Definido pelo modelo OpenUPExp | `OpenUPExp/web/bpmn/*.bpmn`, `tarefas/`, `artefatos/`, `papeis/`, `ciclo de vida/` |
-| **[IMPLEMENTADO]** | Existe hoje no código executável | `main.py`, `baml_src/`, `rag_retriever.py`, `indexar_documentos.py` |
-| **[PROPOSTA]** | Decisão de arquitetura/engenharia proposta neste documento | — |
-| **[PENDENTE-AUTORA]** | Depende de definição da autora da teoria | lista consolidada no cap. 12 |
-| **[PENDENTE-EQUIPE]** | Decisão técnica ainda em aberto na equipe | lista consolidada no cap. 12 |
+| Interface | React + TypeScript, com os diagramas BPMN originais (bpmn-js) | 10 |
+| Serviços | API (FastAPI) e um "worker" separado que executa os agentes | 04 |
+| Banco e fila | PostgreSQL com pgvector; fila na própria base | 04, 06 |
+| Busca nos documentos | Híbrida (palavras + semântica), com divisão por artigo e seção | 05 |
+| Contexto | Estratégias A/B/C/D e verificação de completude | 05 |
+| Contratos dos agentes | BAML como fonte única | 08 |
+| Decisões humanas | Aprovação individual e consenso, como mecanismos distintos | 07 |
+| Modelos de IA | Catálogo administrável; modelo local opcional como referência | 14 |
+| Comparação científica | Laboratório com mesmas entradas, repetições e gabarito | 14, 09 |
 
----
-
-## Índice
-
-| # | Documento | Público principal |
-|---|---|---|
-| 01 | [Teoria e estado atual](01-teoria-e-estado-atual.md) | autora, orientador, equipe |
-| 02 | [Mapeamento completo da Fase 1 — Visão](02-mapeamento-fase-1-visao.md) | autora, equipe |
-| 03 | [Arquitetura preliminar das Fases 2–4](03-fases-2-4-preliminar.md) | autora, equipe |
-| 04 | [Arquitetura de software](04-arquitetura-de-software.md) | equipe |
-| 05 | [ContextBuilder, recuperação e evidências](05-contexto-e-evidencias.md) | equipe, orientador |
-| 06 | [Modelo de dados](06-modelo-de-dados.md) | equipe |
-| 07 | [Human-in-the-loop: aprovação e consenso](07-human-in-the-loop.md) | autora, equipe |
-| 08 | [Contratos BAML](08-contratos-baml.md) | equipe |
-| 09 | [Observabilidade e metodologia experimental](09-observabilidade-e-metodologia.md) | orientador, equipe |
-| 10 | [Interface web](10-interface-web.md) | autora, equipe |
-| 11 | [Roadmap, testes e riscos](11-roadmap-testes-riscos.md) | equipe, orientador |
-| 12 | [Decisões pendentes](12-decisoes-pendentes.md) | todos |
-| 13 | [Notas de implementação (M0–M3, Fases 2 a 4)](13-notas-de-implementacao.md) | equipe |
-| 14 | [Modelos de linguagem, modelo local e laboratório](14-modelos-e-laboratorio.md) | equipe, orientador |
-
-Para gerar uma versão PDF única para discussão (sem criar documentos divergentes):
+Para gerar um PDF único para leitura:
 
 ```bash
 pandoc docs/architecture/README.md docs/architecture/[0-9]*.md \
   -o openupexp-arquitetura.pdf --toc -F mermaid-filter
 ```
-
----
-
-## Princípios de arquitetura [PROPOSTA]
-
-1. **O BPMN é referência, não motor de execução.** Os modelos BPMN do OpenUPExp
-   definem o processo; o LangGraph executa a orquestração dos agentes. A ponte entre
-   os dois é um **manifesto de processo versionado**, curado manualmente e validado
-   automaticamente contra os arquivos `.bpmn`. Não se promete executar BPMN arbitrário.
-2. **Dados estruturados são a fonte de verdade; Markdown é artefato documental gerado.**
-   Cada artefato é JSON tipado (contrato BAML), com IDs estáveis e versões. O Markdown
-   é gerado a partir dos templates, versionado e preservado como documento oficial.
-3. **BAML é a fonte única dos contratos dos agentes.** Os tipos Pydantic usados pela
-   API e pelo frontend (via JSON Schema) são gerados do BAML, nunca escritos à mão.
-4. **Contexto é montado, não acumulado.** Um `ContextBuilder` com estratégias
-   intercambiáveis entrega a cada agente apenas o necessário, com verificação
-   determinística de completude quando a tarefa exige ver todos os itens.
-5. **Toda afirmação normativa tem evidência verificável.** Requisitos derivados da base
-   de referência apontam para trechos (chunks) específicos, e a citação é conferida
-   mecanicamente contra o texto da fonte.
-6. **Decisões humanas são imutáveis e auditáveis.** Aprovações, rejeições, retornos e
-   consensos ficam registrados; versões anteriores nunca são apagadas.
-7. **Conformidade processual ≠ qualidade dos artefatos.** São medidas separadamente:
-   um agente pode cumprir todas as etapas do BPMN e ainda produzir requisitos ruins.
-8. **Independência de domínio.** O caso INPI (registro de marcas) é o estudo de caso
-   inicial; domínio vive nos dados do projeto (escopo, corpus), nunca nos prompts.
-9. **Reprodutibilidade por construção.** Toda execução fixa versões de manifesto,
-   prompts (commit do `baml_src`), modelos, embeddings, corpus e estratégia de contexto.
-10. **Simplicidade operacional.** PostgreSQL concentra dados, checkpoints, fila, busca
-    híbrida e notificações. Nenhum componente extra (Redis, Elasticsearch, MinIO) entra
-    sem necessidade demonstrada.
-
----
-
-## Resumo das decisões arquiteturais [PROPOSTA]
-
-| Tema | Decisão | Alternativa descartada (por ora) | Capítulo |
-|---|---|---|---|
-| Frontend | React + Vite + TypeScript + bpmn-js, desktop responsivo | React Native (bpmn-js depende do DOM) | 10 |
-| API | FastAPI (REST + SSE) | — | 04 |
-| Execução dos agentes | Worker service separado, mesma imagem, outro *entrypoint* | Workers dentro do processo da API | 04 |
-| Fila | Tabela `job` no PostgreSQL com `FOR UPDATE SKIP LOCKED` + `LISTEN/NOTIFY` | Redis + Celery/ARQ | 04 |
-| Persistência | PostgreSQL 16 + pgvector | Elasticsearch, Chroma | 06 |
-| Checkpoints | `langgraph-checkpoint-postgres`; estado do grafo guarda só **referências** | Estado com conteúdo (blackboard atual) | 04, 06 |
-| Busca | Híbrida: `tsvector` (português) + pgvector, fusão RRF | Somente vetorial | 05 |
-| Chunking | Estrutural (artigo de lei, seção de manual) | Janela fixa de 1000 caracteres | 05 |
-| Contexto | `ContextBuilder` com estratégias A/B/C/D e *coverage guard* | Markdown integral para todos os agentes | 05 |
-| Contratos | BAML como fonte única; Pydantic e JSON Schema gerados | Pydantic manual | 08 |
-| HITL | Dois mecanismos: aprovação individual (gateway) e consenso assíncrono | Um único tipo de interrupção | 07 |
-| Versionamento | `draft → in_review → approved → superseded`, além de `stale` por invalidação | Sobrescrever `blackboard.json` | 06 |
-| Observabilidade | BAML `Collector` + tabela `llm_call`; Phoenix/OTel opcional | Langfuse v3 (infraestrutura pesada) | 09 |
-| Arquivos | Volume Docker | MinIO (quando houver necessidade) | 04 |

@@ -1,4 +1,10 @@
-# 02 — Mapeamento completo da Fase 1 (Visão)
+# 02 — Fase 1 (Visão), tarefa por tarefa
+
+> **Em poucas palavras.** Para cada tarefa do BPMN da Visão, este capítulo mostra o passo
+> correspondente no texto da tarefa (`definir-visao.md`), quem executa (IA, automático ou
+> pessoa), o que entra, o que sai e qual seção do template de Visão é preenchida. Foi o mapa
+> usado para construir a Etapa 1, que hoje funciona de ponta a ponta [IMPLEMENTADO].
+
 
 Este capítulo relaciona, para cada elemento BPMN da macroatividade
 **1 Define Explainability Vision**:

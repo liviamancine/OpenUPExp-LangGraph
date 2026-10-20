@@ -1,4 +1,67 @@
-# 10 — Interface web [PROPOSTA]
+# 10 — Interface web
+
+> **Em poucas palavras.** A interface foi pensada para quem conduz o processo, não para quem o
+> programa: linguagem simples, uma cor e um ícone por etapa, avisos claros de "agora é com
+> você" e os diagramas BPMN da teoria exibidos em português. A seção 10.0 descreve como ela é
+> hoje [IMPLEMENTADO]; as seções seguintes guardam o desenho original [PROPOSTA], útil como
+> registro das intenções.
+
+## 10.0 Como a interface é hoje [IMPLEMENTADO]
+
+### Identidade visual
+
+- **Logo** do OpenUPExp: uma lupa sobre uma pequena rede — a ideia de "olhar dentro da IA"
+  (`frontend/public/logo.svg` e `logo-horizontal.svg`).
+- **Cores por etapa**: Visão (roxo), Elicitação (azul), Análise (laranja), Especificação (verde).
+- **Ícones próprios** em todas as telas, sem biblioteca externa.
+- **Tema claro e escuro**, alternável no menu lateral.
+
+### Linguagem
+
+Os termos técnicos foram trocados por expressões do dia a dia; o termo do processo aparece
+como complemento quando ajuda a relacionar com a teoria.
+
+| Termo técnico | Como aparece na tela |
+|---|---|
+| Fase 1 — Define Explainability Vision | Etapa 1 · Entender o problema (Visão) |
+| Fase 2 — Elicit… | Etapa 2 · Ouvir as pessoas (Elicitação) |
+| Fase 3 — Analyze… | Etapa 3 · Analisar e priorizar (Análise) |
+| Fase 4 — Define Explainability Specification | Etapa 4 · Escrever a especificação (Especificação) |
+| Central de decisões / HITL | O que precisa de mim |
+| Gateway: revisitar 1.2 | Pedir para a IA refazer o desenvolvimento da visão |
+| Objeção | Discordo |
+| Lacuna | Informação faltando / ponto em aberto |
+| Artefatos | Resultados por parte / partes do documento |
+| Fontes, corpus, indexar | Documentos; preparar documentos para consulta da IA |
+| Estratégia de contexto | Opções avançadas → "quanto do histórico a IA recebe" |
+
+Os **nomes das tarefas** aparecem em português na lista de passos, nos painéis e **dentro dos
+próprios diagramas**: a tradução é aplicada só na exibição, e os arquivos BPMN da teoria não
+mudam. O painel de cada tarefa mostra também o nome original ("no processo: *Identify
+Stakeholders*").
+
+### Telas
+
+| Tela | Para que serve |
+|---|---|
+| **Entrar** | Acesso, com a apresentação das quatro etapas |
+| **Meus projetos** | Lista de projetos e criação de um novo |
+| **Projeto → Etapas** | A **jornada das quatro etapas**, com a situação de cada uma ("concluída", "aguardando decisão", "pronta para começar") e o botão **Começar**, que já usa o resultado aprovado da etapa anterior. Inclui a lista "Antes de começar" e a escolha do modelo de IA |
+| **Projeto → Documentos** | Envio do escopo, de leis, manuais, artigos e entrevistas; preparação para consulta |
+| **Projeto → Equipe** | Pessoas e papéis (responsável pelos requisitos, participante, observador, pesquisador) |
+| **Etapa** | Faixa de status ("A IA está trabalhando…", "Agora é com você"), mapa do processo, passo a passo, documento, resultados por parte e uso da IA |
+| **Revisão / decisão** | Três passos do que fazer, partes do documento, verificação automática e as opções de decisão em cartões explicados |
+| **O que precisa de mim** | As pendências da pessoa: aprovar, dar opinião ou enviar material |
+| **Laboratório de modelos** | Comparações entre modelos e estratégias (cap. 14) |
+| **Administração → Modelos de IA** | Cadastro e testes dos modelos (somente administradores) |
+
+### Diferenças em relação ao desenho original
+
+- Não usamos biblioteca de componentes nem gerador de formulários externos: os formulários de
+  edição são gerados a partir do contrato BAML por um componente próprio (`SchemaForm`).
+- O consenso é por rodada (uma posição por pessoa, com comentários por item), e não por voto
+  em cada item como no rascunho D abaixo.
+- A matriz de rastreabilidade aparece no documento da Etapa 4, não em tela separada.
 
 ## 10.1 Stack
 
@@ -7,10 +70,9 @@
 | Build | Vite + React 18 + TypeScript | Padrão estável; SPA para desktop responsivo |
 | Roteamento / dados | React Router + TanStack Query | Cache de servidor, *refetch* por evento SSE |
 | BPMN | `bpmn-js` (NavigatedViewer) | Renderiza os `.bpmn` originais da teoria, com overlays e marcadores |
-| Formulários de artefato | `@rjsf/core` a partir do JSON Schema gerado do BAML | Nenhum formulário escrito à mão por artefato |
+| Formulários de artefato | Componente próprio a partir do JSON Schema gerado do BAML | Nenhum formulário escrito à mão por artefato |
 | Markdown | `react-markdown` + `remark-gfm` | Pré-visualização do Documento de Visão/DRE |
-| Diff | `jsondiffpatch` (estrutura) + diff de texto por item | Comparação de versões |
-| UI | Biblioteca de componentes acessível (ex.: Mantine ou shadcn/ui) [PENDENTE-EQUIPE] | — |
+| UI | CSS e ícones próprios (E-06 resolvida) | Leveza e controle da linguagem visual |
 
 **Licença do bpmn-js:** a licença exige manter visível a marca d'água do bpmn.io no
 diagrama.
@@ -19,7 +81,10 @@ diagrama.
 pode ser linkado. A plataforma usa os `.bpmn`, porque o export do Bizagi não contém os
 elementos das páginas folha (I-12).
 
-## 10.2 Mapa de navegação
+## 10.2 Mapa de navegação (desenho original)
+
+O mapa atual é mais simples: menu lateral com **Meus projetos**, **O que precisa de mim**,
+**Laboratório de modelos** e, para administradores, **Modelos de IA**.
 
 ```mermaid
 flowchart TD
@@ -41,7 +106,7 @@ flowchart TD
   OBS --> EXP[Experimentos]
 ```
 
-## 10.3 Telas principais
+## 10.3 Telas principais (rascunhos originais)
 
 > Os wireframes usam dados **ilustrativos**: IDs, páginas, contagens e textos não são
 > resultados reais de execução.

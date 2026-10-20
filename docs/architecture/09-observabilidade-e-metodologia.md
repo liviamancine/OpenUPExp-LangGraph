@@ -1,4 +1,15 @@
-# 09 — Observabilidade e metodologia experimental [PROPOSTA]
+# 09 — Medição e metodologia experimental
+
+> **Em poucas palavras.** Duas perguntas diferentes, medidas separadamente: *a plataforma
+> seguiu o processo?* e *os requisitos produzidos são bons?*. Para a segunda, o capítulo propõe
+> um desenho experimental: fatores (estratégia de contexto, modelo, caso), repetições, gabaritos
+> feitos por especialistas e métricas como cobertura, precisão e custo.
+>
+> **Situação:** o registro de cada chamada de IA (modelo, tokens, tempo) está em uso. O
+> **laboratório** (cap. 14) implementa boa parte do desenho: mesmas entradas para todos, fatores
+> modelo × estratégia, repetições, gabarito com precisão/cobertura/F1, notas humanas e CSV. Ainda
+> faltam os gabaritos de especialistas, o juiz por IA e os novos casos [PENDENTE-EQUIPE].
+
 
 ## 9.1 Observabilidade operacional
 

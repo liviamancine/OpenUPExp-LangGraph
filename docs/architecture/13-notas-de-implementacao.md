@@ -1,4 +1,9 @@
-# 13 — Notas de implementação (M0–M3, Fases 2 e 3)
+# 13 — Notas de implementação
+
+> **Em poucas palavras.** O diário técnico da construção: o que foi feito em cada marco, onde
+> a implementação se afastou do desenho original e por quê (decisões D-01 a D-35). É o capítulo
+> mais técnico; os demais remetem a ele quando precisam de detalhe.
+
 
 Este capítulo registra o que foi implementado e onde a implementação se afastou dos
 capítulos anteriores, ou os detalhou. Todo o conteúdo aqui é **[IMPLEMENTADO]**, salvo
@@ -207,4 +212,18 @@ ainda não medido.
 | D-33 | Estratégias do laboratório derivadas das versões do pacote original | Mantém fixo o estado dos artefatos; só A e digests ausentes usam o estado atual, e isso fica registrado |
 | D-34 | Gabarito por (projeto, tarefa), com emparelhamento textual transparente | Primeiro nível, auditável na tela; LLM-juiz fica para depois |
 | D-35 | Modelo do Gemini passou para `gemini-3.5-flash` | O `gemini-2.5-flash` foi descontinuado (404), detectado pelo teste de compatibilidade |
+
+## 13.11 Interface redesenhada e textos em português
+
+- Identidade visual (logo, ícones próprios, cores por etapa, tema escuro) e vocabulário simples
+  (cap. 10 §10.0).
+- Nomes das tarefas e textos dos diagramas traduzidos **só na exibição** (`frontend/src/bpmn/names.ts`):
+  os `.bpmn` da teoria e o manifesto continuam em inglês.
+- A página do projeto mostra a jornada das quatro etapas e começa cada etapa a partir do último
+  resultado aprovado da anterior.
+
+| # | Decisão | Motivo |
+|---|---|---|
+| D-36 | Tradução aplicada ao XML do BPMN no navegador, antes de exibir | Mantém a fidelidade aos arquivos da teoria e permite mostrar o nome original |
+| D-37 | `index.html` sem cache no nginx; arquivos com hash em cache longo | O navegador mostrava versões antigas da interface depois de atualizações |
 

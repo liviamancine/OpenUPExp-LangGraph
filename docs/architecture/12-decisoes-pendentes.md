@@ -1,11 +1,43 @@
 # 12 — Decisões pendentes
 
+> **Em poucas palavras.** Aqui estão as perguntas que só a autora da teoria pode responder.
+> Nenhuma delas está travando a plataforma: para cada uma, adotamos uma **interpretação
+> provisória**, que já está em uso e pode ser trocada. O objetivo deste capítulo é tornar
+> essas escolhas visíveis, para que sejam confirmadas ou corrigidas.
+
+## Como ler e responder
+
+- **Cada linha é uma pergunta.** A coluna "Interpretação adotada" mostra o que a plataforma
+  faz hoje. Muitas vezes basta responder "confirmo" ou indicar a alternativa preferida.
+- **As seções 12.4 a 12.6** detalham, etapa por etapa, os formatos provisórios dos artefatos
+  das Fases 2 a 4 e o trecho da teoria em que cada um se apoia.
+- **Para ver na prática**, dá para percorrer as etapas na plataforma em **modo de teste**
+  (respostas simuladas, sem IA e sem custo) e olhar os documentos gerados.
+- Uma resposta pode ser bem curta, por exemplo: *"A-16: confirmo — a IA só sugere a
+  prioridade."* ou *"A-13: o consenso deve exigir maioria, e não ausência de objeção."*
+
+### As perguntas mais importantes
+
+Se houver tempo para poucas, estas são as que mais mudam o resultado:
+
+1. **A-14 — Templates das Fases 2 a 4** (plano de elicitação, requisito refinado, história de
+   usuário, critério de aceitação, características da explicação, matriz de rastreabilidade).
+   Hoje usamos formatos derivados dos passos das tarefas (§12.4 a §12.6).
+2. **A-13 — Quem participa do consenso e quando ele se encerra.** Hoje: membros do projeto
+   registram posição; encerra-se sem objeção (ou com justificativa registrada).
+3. **A-12 / A-11 — Composição e nome do documento final.** Hoje: o DRE soma Visão, Elicitação,
+   Análise e Especificação, uma parte por etapa.
+4. **A-16 — Quem decide a prioridade (MoSCoW).** Hoje: a IA sugere; as pessoas decidem.
+5. **A-21 — Requisitos "WONT" e histórias de usuário.** Hoje: WONT fica fora da especificação;
+   pode haver mais de uma história por requisito.
+6. **A-01 — Retorno nos pontos de aprovação.** Hoje: refazer X.1 ou X.2, com comentário.
+
 ## 12.1 Para a autora da teoria [PENDENTE-AUTORA]
 
-Ordenadas por impacto no início da implementação. "Bloqueia" indica o primeiro marco do
-roadmap (cap. 11) que depende da decisão.
+A última coluna indica o marco do roteiro (cap. 11) em que a pergunta surgiu. Todas já têm
+interpretação provisória em uso.
 
-| ID | Questão | Contexto | Interpretação de trabalho proposta | Bloqueia |
+| ID | Questão | Contexto | Interpretação adotada | Marco |
 |---|---|---|---|---|
 | A-01 | Como modelar o retorno *No* dos gateways? A escolha entre X.1 e X.2 é a única granularidade, ou o Engenheiro pode escolher tarefas específicas? | I-01: só o fluxo *Yes* existe; o retorno está em anotação | Duas saídas (`revisit_X_1`, `revisit_X_2`); granularidade fina desligada | M2 |
 | A-02 | Qual é a ordem das tarefas de 1.1 e 1.2? | I-02: fluxos do XML com IDs inexistentes | Ordem pela numeração | M2 |
@@ -31,17 +63,20 @@ roadmap (cap. 11) que depende da decisão.
 
 ## 12.2 Para a equipe [PENDENTE-EQUIPE]
 
+Decisões técnicas, sem impacto na teoria. Várias já foram tomadas durante a implementação
+(indicadas na última coluna).
+
 | ID | Questão | Opções | Recomendação | Até |
 |---|---|---|---|---|
-| E-01 | Modelo de embedding | `bge-m3` · `multilingual-e5-base` · outro | Avaliar recall@10 com consultas anotadas em M1 | M1 |
+| E-01 | Modelo de embedding | `bge-m3` · `multilingual-e5-base` · outro | Avaliar recall@10 com consultas anotadas em M1 | Em uso: `multilingual-e5-base` |
 | E-02 | Extração de PDF dos manuais do INPI | `pypdf` · `pymupdf` · OCR | Inspecionar amostras antes de fixar | M1 |
 | E-03 | Biblioteca de fila | Implementação própria · `procrastinate` | `procrastinate`, se cobrir LISTEN/NOTIFY e o reaper | M0 |
-| E-04 | Provedores e perfis de LLM | Groq · OpenAI · Anthropic · Google · local | Ao menos 2 famílias diferentes, para fallback e juiz | M2 |
+| E-04 | Provedores e perfis de LLM | Groq · OpenAI · Anthropic · Google · local | Ao menos 2 famílias diferentes, para fallback e juiz | **Resolvida**: catálogo administrável + modelo local opcional (cap. 14) |
 | E-05 | Autenticação | JWT local · OIDC (Keycloak) | JWT local no MVP | M3 |
-| E-06 | Biblioteca de componentes UI | Mantine · shadcn/ui · MUI | — | M3 |
-| E-07 | BPMN: cópia fixada ou submódulo do repositório teórico | cópia · submódulo | Submódulo (mantém o vínculo de commit) | M0 |
+| E-06 | Biblioteca de componentes UI | Mantine · shadcn/ui · MUI | — | **Resolvida**: componentes e ícones próprios, sem biblioteca externa (cap. 10) |
+| E-07 | BPMN: cópia fixada ou submódulo do repositório teórico | cópia · submódulo | Submódulo (mantém o vínculo de commit) | Em uso: cópia fixada com o commit de origem registrado |
 | E-08 | Corpus no Git | manter · Git LFS · volume externo | Volume + script de *download*; índice fora do Git | M0 |
-| E-09 | Domínios adicionais do experimento | crédito, saúde, … | ≥ 2 domínios com regulação distinta da do INPI | M4 |
+| E-09 | Domínios adicionais do experimento | crédito, saúde, … | ≥ 2 domínios com regulação distinta da do INPI | **Em aberto** — necessário para generalizar os resultados |
 | E-10 | Observabilidade externa | nenhuma · Phoenix (OTel) · Langfuse | Nenhuma no início; Phoenix se necessário | M4 |
 | E-11 | Ferramenta de export para PDF/DOCX | pandoc · outra | pandoc com template próprio | M2 |
 
@@ -56,6 +91,10 @@ Cada decisão da autora vira:
 As decisões da equipe viram ADRs (cap. 11 §11.4).
 
 ## 12.4 Interpretações provisórias adotadas na Fase 2 [PROPOSTA]
+
+> **Em poucas palavras.** A tarefa de elicitação (`encontrar-descrever-requisitos.md`) descreve
+> bem *o que* fazer, mas não traz modelos dos documentos. Criamos formatos simples a partir dos
+> passos da tarefa, para que a etapa pudesse ser testada.
 
 A Fase 2 foi implementada no manifesto 0.2.0 **antes** das definições da autora, para
 permitir testar o processo e a gestão de contexto. Cada linha abaixo é uma escolha de
@@ -81,6 +120,10 @@ correspondente for tomada. Onde vive no código: `backend/baml_src/requirements_
 
 ## 12.5 Interpretações provisórias adotadas na Fase 3 [PROPOSTA]
 
+> **Em poucas palavras.** A Análise é a etapa mais detalhada da teoria: as listas de aspectos,
+> tipos de explicação, critérios de viabilidade e o MoSCoW vêm do texto. Interpretamos
+> principalmente o formato do requisito refinado (RER), marcado "???Validar" na teoria.
+
 Manifesto 0.3.0. A Fase 3 é a mais definida na teoria (`tarefas/analisar-requisito.md`): as
 taxonomias, a matriz de viabilidade e o MoSCoW vêm do texto. O que segue é escolha de engenharia.
 Código: `backend/baml_src/analysis_3_analyze.baml`, `backend/openupexp/agents/phase3.py`.
@@ -100,6 +143,10 @@ Código: `backend/baml_src/analysis_3_analyze.baml`, `backend/openupexp/agents/p
 | A-12 — ERD | ERD da Fase 3 = ERD aprovado da Fase 2 (Visão + Requisitos) + Parte 3 (RER, conflitos, MoSCoW, consenso, lacunas) | "Consolidate Explainability Requirement Document" |
 
 ## 12.6 Interpretações provisórias adotadas na Fase 4 [PROPOSTA]
+
+> **Em poucas palavras.** A tarefa de especificação traz os formatos recomendados (histórias
+> "Como / Quero / Para" e critérios "Dado / Quando / Então") e a lista de características da
+> explicação. Faltam os templates; os detalhes abaixo são escolhas nossas.
 
 Manifesto 0.4.0. `tarefas/especificar-requisitos.md` define os passos, os formatos recomendados
 (HU "Como / Quero / Para"; critérios "Dado / Quando / Então") e a lista de características da

@@ -1,4 +1,22 @@
-# 04 — Arquitetura de software [PROPOSTA]
+# 04 — Arquitetura de software
+
+> **Em poucas palavras.** A plataforma tem poucas peças: a **interface** (o que se vê no
+> navegador), a **API** (que recebe os pedidos da interface), o **worker** (que executa os
+> agentes de IA em segundo plano, para a interface nunca travar) e um **banco PostgreSQL** que
+> guarda tudo — dados, fila de trabalho e busca nos documentos. Um **modelo local** (Ollama) pode
+> ser ligado como peça opcional.
+
+### Peças acrescentadas depois do desenho original [IMPLEMENTADO]
+
+| Peça | Para que serve | Capítulo |
+|---|---|---|
+| Catálogo de modelos (`openupexp/llm/`) | Lista os modelos de IA disponíveis, guarda a configuração usada em cada execução e testa conexão e compatibilidade | 14 |
+| Laboratório (`openupexp/lab/`) | Refaz uma tarefa com outros modelos e estratégias, sem alterar a execução original | 14 |
+| Ollama (opcional, perfil `local-llm`) | Executa o modelo local; desligado por padrão para não pesar em máquinas sem placa de vídeo | 14 |
+
+O restante deste capítulo é o desenho original [PROPOSTA], em grande parte implementado como
+descrito; as diferenças estão no cap. 13.
+
 
 ## 4.1 Visão de componentes
 

@@ -1,4 +1,14 @@
-# 01 — Teoria e estado atual
+# 01 — Teoria e ponto de partida
+
+> **Em poucas palavras.** Primeiro, o que a teoria OpenUPExp define (etapas, decisões,
+> papéis, templates). Depois, os pontos da teoria que geram dúvida na hora de implementar —
+> listados com respeito, como perguntas, e não como críticas. Por fim, o protótipo de onde
+> partimos (seis "workers" em linha de comando).
+>
+> **Atualização:** as seções 1.3 e 1.4 descrevem esse protótipo inicial, hoje guardado em
+> `legacy/`. Os problemas técnicos listados em 1.4 foram resolvidos na nova plataforma (pausas
+> para decisão humana, retornos, evidências conferidas, busca híbrida, versões fixadas).
+
 
 ## 1.1 O que a teoria define [TEORIA]
 

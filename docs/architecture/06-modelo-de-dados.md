@@ -1,4 +1,22 @@
-# 06 — Modelo de dados [PROPOSTA]
+# 06 — Modelo de dados
+
+> **Em poucas palavras.** Tudo o que a plataforma produz fica guardado de forma estruturada e
+> com histórico: cada artefato tem versões (rascunho, em revisão, aprovada, substituída,
+> desatualizada), cada item tem um identificador estável (STK-01, REQ-03…), e cada decisão
+> humana fica registrada. Nada é sobrescrito.
+
+### Tabelas acrescentadas depois do desenho original [IMPLEMENTADO]
+
+| Tabela | O que guarda | Capítulo |
+|---|---|---|
+| `llm_model`, `inference_profile` | Modelos de IA cadastrados e seus perfis de uso (temperatura, limites), com o resultado do teste de compatibilidade | 14 |
+| `lab_comparison`, `lab_trial`, `lab_rating` | Comparações do laboratório, cada tentativa (modelo, estratégia, repetição, métricas) e as notas humanas | 14 |
+| `lab_gold` | Gabaritos por projeto e tarefa | 14 |
+| `corpus_version.purpose` / `run_id` | Separa a base de consulta do material das entrevistas de cada execução | 13 |
+
+Além disso, `run.model_profile` passou a guardar a **configuração completa do modelo** usada na
+execução (inclusive a versão dos pesos do modelo local).
+
 
 ## 6.1 Modelo conceitual
 

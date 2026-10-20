@@ -1,4 +1,14 @@
-# 07 — Human-in-the-loop: aprovação e consenso
+# 07 — Pessoas no processo: aprovação e consenso
+
+> **Em poucas palavras.** O BPMN prevê dois tipos de participação humana, e a plataforma os
+> trata de forma diferente. A **aprovação** é individual: o Engenheiro de Requisitos aprova ou
+> pede para a IA refazer uma parte, com um comentário que orienta a nova tentativa. O
+> **consenso** é coletivo: cada participante diz se concorda, concorda com observações ou
+> discorda, e o Engenheiro encerra a rodada ou pede ajustes.
+>
+> **Situação:** os dois mecanismos funcionam nas quatro etapas [IMPLEMENTADO]. A regra de
+> fechamento do consenso é provisória e aguarda a autora (A-13, cap. 12).
+
 
 ## 7.1 Dois mecanismos distintos
 

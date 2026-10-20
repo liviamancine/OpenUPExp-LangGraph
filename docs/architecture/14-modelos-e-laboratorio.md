@@ -1,7 +1,11 @@
-# 14 — Modelos de linguagem, modelo local e laboratório [PROPOSTA]
+# 14 — Modelos de IA, modelo local e laboratório
 
-Este capítulo trata de **qual modelo de linguagem executa os agentes** e de como compará-los.
-Nada aqui vem da teoria OpenUPExp: é decisão de arquitetura da plataforma.
+> **Em poucas palavras.** Qual modelo de IA executa os agentes — e como comparar modelos de
+> forma justa. A plataforma aceita vários fornecedores, administrados por uma tela própria,
+> e um modelo local opcional que serve de referência. O laboratório refaz uma mesma tarefa
+> com modelos e estratégias diferentes, usando exatamente o mesmo material, e mede os
+> resultados. Nada neste capítulo vem da teoria OpenUPExp: é infraestrutura para a pesquisa.
+
 
 | Passo | Entrega | Situação |
 |---|---|---|

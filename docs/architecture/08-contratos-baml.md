@@ -1,4 +1,13 @@
-# 08 — Contratos BAML
+# 08 — Contratos dos agentes (BAML)
+
+> **Em poucas palavras.** Cada agente de IA tem um "contrato": o que recebe, o que deve
+> devolver e em que formato, além das regras de não invenção. Esses contratos são escritos em
+> BAML, e a plataforma recusa respostas fora do formato. Os mesmos contratos valem para
+> qualquer modelo de IA, o que permite compará-los de forma justa.
+>
+> **Situação:** contratos das quatro etapas implementados em `backend/baml_src/`. A escolha do
+> modelo em tempo de execução, prevista em §8.5, é feita pelo catálogo do cap. 14.
+
 
 ## 8.1 Princípio: BAML como fonte única [PROPOSTA]
 
