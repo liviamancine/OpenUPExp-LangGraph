@@ -3,6 +3,7 @@ import asyncio
 import json
 from copy import deepcopy
 from datetime import datetime
+from pathlib import Path
 from typing import TypedDict, Any
 
 from pypdf import PdfReader
@@ -37,7 +38,10 @@ def ler_pdf(caminho: str) -> str:
 # CONFIGURAÇÃO DE EXECUÇÃO
 # ============================================================
 
-escopo_projeto = ler_pdf("documentos RAG/escopo_projeto.pdf")
+BASE = Path(__file__).resolve().parent
+CASO = BASE.parent / "experiments" / "cases" / "inpi"
+
+escopo_projeto = ler_pdf(str(CASO / "escopo_projeto.pdf"))
 
 
 class OpenUPExpState(TypedDict):
@@ -209,7 +213,7 @@ async def worker_4(state: OpenUPExpState):
 # ============================================================
 
 async def worker_5(state: OpenUPExpState):
-    print("\\nExecutando Worker 5 (Consulta para Requisitos Adicionais)...")
+    print("\nExecutando Worker 5 (Consulta para Requisitos Adicionais)...")
 
     documento_visao = compilar_markdown_parcial(state["blackboard"])
 
@@ -229,7 +233,7 @@ async def worker_5(state: OpenUPExpState):
         "consulta": consulta
     }
 
-    print("\\n=== CONSULTA DO WORKER 5 ===")
+    print("\n=== CONSULTA DO WORKER 5 ===")
     print(consulta)
 
     return {"blackboard": blackboard}
@@ -240,7 +244,7 @@ async def worker_5(state: OpenUPExpState):
 # ============================================================
 
 async def worker_6(state: OpenUPExpState):
-    print("\\nExecutando Worker 6 (Requisitos Adicionais de Explicabilidade)...")
+    print("\nExecutando Worker 6 (Requisitos Adicionais de Explicabilidade)...")
 
     visao = state["blackboard"]["visao_explicabilidade"]
     consulta_artifact = visao.get("consulta_requisitos_adicionais") or {}
@@ -298,8 +302,8 @@ async def worker_6(state: OpenUPExpState):
         "requisitos": requisitos
     }
 
-    print(f"\\nTrechos recuperados pelo RAG: {len(trechos)}")
-    print("\\n=== RESULTADO DO WORKER 6 ===")
+    print(f"\nTrechos recuperados pelo RAG: {len(trechos)}")
+    print("\n=== RESULTADO DO WORKER 6 ===")
     print(json.dumps(requisitos, ensure_ascii=False, indent=2))
 
     return {"blackboard": blackboard}
@@ -491,7 +495,7 @@ def compilar_markdown_parcial(blackboard: dict) -> str:
             "Nenhum requisito adicional fundamentado foi identificado "
             "pelas evidências recuperadas até o momento. "
             "Isso não significa necessariamente que não existam requisitos; "
-            "pode ser necessária investigação adicional.\\n\\n"
+            "pode ser necessária investigação adicional.\n\n"
         )
 
     # --------------------------------------------------------
@@ -613,7 +617,7 @@ async def main():
 
     # Persiste o Blackboard
     with open(
-        "blackboard.json",
+        BASE / "blackboard.json",
         "w",
         encoding="utf-8"
     ) as arquivo:
@@ -630,7 +634,7 @@ async def main():
     )
 
     with open(
-        "Documento_de_Visao_Explicabilidade_Parcial.md",
+        BASE / "Documento_de_Visao_Explicabilidade_Parcial.md",
         "w",
         encoding="utf-8"
     ) as arquivo:

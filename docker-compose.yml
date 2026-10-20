@@ -1,0 +1,67 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: openupexp
+      POSTGRES_USER: openupexp
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-openupexp}
+    ports: ["${DB_PORT:-5433}:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "openupexp"]
+      interval: 3s
+      retries: 20
+
+  migrate:
+    build: ./backend
+    command: alembic upgrade head
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgresql+psycopg://openupexp:${DB_PASSWORD:-openupexp}@db:5432/openupexp
+    depends_on: { db: { condition: service_healthy } }
+
+  api:
+    build: ./backend
+    command: uvicorn openupexp.api.main:app --host 0.0.0.0 --port 8000
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgresql+psycopg://openupexp:${DB_PASSWORD:-openupexp}@db:5432/openupexp
+      DATA_DIR: /data
+      PROCESS_DIR: /process
+    volumes: [data:/data, ./process:/process:ro]
+    ports: ["${API_PORT:-8010}:8000"]
+    depends_on: { migrate: { condition: service_completed_successfully } }
+
+  worker:
+    build:
+      context: ./backend
+      args: { INSTALL_EMBEDDINGS: "${INSTALL_EMBEDDINGS:-true}" }
+    command: python -m openupexp.worker_main
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgresql+psycopg://openupexp:${DB_PASSWORD:-openupexp}@db:5432/openupexp
+      DATA_DIR: /data
+      PROCESS_DIR: /process
+      SEED_DIR: /seed
+    volumes:
+      - data:/data
+      - ./process:/process:ro
+      - ./experiments/cases/inpi:/seed:ro
+      - hf_cache:/root/.cache/huggingface
+    depends_on: { migrate: { condition: service_completed_successfully } }
+
+  frontend:
+    build: ./frontend
+    ports: ["${WEB_PORT:-5173}:80"]
+    depends_on: [api]
+
+volumes:
+  pgdata: {}
+  data: {}
+  hf_cache: {}

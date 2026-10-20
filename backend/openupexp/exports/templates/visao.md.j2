@@ -1,0 +1,173 @@
+{#- Estrutura derivada de OpenUPExp/artefatos/visao-explicabilidade.md (seções 1–5),
+    do checklist "Limite da Explicabilidade" e do Glossário de OpenUPExp/artefatos/DRE.md. -#}
+# Documento de Visão — Requisito de Explicabilidade
+
+> **Projeto:** {{ meta.projeto }}
+> **Data:** {{ meta.data }}
+> **Versão:** {{ meta.versao }}
+> **Execução:** `{{ meta.run_id }}` · estratégia de contexto {{ meta.estrategia }} · manifesto {{ meta.manifesto }}
+> **Status:** {{ meta.status }}
+
+---
+
+## 1. Definição da Explicabilidade
+
+{% if problem %}
+### 1.1 Necessidade de explicabilidade
+
+{{ problem.necessidade_de_explicabilidade | t }}
+
+### 1.2 Descrição geral do sistema
+
+{{ problem.descricao_geral | t }}
+
+**Domínio do problema:** {{ problem.dominio_do_problema | t }}
+
+**Impactos identificados:** {{ problem.impactos | lst }}
+
+**Critérios de sucesso:** {{ problem.criterios_de_sucesso | t }}
+{% else %}
+_Pendente._
+{% endif %}
+
+---
+
+## 2. Posicionamento
+
+### 2.1 Declaração do Problema
+
+{% if problem %}
+| Elemento | Descrição |
+|---|---|
+| **O problema da** | {{ problem.declaracao_problema.o_problema_da | c }} |
+| **afeta** | {{ problem.declaracao_problema.afeta | lst | c }} |
+| **cujo o impacto é** | {{ problem.declaracao_problema.cujo_impacto_e | lst | c }} |
+| **uma solução bem sucedida seria** | {{ problem.declaracao_problema.solucao_bem_sucedida | c }} |
+{% endif %}
+
+### 2.2 Declaração de Posicionamento da Explicabilidade
+
+{% for p in positioning %}
+#### {{ p.id }} — {{ stakeholder_name(p.stakeholder_id) }}
+
+| Elemento | Descrição |
+|---|---|
+| **Para quem** | {{ p.para_quem | c }} |
+| **Para que** | {{ p.para_que | c }} |
+| **O (nome do produto)** | {{ p.nome_produto | c }} |
+| **Categoria** | {{ p.categoria_produto | c }} |
+| **Que (benefício-chave)** | {{ p.beneficio_chave | c }} |
+| **Unlike** | {{ p.unlike | c }} |
+| **Our product** | {{ p.our_product | c }} |
+
+{% else %}
+_Pendente._
+{% endfor %}
+
+---
+
+## 3. Descrição dos stakeholders que necessitam de explicabilidade
+
+### 3.1 Resumo dos stakeholders
+
+| ID | Stakeholder | Descrição | Responsabilidade |
+|---|---|---|---|
+{% for s in stakeholders -%}
+| {{ s.id }} | **{{ s.nome | c }}** | {{ s.descricao | c }} | {{ s.responsabilidade | c }} |
+{% endfor %}
+
+### 3.2 Ambiente do usuário
+
+{% for s in stakeholders if s.ambiente_usuario -%}
+- **{{ s.nome }}:** {{ s.ambiente_usuario | t }}
+{% else -%}
+_Não identificado nas informações disponíveis; requer investigação._
+{% endfor %}
+
+---
+
+## 4. Visão Geral da Explicabilidade
+
+### 4.1 Necessidades e Aspecto Associado
+
+| ID | Necessidade | Stakeholders | Prioridade | Aspecto associado | Planned Release |
+|---|---|---|---|---|---|
+{% for n in needs -%}
+| {{ n.id }} | {{ n.necessidade | c }} | {{ n.stakeholder_ids | lst | c }} | {{ n.prioridade | c }} | {{ n.aspecto_associado | c }} | {{ n.planned_release | c }} |
+{% endfor %}
+
+{% if stakeholder_needs %}
+<details><summary>Solicitações dos stakeholders que sustentam as necessidades (1.1.3)</summary>
+
+| ID | Stakeholder | Solicitação |
+|---|---|---|
+{% for sn in stakeholder_needs -%}
+| {{ sn.id }} | {{ sn.stakeholder_id }} | {{ sn.solicitacao | c }} |
+{% endfor %}
+</details>
+{% endif %}
+
+---
+
+## 5. Requisitos Adicionais relacionados à Explicabilidade
+
+{% for secao, titulo in sections5 %}
+### {{ titulo }}
+
+{% for r in complementary if r.categoria == secao %}
+**{{ r.id }}.** {{ r.requisito | t }}
+
+- *Justificativa:* {{ r.justificativa | t }}
+- *Necessidades relacionadas:* {{ r.need_ids | lst }}
+{% for e in r.evidencias %}
+- *Evidência ({{ e.tipo }}{% if e.verificacao %}, {{ e.verificacao }}{% endif %}):* `{{ e.chunk_ref }}` — "{{ e.citacao | t }}"
+{% endfor %}
+
+{% else %}
+_Nenhum requisito fundamentado pelas evidências recuperadas. Isso não significa que não existam; pode ser necessária investigação adicional._
+
+{% endfor %}
+{% endfor %}
+### 5.6 Priorização dos Outros Requisitos
+
+_Pendente de decisão do Engenheiro de Requisitos (A-07)._
+
+---
+
+## Limite da Explicabilidade
+
+{% for grupo, respostas in limits_by_dimension %}
+**{{ grupo }}**
+
+{% for r in respostas %}
+- *{{ r.pergunta }}* — {% if r.resposta %}{{ r.resposta | t }}{% else %}**Lacuna:** {{ (r.lacuna.motivo if r.lacuna else "sem evidência") | t }}{% endif +%}
+{% endfor %}
+
+{% else %}
+_Pendente._
+{% endfor %}
+
+---
+
+## Glossário
+
+| ID | Termo | Definição | Sinônimos |
+|---|---|---|---|
+{% for g in glossary -%}
+| {{ g.id }} | **{{ g.termo | c }}** | {{ g.definicao | c }} | {{ g.sinonimos | lst | c }} |
+{% endfor %}
+
+---
+
+## Lacunas registradas
+
+{% for origem, l in lacunas -%}
+- **{{ origem }}{% if l.campo not in origem %} · {{ l.campo }}{% endif %}:** {{ l.motivo | t }}{% if l.pergunta_sugerida %} — *Pergunta sugerida:* {{ l.pergunta_sugerida }}{% endif +%}
+{% else -%}
+_Nenhuma._
+{% endfor %}
+
+---
+
+> Documento gerado pela plataforma OpenUPExp a partir de artefatos estruturados e versionados.
+> Conteúdo produzido por agentes de IA e sujeito à validação do Engenheiro de Requisitos.
