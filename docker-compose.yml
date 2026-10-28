@@ -76,7 +76,8 @@ services:
     # teto de CPU e memória para não travar a máquina (ajuste no .env)
     cpus: ${OLLAMA_CPUS:-4}
     mem_limit: ${OLLAMA_MEM_LIMIT:-6g}
-    ports: ["${OLLAMA_PORT:-11435}:11434"]
+    #ports: ["${OLLAMA_PORT:-11435}:11434"]
+    ports: ["${WEB_PORT:-5173}:80"]
     healthcheck:
       test: ["CMD", "ollama", "list"]
       interval: 5s
@@ -98,6 +99,7 @@ services:
   frontend:
     build: ./frontend
     #ports: ["${WEB_PORT:-5173}:80"]
+    expose: ["80"]
     depends_on: [api]
 
 volumes:
