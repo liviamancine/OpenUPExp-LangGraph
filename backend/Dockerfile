@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 FROM python:3.12-slim
 
 ARG INSTALL_EMBEDDINGS=true
@@ -7,11 +8,13 @@ COPY --from=ghcr.io/astral-sh/uv:0.5.11 /uv /usr/local/bin/uv
 
 WORKDIR /app
 COPY pyproject.toml uv.lock ./
-RUN if [ "$INSTALL_EMBEDDINGS" = "true" ]; then EXTRA="--extra embeddings"; fi; \
+RUN --mount=type=cache,target=/root/.cache/uv \
+    if [ "$INSTALL_EMBEDDINGS" = "true" ]; then EXTRA="--extra embeddings"; fi; \
     uv sync --frozen --no-dev --no-install-project $EXTRA
 
 COPY . .
-RUN if [ "$INSTALL_EMBEDDINGS" = "true" ]; then EXTRA="--extra embeddings"; fi; \
+RUN --mount=type=cache,target=/root/.cache/uv \
+    if [ "$INSTALL_EMBEDDINGS" = "true" ]; then EXTRA="--extra embeddings"; fi; \
     uv sync --frozen --no-dev $EXTRA && baml-cli generate --from baml_src
 
 EXPOSE 8000
