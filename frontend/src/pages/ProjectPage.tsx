@@ -133,6 +133,8 @@ function Journey({ project: p, isEngineer, goTo }: {
                 {state === "waiting" && latest && <Link to={`/execucoes/${latest.id}`} className="btn primary"><Icon name="bell" />Responder agora</Link>}
                 {(state === "running" || state === "failed") && latest && <Link to={`/execucoes/${latest.id}`} className="btn primary">
                   <Icon name="arrowRight" />Acompanhar</Link>}
+                {state === "failed" && isEngineer && <button className="ghost" onClick={begin} disabled={start.isPending}
+                  title="Começa uma nova execução da etapa com o modelo de IA escolhido abaixo"><Icon name="redo" />Recomeçar</button>}
                 {state === "available" && isEngineer && <button className="primary" onClick={begin} disabled={start.isPending}>
                   <Icon name="play" />Começar</button>}
                 {state === "done" && lastDone(id) && <Link to={`/execucoes/${lastDone(id)!.id}`} className="btn"><Icon name="file" />Ver resultado</Link>}
