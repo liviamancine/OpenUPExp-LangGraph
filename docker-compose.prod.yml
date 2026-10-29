@@ -1,0 +1,113 @@
+# Produção (Easypanel): usa as imagens prontas que o GitHub Actions publica no GHCR
+# (.github/workflows/build-images.yml), sem build no servidor. Para desenvolvimento local,
+# use o docker-compose.yml.
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: openupexp
+      POSTGRES_USER: openupexp
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-openupexp}
+    #ports: ["${DB_PORT:-5433}:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "openupexp"]
+      interval: 3s
+      retries: 20
+
+  migrate:
+    image: ghcr.io/liviamancine/openupexp-backend:latest
+    pull_policy: always
+    command: alembic upgrade head
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgresql+psycopg://openupexp:${DB_PASSWORD:-openupexp}@db:5432/openupexp
+    depends_on: { db: { condition: service_healthy } }
+
+  api:
+    image: ghcr.io/liviamancine/openupexp-backend:latest
+    pull_policy: always
+    command: uvicorn openupexp.api.main:app --host 0.0.0.0 --port 8000
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgresql+psycopg://openupexp:${DB_PASSWORD:-openupexp}@db:5432/openupexp
+      DATA_DIR: /data
+      PROCESS_DIR: /process
+      LOCAL_LLM_ENABLED: ${LOCAL_LLM_ENABLED:-false}
+      OLLAMA_URL: ${OLLAMA_URL:-http://ollama:11434}
+      LLM_ALLOWED_HOSTS: ${LLM_ALLOWED_HOSTS:-}
+    volumes: [data:/data, ./process:/process:ro]
+    #ports: ["${API_PORT:-8010}:8000"]
+    expose: ["8000"]
+    depends_on: { migrate: { condition: service_completed_successfully } }
+
+  worker:
+    image: ghcr.io/liviamancine/openupexp-backend:latest
+    pull_policy: always
+    command: python -m openupexp.worker_main
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgresql+psycopg://openupexp:${DB_PASSWORD:-openupexp}@db:5432/openupexp
+      DATA_DIR: /data
+      PROCESS_DIR: /process
+      LOCAL_LLM_ENABLED: ${LOCAL_LLM_ENABLED:-false}
+      OLLAMA_URL: ${OLLAMA_URL:-http://ollama:11434}
+      LLM_ALLOWED_HOSTS: ${LLM_ALLOWED_HOSTS:-}
+      SEED_DIR: /seed
+    volumes:
+      - data:/data
+      - ./process:/process:ro
+      - ./experiments/cases/inpi:/seed:ro
+      - hf_cache:/root/.cache/huggingface
+    depends_on: { migrate: { condition: service_completed_successfully } }
+
+  # Modelo local (cap. 14) — OPCIONAL, desligado por padrão. Na CPU é pesado (~3 GB de RAM e
+  # processador em uso contínuo durante as chamadas). Para ligar:
+  #   LOCAL_LLM_ENABLED=true no .env  e  docker compose --profile local-llm up -d
+  ollama:
+    image: ollama/ollama:0.34.4
+    profiles: [local-llm]
+    environment:
+      OLLAMA_NUM_PARALLEL: "1"
+      OLLAMA_KEEP_ALIVE: 10m
+    volumes: [ollama_models:/root/.ollama]
+    # teto de CPU e memória para não travar a máquina (ajuste no .env)
+    cpus: ${OLLAMA_CPUS:-4}
+    mem_limit: ${OLLAMA_MEM_LIMIT:-6g}
+    #ports: ["${OLLAMA_PORT:-11435}:11434"]
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 5s
+      retries: 20
+
+  # Baixa o modelo base e cria a variante da plataforma (idempotente; pode demorar na 1ª vez).
+  ollama-pull:
+    image: ollama/ollama:0.34.4
+    profiles: [local-llm]
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - ollama pull qwen3:4b-instruct-2507-q4_K_M && ollama create openupexp-qwen3-4b -f /modelfiles/openupexp-qwen3-4b.Modelfile
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    volumes: [./ollama:/modelfiles:ro]
+    depends_on: { ollama: { condition: service_healthy } }
+    restart: "no"
+
+  frontend:
+    image: ghcr.io/liviamancine/openupexp-frontend:latest
+    pull_policy: always
+    #ports: ["${WEB_PORT:-5173}:80"]
+    expose: ["80"]
+    depends_on: [api]
+
+volumes:
+  pgdata: {}
+  data: {}
+  hf_cache: {}
+  ollama_models: {}
