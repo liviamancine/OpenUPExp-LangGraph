@@ -45,13 +45,19 @@ export default function ArtifactView({ versionId, onComment, onNewVersion }: {
 
   return (
     <div className="stack">
-      <div className="row">
-        <h2 className="grow" style={{ margin: 0 }}>{d.title} <span className="muted small">v{d.version_no}</span></h2>
-        <Status value={d.status} /><Status value={d.origin} />
-        <Link to={`/versoes/${d.id}`} className="small">versões anteriores</Link>
-        {d.editavel && !editing && <button onClick={() => { setDraft(structuredClone(d.content)); setEditing(true); }}><Icon name="edit" size={15} />Editar</button>}
+      <div className="stack tight">
+        <div className="row" style={{ flexWrap: "nowrap", alignItems: "flex-start" }}>
+          <h2 className="grow" style={{ margin: 0 }}>{d.title}</h2>
+          {d.editavel && !editing && <button className="primary" onClick={() => { setDraft(structuredClone(d.content)); setEditing(true); }}>
+            <Icon name="edit" size={15} />Editar esta parte</button>}
+        </div>
+        <div className="row small" style={{ gap: 6 }}>
+          <span className="muted">versão {d.version_no}</span><Status value={d.status} /><Status value={d.origin} />
+          <Link to={`/versoes/${d.id}`}>versões anteriores</Link>
+        </div>
       </div>
-      {d.status === "stale" && <div className="alert warn"><Icon name="alert" />Desatualizado: algo de que esta parte depende mudou. Peça para a IA refazer.</div>}
+      {d.status === "stale" && <div className="alert warn"><Icon name="alert" />
+        Confira esta parte: algo de que ela depende mudou depois que ela foi feita. Se precisar, ajuste em Editar esta parte.</div>}
 
       {editing ? (
         <div className="stack">
@@ -103,7 +109,8 @@ function ItemCard({ item, evidences, onComment }: {
         {onComment && <CommentButton onSubmit={onComment} />}
       </div>
       <dl className="kv">
-        {Object.entries(item).filter(([k]) => !HIDDEN.has(k) && k !== "fundamentacao_verificada" && k !== "alerta").map(([k, v]) => (
+        {Object.entries(item).filter(([k, v]) => !HIDDEN.has(k) && k !== "fundamentacao_verificada" && k !== "alerta"
+          && !isEmpty(v)).map(([k, v]) => (
           <FragmentKV key={k} k={k} v={v} />
         ))}
       </dl>
@@ -118,6 +125,11 @@ function ItemCard({ item, evidences, onComment }: {
       {evidences.map((e) => <EvidenceCard key={e.id} evidence={e} />)}
     </div>
   );
+}
+
+// Campos sem conteúdo ficam fora da leitura; continuam visíveis no formulário de edição.
+function isEmpty(v: unknown): boolean {
+  return v == null || (typeof v === "string" && !v.trim()) || (Array.isArray(v) && v.length === 0);
 }
 
 function FragmentKV({ k, v }: { k: string; v: unknown }) {

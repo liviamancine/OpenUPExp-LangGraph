@@ -87,6 +87,8 @@ const FIELD_LABEL: Record<string, string> = {
   nivel_detalhamento: "nível de detalhe", requisitos_qualidade: "qualidade esperada", cenarios: "cenários",
   entao: "então", justificativa_agrupamento: "por que foram agrupados", alternativas_resolucao: "como resolver",
   termo_origem_id: "termo de origem", para_quem: "para quem", para_que: "para quê",
+  nome_produto: "nome do produto", categoria_produto: "categoria do produto", beneficio_chave: "benefício principal",
+  unlike: "ao contrário de", our_product: "nosso produto", ambiente_usuario: "ambiente de uso",
 };
 
 export function fieldLabel(k: string): string {

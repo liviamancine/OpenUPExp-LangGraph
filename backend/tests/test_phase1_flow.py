@@ -124,7 +124,7 @@ async def test_gate_is_idempotent_on_reexecution(scope_bytes, law_bytes):
         assert (await s.get(Run, run_id)).status == "waiting_human"
 
 
-async def test_approval_blocked_when_stale(scope_bytes, law_bytes):
+async def test_approval_with_stale_is_allowed_and_recorded(scope_bytes, law_bytes):
     run_id = await _setup(scope_bytes, law_bytes)
     await drain()
     req = await _open_request(run_id)
@@ -132,11 +132,29 @@ async def test_approval_blocked_when_stale(scope_bytes, law_bytes):
         cur = await store.current_versions(s, run_id)
         cur["vision.limits"].status = "stale"
     async with session_scope() as s:
-        try:
-            await services.decide(s, req.id, None, "approve", None, bypass_role_check=True)
-            raise AssertionError("aprovação deveria ser bloqueada")
-        except services.DomainError as e:
-            assert e.status == 409
+        await services.decide(s, req.id, None, "approve", None, bypass_role_check=True)
+    async with session_scope() as s:
+        decided = await s.get(HitlRequest, req.id)
+        assert decided.status == "decided"
+        assert decided.payload["aprovado_com_desatualizadas"] == ["vision.limits"]
+    await drain()
+    async with session_scope() as s:
+        assert (await s.get(Run, run_id)).status == "completed"
+
+
+async def test_human_edit_updates_stale_version(scope_bytes, law_bytes):
+    run_id = await _setup(scope_bytes, law_bytes)
+    await drain()
+    async with session_scope() as s:
+        v = await store.current_version(s, run_id, "vision.stakeholders")
+        v.status = "stale"
+    async with session_scope() as s:
+        v = await store.current_version(s, run_id, "vision.stakeholders")
+        content = dict(v.content)
+        content["stakeholders"] = [dict(i) for i in content["stakeholders"]]
+        content["stakeholders"][0]["responsabilidade"] = "Conferida pelo engenheiro"
+        edited = await services.human_edit(s, v.id, content, None, bypass_role_check=True)
+        assert edited.status == "in_review" and edited.origin == "human_edit"
 
 
 async def test_human_edit_creates_version_and_is_used_on_approval(scope_bytes, law_bytes):

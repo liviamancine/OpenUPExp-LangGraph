@@ -343,7 +343,7 @@ function Members({ project, canEdit, onChange }: { project: ProjectDetail; canEd
     onSuccess: onChange,
   });
   const roles = [
-    { id: "requirements_engineer", help: "Inicia as etapas, aprova e decide o que refazer." },
+    { id: "requirements_engineer", help: "Inicia as etapas, revisa, edita e aprova." },
     { id: "participant", help: "Dá opinião nas rodadas de consenso." },
     { id: "observer", help: "Só visualiza." },
     { id: "researcher", help: "Acompanha os experimentos." },

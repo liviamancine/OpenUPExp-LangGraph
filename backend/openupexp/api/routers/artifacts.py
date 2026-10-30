@@ -85,7 +85,7 @@ async def get_version(version_id: uuid.UUID, user: AppUser = Depends(current_use
         "content": v.content,
         "list_field": at.list_field if at else None,
         "documento": a.artifact_type in PHASE_DOCUMENT.values(),
-        "editavel": a.artifact_type in PHASE_EDITABLE.get(run.phase, []) and v.status in ("draft", "in_review")
+        "editavel": a.artifact_type in PHASE_EDITABLE.get(run.phase, []) and v.status in services.EDITABLE_STATUSES
                     and history[-1].id == v.id,
         "historico": [_version(h, a.artifact_type) for h in history],
         "dependencias": [{"version_id": str(d), "artifact": via, "version_no": n, "status": st}

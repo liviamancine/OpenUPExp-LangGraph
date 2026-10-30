@@ -27,6 +27,8 @@ from openupexp.queue.jobs import enqueue
 from openupexp.retrieval.ingest import latest_corpus_version, latest_scope_document
 
 DECIDER_ROLES = {"requirements_engineer"}
+# Versões que o Engenheiro pode editar; "stale" inclusive, pois a edição é como ele as atualiza.
+EDITABLE_STATUSES = ("draft", "in_review", "stale")
 CONSENSUS_POSITIONS = ("concordo", "ressalvas", "objecao")
 
 
@@ -181,16 +183,19 @@ async def decide(
             SourceDocument.source_kind.in_(ELICITATION_KINDS)))
         if not n:
             raise DomainError("Envie ao menos um documento de elicitação ou prossiga sem material, justificando.", 422)
+    stale: list[str] = []
     if decision == "approve":
+        # Sem retorno à IA: o Engenheiro confere e edita as partes desatualizadas e aprova assim mesmo.
+        # Quais estavam desatualizadas fica registrado na solicitação e na auditoria.
         stale = [t for t, v in (await store.current_versions(session, run.id)).items()
                  if v.status == "stale" and t in ARTIFACT_TYPES]
         if stale:
-            raise DomainError(f"Há artefatos desatualizados (stale): {stale}. Solicite retorno.", 409)
+            req.payload = {**req.payload, "aprovado_com_desatualizadas": stale}
     if req.kind == "consensus" and decision == "close":
         tally = await consensus_tally(session, req.id)
         if (tally["objecao"] or not tally["participantes"]) and not (comentario or "").strip():
             raise DomainError("Há objeções bloqueantes (ou nenhuma posição registrada): "
-                              "justifique o encerramento no comentário ou solicite retorno.", 422)
+                              "justifique o encerramento no comentário.", 422)
         req.payload = {**req.payload, "fechamento": {
             "objecoes": tally["objecao"], "ressalvas": tally["ressalvas"], "concordancias": tally["concordo"],
             "override": bool(tally["objecao"] or not tally["participantes"])}}
@@ -205,7 +210,7 @@ async def decide(
         "decision": decision, "comentario": comentario, "response_id": str(resp.id)}}, run_id=run.id)
     await emit(session, run.id, "hitl_decided", hitl_request_id=req.id, decision=decision)
     await audit(session, "user", str(user_id) if user_id else None, "decide", "hitl_request", str(req.id),
-                decision=decision, comentario=comentario)
+                decision=decision, comentario=comentario, desatualizadas=stale)
     return resp
 
 
@@ -266,7 +271,7 @@ async def human_edit(
     current = await store.current_version(session, artifact.run_id, artifact.artifact_type)
     if current.id != base.id:
         raise DomainError("Edição baseada em versão desatualizada; recarregue o artefato.", 409)
-    if base.status not in ("draft", "in_review"):
+    if base.status not in EDITABLE_STATUSES:
         raise DomainError(f"Versões com status '{base.status}' não podem ser editadas.", 409)
     run = await session.get(Run, artifact.run_id)
     if not bypass_role_check:
@@ -307,7 +312,8 @@ async def human_edit(
         items=items_from_content(artifact.artifact_type, validated),
         schema_name=at.schema.__name__, schema_sha=store.schema_hash(at.schema),
         depends_on={d: v for d, v in deps.all()}, created_by_user=user_id,
-        status=base.status, iteracao=base.iteracao, invalidate=False,
+        # editar uma versão desatualizada é como o Engenheiro a atualiza (não há retorno à IA)
+        status="in_review" if base.status == "stale" else base.status, iteracao=base.iteracao, invalidate=False,
     )
     # O rascunho (1.2.4) não é invalidado: a consolidação (1.3.2) remonta o documento
     # a partir das versões mais recentes, incluindo as edições humanas.

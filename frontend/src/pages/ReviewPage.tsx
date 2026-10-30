@@ -19,13 +19,14 @@ const POSITIONS: { id: string; label: string; help: string; tone: string; icon: 
 const KIND_INTRO: Record<string, { title: string; steps: string[] }> = {
   approval: {
     title: "Revise e aprove",
-    steps: ["Leia o documento (ou cada parte, no menu à esquerda).", "Confira a verificação automática.",
-      "Aprove, ou escolha qual parte a IA deve refazer e explique o que mudar."],
+    steps: ["Abra cada parte no menu à esquerda e leia com atenção.",
+      "Para corrigir algo, clique em Editar esta parte: sua edição vira uma nova versão.",
+      "Quando estiver tudo certo, aprove."],
   },
   consensus: {
     title: "Opinião da equipe",
     steps: ["Cada pessoa lê o resultado e diz se concorda.", "Quem discorda explica o motivo.",
-      "O responsável encerra quando houver acordo ou pede para a IA ajustar."],
+      "O responsável ajusta o que for preciso, editando as partes, e encerra a rodada."],
   },
   input: {
     title: "Envie o material das conversas",
@@ -44,6 +45,7 @@ export default function ReviewPage() {
   const arts = useQuery({ queryKey: ["artifacts", runId], enabled: !!runId,
     queryFn: () => api.get<ArtifactSummary[]>(`/runs/${runId}/artifacts`) });
   const [selected, setSelected] = useState<string | null>(null);
+  const [visited, setVisited] = useState<Set<string>>(new Set());
   const [itemComments, setItemComments] = useState<ItemComment[]>([]);
 
   if (req.isLoading) return <Loading />;
@@ -59,6 +61,17 @@ export default function ReviewPage() {
   const intro = KIND_INTRO[r.kind] ?? KIND_INTRO.approval;
   const phase = r.phase ?? r.task_id.split(".")[0];
   const failing = r.review_report?.checks.filter((c) => !c.ok) ?? [];
+  // Comentários por item só servem à opinião da equipe; na aprovação, quem corrige é o próprio Engenheiro, editando.
+  const commentsEnabled = r.kind === "consensus";
+  const order = [PREVIEW, ...sections.map((a) => a.artifact_type)];
+  const position = current ? order.indexOf(current.artifact_type) : 0;
+  const open = (key: string) => {
+    setSelected(key);
+    if (key !== PREVIEW) setVisited((v) => new Set(v).add(key));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+  const titleOf = (key: string) => key === PREVIEW ? "Documento completo"
+    : sections.find((a) => a.artifact_type === key)?.title ?? key;
 
   return (
     <div className="stack">
@@ -98,20 +111,23 @@ export default function ReviewPage() {
         <div className="review-grid">
           <div className="card stack tight">
             <h3>Partes do documento</h3>
-            <div className={`list-item ${!current ? "active" : ""}`} onClick={() => setSelected(PREVIEW)}>
+            <div className="tiny muted">{visited.size} de {sections.length} partes abertas</div>
+            <div className={`list-item ${!current ? "active" : ""}`} onClick={() => open(PREVIEW)}>
               <div className="row" style={{ gap: 8, flexWrap: "nowrap" }}><Icon name="file" size={16} /><strong>Documento completo</strong></div>
               <div className="tiny muted">como vai ficar, com suas edições</div>
             </div>
             {sections.map((a) => {
               const gaps = r.review_report?.lacunas_por_artefato?.[a.artifact_type];
               return (
-                <div key={a.id} className={`list-item ${current?.id === a.id ? "active" : ""}`} onClick={() => setSelected(a.artifact_type)}>
+                <div key={a.id} className={`list-item ${current?.id === a.id ? "active" : ""}`} onClick={() => open(a.artifact_type)}>
                   <div className="row" style={{ gap: 6, flexWrap: "nowrap" }}>
                     <span className="grow small strong">{a.title}</span>
+                    {visited.has(a.artifact_type) && <span className="badge ok" title="você já abriu esta parte"><Icon name="check" size={11} /></span>}
                     {a.origin === "human_edit" && <span className="badge human_edit" title="editada por você"><Icon name="edit" size={11} /></span>}
-                    {a.status === "stale" && <span className="badge stale" title="desatualizada"><Icon name="alert" size={11} /></span>}
+                    {a.status === "stale" && <span className="badge stale" title="confira: algo de que esta parte depende mudou"><Icon name="alert" size={11} /></span>}
                   </div>
-                  <div className="tiny muted">{a.itens != null ? `${a.itens} itens` : "texto"}{gaps ? ` · ${gaps} ponto(s) em aberto` : ""}</div>
+                  <div className="tiny muted">{a.itens != null ? `${a.itens} itens` : "texto"}{gaps ? ` · ${gaps} ponto(s) em aberto` : ""}
+                    {a.status === "stale" ? " · confira" : ""}</div>
                 </div>
               );
             })}
@@ -134,10 +150,17 @@ export default function ReviewPage() {
             )}
           </div>
 
-          <div className="card">
+          <div className="card stack">
+            <div className="row" style={{ flexWrap: "nowrap", gap: 8 }}>
+              <button type="button" className="ghost small" disabled={position <= 0} onClick={() => open(order[position - 1])}
+                title={position > 0 ? titleOf(order[position - 1]) : undefined}><Icon name="arrowLeft" size={14} />Anterior</button>
+              <span className="grow tiny muted" style={{ textAlign: "center", whiteSpace: "nowrap" }}>parte {position + 1} de {order.length}</span>
+              <button type="button" className="ghost small" disabled={position >= order.length - 1} onClick={() => open(order[position + 1])}
+                title={position < order.length - 1 ? titleOf(order[position + 1]) : undefined}>Próxima<Icon name="arrowRight" size={14} /></button>
+            </div>
             {current
               ? <ArtifactView key={current.id} versionId={current.id}
-                  onComment={(c) => setItemComments((xs) => [...xs, c])}
+                  onComment={commentsEnabled ? (c) => setItemComments((xs) => [...xs, c]) : undefined}
                   onNewVersion={() => arts.refetch()} />
               : <DraftPreview runId={r.run_id} />}
           </div>
@@ -146,7 +169,7 @@ export default function ReviewPage() {
             {r.kind === "consensus" && <ConsensusPanel r={r} canPosition={canPosition} itemComments={itemComments}
               onPosted={() => { setItemComments([]); req.refetch(); }} />}
             {isEngineer
-              ? <DecisionForm r={r} itemComments={itemComments} setItemComments={setItemComments} onDone={done} />
+              ? <DecisionForm r={r} sections={sections} itemComments={itemComments} setItemComments={setItemComments} onDone={done} />
               : <div className="card"><Hint>Quem decide este ponto é o responsável pelos requisitos.</Hint></div>}
           </div>
         </div>
@@ -155,10 +178,12 @@ export default function ReviewPage() {
   );
 }
 
-function DecisionForm({ r, itemComments, setItemComments, onDone }: {
-  r: HitlDetail; itemComments: ItemComment[]; setItemComments: (c: ItemComment[]) => void; onDone: () => void;
+function DecisionForm({ r, sections = [], itemComments, setItemComments, onDone }: {
+  r: HitlDetail; sections?: ArtifactSummary[]; itemComments: ItemComment[]; setItemComments: (c: ItemComment[]) => void;
+  onDone: () => void;
 }) {
-  const outcomes = Object.keys(r.payload.outcomes);
+  // A IA não refaz partes: os retornos (revisit_*) continuam no manifesto, fiéis ao BPMN, mas não aparecem aqui.
+  const outcomes = Object.keys(r.payload.outcomes).filter((k) => !k.startsWith("revisit_"));
   const [decision, setDecision] = useState(outcomes[0] ?? "approve");
   const [comment, setComment] = useState("");
   const submit = useMutation({
@@ -170,23 +195,35 @@ function DecisionForm({ r, itemComments, setItemComments, onDone }: {
   const closeNeedsJustification = r.kind === "consensus" && decision === "close" && !!tally
     && (tally.objecao > 0 || tally.participantes === 0);
   const commentRequired = !!outcome?.comment_required || closeNeedsJustification;
-  const approvalBlocked = decision === "approve" && r.stale.length > 0;
-  const isRevisit = decision.startsWith("revisit_");
+  const edited = sections.filter((a) => a.origin === "human_edit");
+  const toCheck = sections.filter((a) => r.stale.includes(a.artifact_type));
+  const openPoints = Object.values(r.review_report?.lacunas_por_artefato ?? {}).reduce((n, x) => n + x, 0);
 
   return (
     <form className="card stack" onSubmit={(e) => { e.preventDefault(); submit.mutate(); }}>
       <div className="card-head"><span className="icon-bubble"><Icon name="flag" /></span><h2>Sua decisão</h2></div>
-      <div className="choices">
-        {outcomes.map((k) => (
-          <label key={k} className={`choice ${decision === k ? "selected" : ""} ${k.startsWith("revisit_") || k === "no_material" ? "tone-warn" : "tone-ok"}`}>
-            <input type="radio" name="decision" value={k} checked={decision === k} onChange={() => setDecision(k)} />
-            <span><div className="title">{decisionLabel(k)}</div><div className="help">{decisionHelp(k)}</div></span>
-          </label>
-        ))}
-      </div>
-      <label>{isRevisit ? "O que a IA deve mudar?" : "Comentário"} {commentRequired ? "(obrigatório)" : "(opcional)"}
-        <textarea value={comment} onChange={(e) => setComment(e.target.value)}
-          placeholder={isRevisit ? "Ex.: faltou considerar o regulador; as prioridades estão invertidas…" : "Algo que valha registrar?"} />
+      {outcomes.length > 1 ? (
+        <div className="choices">
+          {outcomes.map((k) => (
+            <label key={k} className={`choice ${decision === k ? "selected" : ""} ${k === "no_material" ? "tone-warn" : "tone-ok"}`}>
+              <input type="radio" name="decision" value={k} checked={decision === k} onChange={() => setDecision(k)} />
+              <span><div className="title">{decisionLabel(k)}</div><div className="help">{decisionHelp(k)}</div></span>
+            </label>
+          ))}
+        </div>
+      ) : <div className="small muted">{decisionHelp(decision)}</div>}
+      {r.kind !== "input" && (
+        <div className="checklist">
+          <div className="check-item small ok"><Icon name="edit" size={15} />
+            <span>{edited.length ? `Você editou ${edited.length} parte(s): ${edited.map((a) => a.title).join(", ")}.` : "Nenhuma parte editada."}</span></div>
+          {openPoints > 0 && <div className="check-item small todo"><Icon name="help" size={15} />
+            <span>{openPoints} ponto(s) em aberto (falta de informação). Dá para aprovar e tratar na próxima etapa.</span></div>}
+        </div>
+      )}
+      {toCheck.length > 0 && <div className="alert warn small"><Icon name="alert" />
+        <div>Confira antes de aprovar: <strong>{toCheck.map((a) => a.title).join(", ")}</strong>. Algo de que essas partes dependem mudou depois que foram feitas.</div></div>}
+      <label>Comentário {commentRequired ? "(obrigatório)" : "(opcional)"}
+        <textarea value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Algo que valha registrar?" />
       </label>
       {closeNeedsJustification && tally && <div className="alert warn small"><Icon name="alert" />
         <div>{tally.participantes === 0 ? "Ninguém deu opinião ainda." : `${tally.objecao} pessoa(s) discordaram.`}
@@ -203,10 +240,9 @@ function DecisionForm({ r, itemComments, setItemComments, onDone }: {
           ))}
         </div>
       )}
-      {approvalBlocked && <div className="alert warn small"><Icon name="alert" />Algumas partes estão desatualizadas ({r.stale.join(", ")}). Peça para a IA refazer antes de aprovar.</div>}
       <ErrorBox error={submit.error} />
-      <button className="primary big" disabled={r.status !== "open" || (commentRequired && !comment.trim()) || approvalBlocked || submit.isPending}>
-        <Icon name="check" />{submit.isPending ? "Registrando…" : "Confirmar decisão"}</button>
+      <button className="primary big" disabled={r.status !== "open" || (commentRequired && !comment.trim()) || submit.isPending}>
+        <Icon name="check" />{submit.isPending ? "Registrando…" : outcomes.length > 1 ? "Confirmar decisão" : decisionLabel(decision)}</button>
       <History r={r} />
     </form>
   );
@@ -325,7 +361,7 @@ function DraftPreview({ runId }: { runId: string }) {
   const doc = useQuery({ queryKey: ["artifacts", runId, "doc"], queryFn: () => api.get<string>(`/runs/${runId}/document`) });
   return doc.data ? (
     <div className="stack">
-      <Hint>Assim vai ficar o documento. Para comentar ou editar um item, abra a parte correspondente no menu à esquerda.</Hint>
+      <Hint>Assim vai ficar o documento. Para corrigir algo, abra a parte no menu à esquerda e clique em Editar esta parte.</Hint>
       <Markdown>{doc.data}</Markdown>
     </div>
   ) : <Loading what="Montando o documento" />;

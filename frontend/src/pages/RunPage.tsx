@@ -26,7 +26,7 @@ const PENDING_TEXT = {
   input: { title: "Agora é com você: envie o material das conversas",
     text: "Converse com as pessoas seguindo o roteiro sugerido pela IA e envie as transcrições ou anotações.", action: "Enviar material" },
   approval: { title: "Agora é com você: revise e aprove",
-    text: "A IA terminou esta etapa. Leia o resultado e aprove, ou peça para a IA refazer alguma parte.", action: "Revisar e decidir" },
+    text: "A IA terminou esta etapa. Leia cada parte, edite o que precisar e aprove.", action: "Revisar e aprovar" },
   consensus: { title: "A equipe precisa dar a opinião",
     text: "Cada pessoa diz se concorda com o resultado. Depois, o responsável encerra ou pede ajustes.", action: "Abrir a rodada" },
 };
