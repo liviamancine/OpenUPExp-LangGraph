@@ -405,3 +405,15 @@ mark { background: #fde68a; color: #1e1b4b; border-radius: 3px; }
 .hero button.light { background: #fff; color: #4c1d95; border-color: transparent; }
 .hero::after { content: ""; position: absolute; right: -40px; bottom: -60px; width: 220px; height: 220px;
   background: url("/logo.svg") center / contain no-repeat; opacity: 0.08; transform: rotate(-12deg); pointer-events: none; }
+
+/* Dica ⓘ (InfoTip) */
+.info-tip { position: relative; display: inline-flex; align-items: center; vertical-align: middle;
+  color: var(--muted); cursor: help; margin-left: 4px; border-radius: 50%; }
+.info-tip:hover, .info-tip:focus-visible { color: var(--accent); outline: none; }
+.info-tip .tip { display: none; position: absolute; z-index: 50; left: 50%; top: calc(100% + 6px);
+  transform: translateX(-50%); width: max-content; max-width: 280px; padding: 8px 10px; border-radius: 8px;
+  background: var(--surface); color: var(--text); border: 1px solid var(--border); box-shadow: var(--shadow-lg);
+  font-size: 12.5px; font-weight: 400; line-height: 1.45; text-align: left; white-space: normal; }
+.info-tip:hover .tip, .info-tip:focus .tip, .info-tip:focus-within .tip { display: block; }
+.info-tip .tip-source { display: block; margin-top: 4px; color: var(--muted); font-size: 11.5px; }
+.label-text { display: inline-flex; align-items: center; gap: 2px; }

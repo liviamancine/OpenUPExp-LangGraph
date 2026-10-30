@@ -6,7 +6,8 @@ import type { ArtifactSummary, HitlDetail, ItemComment } from "../api/types";
 import { taskName } from "../bpmn/names";
 import ArtifactView from "../components/ArtifactView";
 import Icon, { type IconName } from "../components/Icon";
-import { ErrorBox, Hint, Loading, Markdown, PHASES, PhaseIcon, Status, decisionHelp, decisionLabel, fmtDate } from "../components/ui";
+import { ErrorBox, Hint, InfoTip, Loading, Markdown, PHASES, PhaseIcon, Status, decisionHelp, decisionLabel, fmtDate } from "../components/ui";
+import { PART_HELP } from "../help";
 import { useRunEvents } from "../hooks";
 
 const PREVIEW = "__preview__";
@@ -121,7 +122,7 @@ export default function ReviewPage() {
               return (
                 <div key={a.id} className={`list-item ${current?.id === a.id ? "active" : ""}`} onClick={() => open(a.artifact_type)}>
                   <div className="row" style={{ gap: 6, flexWrap: "nowrap" }}>
-                    <span className="grow small strong">{a.title}</span>
+                    <span className="grow small strong">{a.title}<InfoTip text={PART_HELP[a.artifact_type]?.texto} source={PART_HELP[a.artifact_type]?.fonte} /></span>
                     {visited.has(a.artifact_type) && <span className="badge ok" title="você já abriu esta parte"><Icon name="check" size={11} /></span>}
                     {a.origin === "human_edit" && <span className="badge human_edit" title="editada por você"><Icon name="edit" size={11} /></span>}
                     {a.status === "stale" && <span className="badge stale" title="confira: algo de que esta parte depende mudou"><Icon name="alert" size={11} /></span>}

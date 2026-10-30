@@ -86,9 +86,11 @@ const FIELD_LABEL: Record<string, string> = {
   objetivo_principal: "objetivo", contexto_uso: "contexto de uso", contexto_utilizacao: "contexto de uso",
   nivel_detalhamento: "nível de detalhe", requisitos_qualidade: "qualidade esperada", cenarios: "cenários",
   entao: "então", justificativa_agrupamento: "por que foram agrupados", alternativas_resolucao: "como resolver",
-  termo_origem_id: "termo de origem", para_quem: "para quem", para_que: "para quê",
-  nome_produto: "nome do produto", categoria_produto: "categoria do produto", beneficio_chave: "benefício principal",
-  unlike: "ao contrário de", our_product: "nosso produto", ambiente_usuario: "ambiente de uso",
+  termo_origem_id: "termo de origem", para_quem: "para quem", para_que: "para que",
+  // rótulos da Declaração de Posicionamento, como no Documento de Visão (seção 2.2)
+  nome_produto: "nome do produto", categoria_produto: "categoria do produto", beneficio_chave: "que (benefício principal)",
+  unlike: "unlike (principal alternativa)", our_product: "our product (diferencial)", ambiente_usuario: "ambiente do usuário",
+  descricao: "descrição", prioridade: "prioridade", aspecto_associado: "aspecto associado", planned_release: "planned release",
 };
 
 export function fieldLabel(k: string): string {
@@ -148,6 +150,18 @@ export function PhaseChip({ phase }: { phase: string }) {
 
 export function Empty({ icon = "info", children }: { icon?: IconName; children: ReactNode }) {
   return <div className="empty"><Icon name={icon} size={28} /><div>{children}</div></div>;
+}
+
+/** Dica ⓘ: abre ao passar o mouse, ao focar com Tab ou ao tocar. */
+export function InfoTip({ text, source }: { text?: string; source?: string }) {
+  if (!text) return null;
+  return (
+    <span className="info-tip" tabIndex={0} role="button" aria-label={`Ajuda: ${text}`}
+      onClick={(e) => { e.stopPropagation(); e.preventDefault(); }}>
+      <Icon name="info" size={14} />
+      <span className="tip" role="tooltip">{text}{source && <span className="tip-source">{source}</span>}</span>
+    </span>
+  );
 }
 
 export function Hint({ children, icon = "info", tone = "info" }: { children: ReactNode; icon?: IconName; tone?: string }) {
