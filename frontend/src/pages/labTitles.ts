@@ -1,7 +1,7 @@
 /** Títulos das partes do documento usadas no gabarito do laboratório. */
 export const ARTIFACT_TITLES: Record<string, string> = {
-  "vision.stakeholders": "Pessoas envolvidas (stakeholders)",
-  "vision.stakeholder_needs": "Solicitações das pessoas envolvidas",
+  "vision.stakeholders": "Stakeholders",
+  "vision.stakeholder_needs": "Solicitações dos stakeholders",
   "vision.domain_terms": "Termos do domínio",
   glossary: "Glossário",
   "vision.explainability_needs": "Necessidades de explicabilidade",

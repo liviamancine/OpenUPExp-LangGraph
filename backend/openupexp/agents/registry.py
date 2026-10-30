@@ -22,10 +22,10 @@ ARTIFACT_TYPES: dict[str, ArtifactType] = {
     for a in [
         ArtifactType("vision.problem", T.ExplainabilityProblem, title="Problema de explicabilidade"),
         ArtifactType("vision.stakeholders", T.StakeholdersArtifact, "stakeholders", T.Stakeholder, "STK",
-                     lambda i: i.get("nome") or "", "Pessoas envolvidas"),
+                     lambda i: i.get("nome") or "", "Stakeholders"),
         ArtifactType("vision.stakeholder_needs", T.StakeholderNeedsArtifact, "solicitacoes", T.StakeholderNeed,
                      "SN", lambda i: f"{i.get('stakeholder_id')} {i.get('solicitacao')}",
-                     "Solicitações das pessoas envolvidas"),
+                     "Solicitações dos stakeholders"),
         ArtifactType("vision.domain_terms", T.DomainTermsArtifact, "termos", T.DomainTerm, "DT",
                      lambda i: i.get("termo") or "", "Terminologia do domínio"),
         ArtifactType("glossary", T.GlossaryArtifact, "termos", T.GlossaryTerm, "TERM",

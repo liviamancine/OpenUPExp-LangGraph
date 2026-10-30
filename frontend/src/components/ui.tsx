@@ -31,7 +31,7 @@ export const PHASES: Record<string, PhaseInfo> = {
 export const PHASE_NAMES: Record<string, string> = Object.fromEntries(Object.entries(PHASES).map(([k, v]) => [k, v.nome]));
 
 export const SUBPROCESS_NAMES: Record<string, string> = {
-  "1.1": "a preparação (leitura do escopo e das pessoas envolvidas)",
+  "1.1": "a preparação (leitura do escopo e dos stakeholders)",
   "1.2": "o desenvolvimento da visão (necessidades, posicionamento e limites)",
   "2.1": "o planejamento das conversas",
   "2.2": "o levantamento das necessidades e dos requisitos",
@@ -78,7 +78,7 @@ export const ROLE_LABEL: Record<string, string> = {
 
 // Nomes amigáveis para os campos dos resultados (o restante usa o nome do campo sem "_").
 const FIELD_LABEL: Record<string, string> = {
-  stakeholder_id: "pessoa envolvida", stakeholder_ids: "pessoas envolvidas", need_ids: "necessidades",
+  stakeholder_id: "stakeholder", stakeholder_ids: "stakeholders", need_ids: "necessidades",
   solicitacao_ids: "solicitações", req_id: "requisito", req_ids: "requisitos", hu_id: "história",
   rn_ids: "necessidades levantadas", origem_ids: "origem", ri_ids: "requisitos identificados",
   cr_ids: "requisitos complementares", depende_de: "depende de", usuarios_explicacao: "quem usa a explicação",
