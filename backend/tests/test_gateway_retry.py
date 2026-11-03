@@ -39,6 +39,18 @@ def test_does_not_wait_when_waiting_cannot_help():
     assert wait_before_retry(ProviderError(503, GEMINI_503), 5) is None  # esgotou as tentativas
 
 
+class BamlValidationError(Exception):
+    pass
+
+
+def test_empty_model_answer_is_retried_twice():
+    empty = BamlValidationError("BamlValidationError(message=Failed to parse LLM response: Failed to coerce value: "
+                                "[InferedObject(String(\"\", Complete))], raw_output=, prompt=system: ...")
+    assert [wait_before_retry(empty, n) for n in range(3)] == [5.0, 5.0, None]
+    bad = BamlValidationError("BamlValidationError(message=Failed to parse LLM response, raw_output={\"x\": 1}, prompt=...")
+    assert wait_before_retry(bad, 0) is None  # resposta fora do contrato: repetir não ajuda
+
+
 async def test_call_retries_after_waiting(monkeypatch):
     from openupexp.baml_client.async_client import b
 

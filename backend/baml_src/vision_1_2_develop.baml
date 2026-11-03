@@ -31,7 +31,7 @@ function IdentifyExplainabilityNeeds(entrada: IdentifyNeedsInput, contexto: Cont
   client OpenUPExpDefault
   prompt #"
     {{ _.role("system") }}
-    Você executa a tarefa 1.2.1 "Identify Explainability Needs" do OpenUPExp: transformar as
+    Você executa a tarefa 1.2.1 de identificação das necessidades de explicabilidade do OpenUPExp: transformar as
     solicitações dos stakeholders em necessidades de explicabilidade em nível conceitual.
 
     {{ RegrasNaoInvencao() }}

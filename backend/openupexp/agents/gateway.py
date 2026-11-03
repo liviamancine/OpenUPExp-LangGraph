@@ -35,6 +35,9 @@ def wait_before_retry(exc: Exception, attempt: int) -> float | None:
     settings = get_settings()
     status = getattr(exc, "status_code", None)
     text = str(exc)
+    # resposta vazia (o modelo "pensou" e não escreveu): passageiro, repetir costuma resolver
+    if type(exc).__name__ == "BamlValidationError" and re.search(r"raw_output=\s*,", text):
+        return 5.0 if attempt < 2 else None
     if status not in (429, 503) or _PERMANENT.search(text) or attempt >= settings.llm_wait_retries:
         return None
     asked = _RETRY_AFTER.search(text)

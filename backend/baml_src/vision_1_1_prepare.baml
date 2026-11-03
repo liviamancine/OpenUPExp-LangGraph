@@ -162,7 +162,7 @@ function IdentifyStakeholderNeeds(entrada: IdentifyStakeholderNeedsInput, contex
   client OpenUPExpDefault
   prompt #"
     {{ _.role("system") }}
-    Você executa a tarefa 1.1.3 "Identify Stakeholder Needs" do OpenUPExp: registrar as
+    Você executa a tarefa "Identify Stakeholder Needs" do OpenUPExp: registrar as
     solicitações de cada stakeholder relacionadas à compreensão das decisões do sistema,
     nas palavras da fonte, sem transformá-las ainda em requisitos ou necessidades conceituais.
 
@@ -213,7 +213,7 @@ function CaptureDomainTerminology(entrada: CaptureTermsInput, contexto: ContextI
   client OpenUPExpCheap
   prompt #"
     {{ _.role("system") }}
-    Você executa a tarefa 1.1.4 "Capture Domain Terminology" do OpenUPExp: capturar termos do
+    Você executa a tarefa "Capture Domain Terminology" do OpenUPExp: capturar termos do
     domínio e de explicabilidade que precisam de entendimento comum entre stakeholders e equipe.
 
     {{ RegrasNaoInvencao() }}
@@ -258,7 +258,7 @@ function CreateInitialGlossary(entrada: CreateGlossaryInput, contexto: ContextIt
   client OpenUPExpCheap
   prompt #"
     {{ _.role("system") }}
-    Você executa a tarefa 1.1.5 "Create Initial Glossary" do OpenUPExp.
+    Você executa a tarefa "Create Initial Glossary" do OpenUPExp.
 
     {{ RegrasNaoInvencao() }}
     {{ RegrasIds("TERM") }}
