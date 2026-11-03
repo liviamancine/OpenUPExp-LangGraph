@@ -4,7 +4,10 @@
 - FakeGateway: saídas determinísticas derivadas das entradas (testes e modo simulado).
 """
 
+import asyncio
 import json
+import logging
+import re
 import time
 import uuid
 from typing import Protocol
@@ -13,7 +16,30 @@ from baml_py import ClientRegistry, Collector
 from pydantic import BaseModel
 
 from openupexp.baml_client.types import ContextItem
+from openupexp.config import get_settings
 from openupexp.observability.llm import record_llm_call
+
+log = logging.getLogger("openupexp.gateway")
+
+# Esperar não resolve falta de crédito nem chave inválida, mesmo quando o provedor responde 429.
+_PERMANENT = re.compile(r"insufficient_quota|credit_balance|invalid.?api.?key", re.IGNORECASE)
+_RETRY_AFTER = re.compile(r"try again in\s+(?:(\d+)m)?\s*([\d.]+)\s*s", re.IGNORECASE)
+
+
+def wait_before_retry(exc: Exception, attempt: int) -> float | None:
+    """Segundos a esperar antes de repetir a chamada, ou None se não vale repetir.
+
+    Repete só erro passageiro do provedor (429 limite por minuto, 503 sobrecarga), pelo tempo
+    que ele pedir ("try again in 13.9s"); sem indicação, 15 s, 30 s, 60 s...
+    """
+    settings = get_settings()
+    status = getattr(exc, "status_code", None)
+    text = str(exc)
+    if status not in (429, 503) or _PERMANENT.search(text) or attempt >= settings.llm_wait_retries:
+        return None
+    asked = _RETRY_AFTER.search(text)
+    seconds = (int(asked.group(1) or 0) * 60 + float(asked.group(2)) + 1) if asked else 15 * 2 ** attempt
+    return min(seconds, settings.llm_max_wait_seconds)
 
 
 class AgentGateway(Protocol):
@@ -64,16 +90,25 @@ class BamlGateway:
     async def call(self, function, entrada, contexto, *, run_id, task_execution_id):
         from openupexp.baml_client.async_client import b
 
-        collector = Collector(name=f"{run_id}:{function}")
         fn = getattr(b, function)
-        try:
-            result = await fn(entrada, contexto, baml_options=self._options(collector))
-        except Exception as exc:
-            await record_llm_call(
-                run_id=run_id, task_execution_id=task_execution_id, function=function,
-                log=collector.last, status="error", error=f"{type(exc).__name__}: {exc}"[:4000],
-            )
-            raise
+        attempt = 0
+        while True:
+            collector = Collector(name=f"{run_id}:{function}")
+            try:
+                result = await fn(entrada, contexto, baml_options=self._options(collector))
+                break
+            except Exception as exc:
+                await record_llm_call(
+                    run_id=run_id, task_execution_id=task_execution_id, function=function,
+                    log=collector.last, status="error", error=f"{type(exc).__name__}: {exc}"[:4000],
+                )
+                wait = wait_before_retry(exc, attempt)
+                if wait is None:
+                    raise
+                attempt += 1
+                log.warning("%s: provedor indisponível ou no limite (%s); nova tentativa %d em %.0f s",
+                            function, getattr(exc, "status_code", "?"), attempt, wait)
+                await asyncio.sleep(wait)
         await record_llm_call(
             run_id=run_id, task_execution_id=task_execution_id, function=function, log=collector.last,
         )

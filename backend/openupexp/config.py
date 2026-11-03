@@ -31,6 +31,9 @@ class Settings(BaseSettings):
     ollama_url: str = "http://ollama:11434"
     ollama_model: str = "openupexp-qwen3-4b"
     ollama_base_model: str = "qwen3:4b-instruct-2507-q4_K_M"
+    # provedor sobrecarregado (503) ou no limite por minuto (429): espera o tempo pedido e tenta de novo
+    llm_wait_retries: int = 5
+    llm_max_wait_seconds: float = 60.0
 
     worker_poll_seconds: float = 1.0
     job_stale_minutes: int = 30
