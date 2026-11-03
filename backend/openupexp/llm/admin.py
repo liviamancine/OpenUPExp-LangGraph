@@ -42,7 +42,9 @@ FIXED_URL = {
 SLUG = re.compile(r"^[a-z0-9][a-z0-9-]{1,60}$")
 KEY_ENV = re.compile(r"^[A-Z][A-Z0-9_]{0,60}_(API_KEY|TOKEN)$")
 PARAMS = {"temperature": (float, 0.0, 2.0), "max_tokens": (int, 1, 200_000), "num_ctx": (int, 512, 262_144),
-          "think": (bool, None, None)}
+          "think": (bool, None, None), "reasoning_effort": (str, None, None)}
+# nível de "pensamento" de modelos de raciocínio compatíveis com OpenAI (ex.: GPT-OSS na Groq)
+REASONING_LEVELS = ("low", "medium", "high")
 
 # Entrada fixa e neutra de domínio para o teste de compatibilidade.
 COMPAT_SCOPE = (
@@ -121,6 +123,8 @@ def validate_params(params: dict) -> dict:
             raise AdminError(f"Valor inválido para {k}.") from exc
         if lo is not None and not (lo <= v <= hi):
             raise AdminError(f"{k} deve estar entre {lo} e {hi}.")
+        if k == "reasoning_effort" and v not in REASONING_LEVELS:
+            raise AdminError(f"reasoning_effort deve ser um de: {', '.join(REASONING_LEVELS)}.")
         out[k] = v
     return out
 

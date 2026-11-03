@@ -126,3 +126,29 @@ async def test_local_model_is_off_by_default(scope_bytes, client):
     by_slug = {p["slug"]: p for p in profiles}
     assert by_slug[LOCAL_PROFILE]["disponivel"] is False and by_slug[LOCAL_PROFILE]["padrao"] is False
     assert by_slug[CLOUD_FALLBACK_PROFILE]["padrao"] is True
+
+
+def test_reasoning_effort_reaches_only_openai_compatible_providers():
+    groq = {"provider": "openai-generic", "model": "openai/gpt-oss-20b", "base_url": "https://api.groq.com/openai/v1",
+            "params": {"temperature": 1.0, "reasoning_effort": "low", "max_tokens": 8192}}
+    _, opts = client_options(groq)
+    assert opts["reasoning_effort"] == "low" and opts["temperature"] == 1.0 and opts["max_tokens"] == 8192
+    _, opts = client_options({"provider": "anthropic", "model": "x", "params": {"reasoning_effort": "low"}})
+    assert "reasoning_effort" not in opts
+
+
+async def test_gpt_oss_profiles_get_new_params_unless_edited():
+    from openupexp.llm.catalog import GPT_OSS_PARAMS
+
+    async with session_scope() as s:
+        await ensure_catalog(s)
+        p20 = await s.scalar(select(InferenceProfile).where(InferenceProfile.slug == "groq-gpt-oss-20b"))
+        p120 = await s.scalar(select(InferenceProfile).where(InferenceProfile.slug == "groq-gpt-oss-120b"))
+        assert p20.params == GPT_OSS_PARAMS
+        p20.params = {"temperature": 0.0}             # como estava antes desta mudança
+        p120.params = {"temperature": 0.3}            # ajustado à mão pela administração
+    async with session_scope() as s:
+        await ensure_catalog(s)
+        p20 = await s.scalar(select(InferenceProfile).where(InferenceProfile.slug == "groq-gpt-oss-20b"))
+        p120 = await s.scalar(select(InferenceProfile).where(InferenceProfile.slug == "groq-gpt-oss-120b"))
+        assert p20.params == GPT_OSS_PARAMS and p120.params == {"temperature": 0.3}

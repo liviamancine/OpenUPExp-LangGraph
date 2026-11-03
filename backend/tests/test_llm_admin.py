@@ -133,3 +133,11 @@ async def test_compat_job_runs_in_worker(monkeypatch):
     async with session_scope() as s:
         compat = (await s.get(InferenceProfile, p.id)).checks["compat"]
     assert compat["status"] == "concluido" and compat["ok"] is False
+
+
+def test_reasoning_effort_is_validated():
+    from openupexp.llm.admin import AdminError, validate_params as _params
+
+    assert _params({"reasoning_effort": "low"}) == {"reasoning_effort": "low"}
+    with pytest.raises(AdminError):
+        _params({"reasoning_effort": "máximo"})

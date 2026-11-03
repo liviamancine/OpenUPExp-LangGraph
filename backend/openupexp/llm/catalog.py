@@ -38,6 +38,14 @@ class Seed:
     params: dict = field(default_factory=dict)
 
 
+# GPT-OSS "pensa" antes de responder: com temperatura 0 o raciocínio pode entrar em repetição até
+# esgotar o limite e a resposta sai vazia. O fabricante recomenda temperatura 1; pensamento baixo
+# deixa espaço para a resposta e consome menos do limite por minuto da Groq.
+GPT_OSS_PARAMS = {"temperature": 1.0, "reasoning_effort": "low", "max_tokens": 8192}
+# Parâmetros antigos dos perfis-semente: um perfil ainda com eles não foi ajustado à mão e é atualizado.
+OLD_SEED_PARAMS = {"groq-gpt-oss-120b": {"temperature": 0.0}, "groq-gpt-oss-20b": {"temperature": 0.0}}
+
+
 def _seeds() -> list[Seed]:
     s = get_settings()
     return [
@@ -48,10 +56,10 @@ def _seeds() -> list[Seed]:
              params={"temperature": 0.0, "num_ctx": 16384, "think": False}),
         Seed("groq-gpt-oss-120b", "GPT-OSS 120B (Groq)", "openai-generic", "openai/gpt-oss-120b",
              "https://api.groq.com/openai/v1", "GROQ_API_KEY",
-             profile_slug="groq-gpt-oss-120b", profile_nome="GPT-OSS 120B · Groq", params={"temperature": 0.0}),
+             profile_slug="groq-gpt-oss-120b", profile_nome="GPT-OSS 120B · Groq", params=GPT_OSS_PARAMS),
         Seed("groq-gpt-oss-20b", "GPT-OSS 20B (Groq)", "openai-generic", "openai/gpt-oss-20b",
              "https://api.groq.com/openai/v1", "GROQ_API_KEY",
-             profile_slug="groq-gpt-oss-20b", profile_nome="GPT-OSS 20B · Groq", params={"temperature": 0.0}),
+             profile_slug="groq-gpt-oss-20b", profile_nome="GPT-OSS 20B · Groq", params=GPT_OSS_PARAMS),
         Seed("openai-gpt-5-mini", "GPT-5 mini (OpenAI)", "openai-responses", "gpt-5-mini", None, "OPENAI_API_KEY",
              profile_slug="openai-gpt-5-mini", profile_nome="GPT-5 mini · OpenAI"),
         Seed("anthropic-sonnet", "Claude Sonnet (Anthropic)", "anthropic", "claude-sonnet-5-5", None,
@@ -94,6 +102,8 @@ async def ensure_catalog(session: AsyncSession) -> None:
             has_default = has_default or is_default
         elif seed.protected:
             p.model_id, p.nome, p.params, p.protected, p.enabled = m.id, seed.profile_nome, seed.params, True, True
+        elif seed.profile_slug in OLD_SEED_PARAMS and p.params == OLD_SEED_PARAMS[seed.profile_slug]:
+            p.params = seed.params
     await session.flush()
 
 
@@ -194,4 +204,6 @@ def client_options(snapshot: dict) -> tuple[str, dict]:
         for name in ("temperature", "max_tokens"):
             if name in params:
                 opts[name] = params[name]
+        if provider == "openai-generic" and "reasoning_effort" in params:
+            opts["reasoning_effort"] = params["reasoning_effort"]
     return provider, opts

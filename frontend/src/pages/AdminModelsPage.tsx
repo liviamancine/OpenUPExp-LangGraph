@@ -7,7 +7,9 @@ import { Empty, ErrorBox, Hint, Loading, fmtDate } from "../components/ui";
 
 const PARAM_LABEL: Record<string, string> = {
   temperature: "temperatura", max_tokens: "limite de resposta", num_ctx: "contexto", think: "raciocínio",
+  reasoning_effort: "pensamento",
 };
+const REASONING: Record<string, string> = { low: "baixo", medium: "médio", high: "alto" };
 
 function slugify(text: string): string {
   return text.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-")
@@ -178,7 +180,7 @@ function ProfileRow({ p, onChange }: { p: AdminProfile; onChange: () => void }) 
         <span className={`badge ${p.habilitado ? "completed" : ""}`}>{p.habilitado ? "habilitado" : "desabilitado"}</span>
       </div>
       <div className="row small" style={{ gap: 6 }}>
-        {Object.entries(p.params).map(([k, v]) => <span key={k} className="badge">{PARAM_LABEL[k] ?? k}: {String(v)}</span>)}
+        {Object.entries(p.params).map(([k, v]) => <span key={k} className="badge">{PARAM_LABEL[k] ?? k}: {k === "reasoning_effort" ? REASONING[String(v)] ?? String(v) : String(v)}</span>)}
         {Object.keys(p.params).length === 0 && <span className="muted">parâmetros do provedor</span>}
       </div>
       <div className={`small ${c ? "" : "muted"}`}>
@@ -209,10 +211,12 @@ function NewProfile({ model, onDone, onCancel }: { model: AdminModel; onDone: ()
   const [nome, setNome] = useState("");
   const [temperature, setTemperature] = useState("0");
   const [maxTokens, setMaxTokens] = useState("");
+  const [reasoning, setReasoning] = useState("");
   const create = useMutation({
     mutationFn: () => api.post(`/admin/llm/models/${model.id}/profiles`, {
       nome, slug: slugify(`${model.slug}-${nome}`),
-      params: { temperature: Number(temperature), ...(maxTokens ? { max_tokens: Number(maxTokens) } : {}) },
+      params: { temperature: Number(temperature), ...(maxTokens ? { max_tokens: Number(maxTokens) } : {}),
+        ...(reasoning ? { reasoning_effort: reasoning } : {}) },
     }),
     onSuccess: onDone,
   });
@@ -222,6 +226,12 @@ function NewProfile({ model, onDone, onCancel }: { model: AdminModel; onDone: ()
         <label>Nome do perfil<input value={nome} onChange={(e) => setNome(e.target.value)} required placeholder="ex.: criativo" /></label>
         <label>Temperatura (0 a 2)<input type="number" step="0.1" min="0" max="2" value={temperature} onChange={(e) => setTemperature(e.target.value)} /></label>
         <label>Limite de resposta em tokens (opcional)<input type="number" min="1" value={maxTokens} onChange={(e) => setMaxTokens(e.target.value)} /></label>
+        {model.provider === "openai-generic" && (
+          <label title="Modelos que pensam antes de responder, como o GPT-OSS">Nível de pensamento (opcional)
+            <select value={reasoning} onChange={(e) => setReasoning(e.target.value)}>
+              <option value="">padrão do provedor</option>
+              {Object.entries(REASONING).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+            </select></label>)}
       </div>
       <ErrorBox error={create.error} />
       <div className="row"><button className="primary small" disabled={create.isPending}>Criar perfil</button>
