@@ -247,6 +247,21 @@ class BamlAsyncClient:
                 "entrada": entrada,"contexto": contexto,
             })
             return typing.cast(types.AcceptanceCriteriaArtifact, __result__.cast_to(types, types, stream_types, False, __runtime__))
+    async def DefineExplainability(self, entrada: types.DefineProblemInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> types.ExplainabilityDefinition:
+        # Check if on_tick is provided
+        if 'on_tick' in baml_options:
+            # Use streaming internally when on_tick is provided
+            __stream__ = self.stream.DefineExplainability(entrada=entrada,contexto=contexto,
+                baml_options=baml_options)
+            return await __stream__.get_final_response()
+        else:
+            # Original non-streaming code
+            __result__ = await self.__options.merge_options(baml_options).call_function_async(function_name="DefineExplainability", args={
+                "entrada": entrada,"contexto": contexto,
+            })
+            return typing.cast(types.ExplainabilityDefinition, __result__.cast_to(types, types, stream_types, False, __runtime__))
     async def DefineExplainabilityLimits(self, entrada: types.LimitsInput,contexto: typing.List["types.ContextItem"],
         baml_options: BamlCallOptions = {},
     ) -> types.ExplainabilityLimitsArtifact:
@@ -277,6 +292,21 @@ class BamlAsyncClient:
                 "entrada": entrada,"contexto": contexto,
             })
             return typing.cast(types.ExplainabilityProblem, __result__.cast_to(types, types, stream_types, False, __runtime__))
+    async def DefinePositioning(self, entrada: types.DefinePositioningInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> types.PositioningResult:
+        # Check if on_tick is provided
+        if 'on_tick' in baml_options:
+            # Use streaming internally when on_tick is provided
+            __stream__ = self.stream.DefinePositioning(entrada=entrada,contexto=contexto,
+                baml_options=baml_options)
+            return await __stream__.get_final_response()
+        else:
+            # Original non-streaming code
+            __result__ = await self.__options.merge_options(baml_options).call_function_async(function_name="DefinePositioning", args={
+                "entrada": entrada,"contexto": contexto,
+            })
+            return typing.cast(types.PositioningResult, __result__.cast_to(types, types, stream_types, False, __runtime__))
     async def DevelopComplementaryRequirements(self, entrada: types.ComplementaryInput,contexto: typing.List["types.ContextItem"],
         baml_options: BamlCallOptions = {},
     ) -> types.ComplementaryRequirementsArtifact:
@@ -613,6 +643,18 @@ class BamlStreamClient:
           lambda x: typing.cast(types.AcceptanceCriteriaArtifact, x.cast_to(types, types, stream_types, False, __runtime__)),
           __ctx__,
         )
+    def DefineExplainability(self, entrada: types.DefineProblemInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.BamlStream[stream_types.ExplainabilityDefinition, types.ExplainabilityDefinition]:
+        __ctx__, __result__ = self.__options.merge_options(baml_options).create_async_stream(function_name="DefineExplainability", args={
+            "entrada": entrada,"contexto": contexto,
+        })
+        return baml_py.BamlStream[stream_types.ExplainabilityDefinition, types.ExplainabilityDefinition](
+          __result__,
+          lambda x: typing.cast(stream_types.ExplainabilityDefinition, x.cast_to(types, types, stream_types, True, __runtime__)),
+          lambda x: typing.cast(types.ExplainabilityDefinition, x.cast_to(types, types, stream_types, False, __runtime__)),
+          __ctx__,
+        )
     def DefineExplainabilityLimits(self, entrada: types.LimitsInput,contexto: typing.List["types.ContextItem"],
         baml_options: BamlCallOptions = {},
     ) -> baml_py.BamlStream[stream_types.ExplainabilityLimitsArtifact, types.ExplainabilityLimitsArtifact]:
@@ -635,6 +677,18 @@ class BamlStreamClient:
           __result__,
           lambda x: typing.cast(stream_types.ExplainabilityProblem, x.cast_to(types, types, stream_types, True, __runtime__)),
           lambda x: typing.cast(types.ExplainabilityProblem, x.cast_to(types, types, stream_types, False, __runtime__)),
+          __ctx__,
+        )
+    def DefinePositioning(self, entrada: types.DefinePositioningInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.BamlStream[stream_types.PositioningResult, types.PositioningResult]:
+        __ctx__, __result__ = self.__options.merge_options(baml_options).create_async_stream(function_name="DefinePositioning", args={
+            "entrada": entrada,"contexto": contexto,
+        })
+        return baml_py.BamlStream[stream_types.PositioningResult, types.PositioningResult](
+          __result__,
+          lambda x: typing.cast(stream_types.PositioningResult, x.cast_to(types, types, stream_types, True, __runtime__)),
+          lambda x: typing.cast(types.PositioningResult, x.cast_to(types, types, stream_types, False, __runtime__)),
           __ctx__,
         )
     def DevelopComplementaryRequirements(self, entrada: types.ComplementaryInput,contexto: typing.List["types.ContextItem"],
@@ -878,6 +932,13 @@ class BamlHttpRequestClient:
             "entrada": entrada,"contexto": contexto,
         }, mode="request")
         return __result__
+    async def DefineExplainability(self, entrada: types.DefineProblemInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        __result__ = await self.__options.merge_options(baml_options).create_http_request_async(function_name="DefineExplainability", args={
+            "entrada": entrada,"contexto": contexto,
+        }, mode="request")
+        return __result__
     async def DefineExplainabilityLimits(self, entrada: types.LimitsInput,contexto: typing.List["types.ContextItem"],
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
@@ -889,6 +950,13 @@ class BamlHttpRequestClient:
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
         __result__ = await self.__options.merge_options(baml_options).create_http_request_async(function_name="DefineExplainabilityProblem", args={
+            "entrada": entrada,"contexto": contexto,
+        }, mode="request")
+        return __result__
+    async def DefinePositioning(self, entrada: types.DefinePositioningInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        __result__ = await self.__options.merge_options(baml_options).create_http_request_async(function_name="DefinePositioning", args={
             "entrada": entrada,"contexto": contexto,
         }, mode="request")
         return __result__
@@ -1068,6 +1136,13 @@ class BamlHttpStreamRequestClient:
             "entrada": entrada,"contexto": contexto,
         }, mode="stream")
         return __result__
+    async def DefineExplainability(self, entrada: types.DefineProblemInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        __result__ = await self.__options.merge_options(baml_options).create_http_request_async(function_name="DefineExplainability", args={
+            "entrada": entrada,"contexto": contexto,
+        }, mode="stream")
+        return __result__
     async def DefineExplainabilityLimits(self, entrada: types.LimitsInput,contexto: typing.List["types.ContextItem"],
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
@@ -1079,6 +1154,13 @@ class BamlHttpStreamRequestClient:
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
         __result__ = await self.__options.merge_options(baml_options).create_http_request_async(function_name="DefineExplainabilityProblem", args={
+            "entrada": entrada,"contexto": contexto,
+        }, mode="stream")
+        return __result__
+    async def DefinePositioning(self, entrada: types.DefinePositioningInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        __result__ = await self.__options.merge_options(baml_options).create_http_request_async(function_name="DefinePositioning", args={
             "entrada": entrada,"contexto": contexto,
         }, mode="stream")
         return __result__

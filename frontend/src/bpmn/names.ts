@@ -7,14 +7,14 @@ import type { Manifest } from "../api/types";
 const TASKS: Record<string, string> = {
   "1": "Definir a Visão da explicabilidade",
   "1.1": "Preparar a Visão",
-  "1.1.1": "Definir o problema de explicabilidade",
-  "1.1.2": "Identificar os stakeholders",
-  "1.1.3": "Identificar as necessidades dos stakeholders",
-  "1.1.4": "Levantar os termos do domínio",
-  "1.1.5": "Criar o glossário inicial",
+  "1.1.1": "Definir a explicabilidade",
+  "1.1.2": "Definir o posicionamento",
+  "1.1.3": "Identificar os stakeholders",
+  "1.1.4": "Identificar as necessidades dos stakeholders",
+  "1.1.5": "Levantar os termos do domínio",
+  "1.1.6": "Criar o glossário inicial",
   "1.2": "Desenvolver a Visão",
-  "1.2.1": "Identificar as necessidades de explicabilidade",
-  "1.2.pos": "Escrever o posicionamento da explicabilidade",
+  "1.2.1": "Identificar as necessidades e os aspectos associados",
   "1.2.2": "Identificar requisitos complementares",
   "1.2.3": "Definir o escopo e os limites da explicabilidade",
   "1.2.4": "Montar o rascunho da Visão",
@@ -70,8 +70,24 @@ const TASKS: Record<string, string> = {
 };
 
 /** Nome em português de uma tarefa, subprocesso ou fase (pelo id do manifesto). */
+// Pelo nome da tarefa no manifesto: a numeração da Visão mudou no manifesto 0.5.0, e as
+// execuções antigas continuam com os números e nomes da sua versão.
+const BY_NAME: Record<string, string> = {
+  "Define Explainability Problem": "Definir o problema de explicabilidade",
+  "Define Explainability": "Definir a explicabilidade",
+  "Positioning": "Definir o posicionamento",
+  "Generate Explainability Positioning": "Escrever o posicionamento da explicabilidade",
+  "Identify Stakeholders": "Identificar os stakeholders",
+  "Identify Stakeholder Needs": "Identificar as necessidades dos stakeholders",
+  "Capture Domain Terminology": "Levantar os termos do domínio",
+  "Create Initial Glossary": "Criar o glossário inicial",
+  "Identify Explainability Needs": "Identificar as necessidades de explicabilidade",
+  "Identify associated aspects": "Identificar as necessidades e os aspectos associados",
+};
+
 export function taskName(id: string, fallback?: string | null): string {
-  return TASKS[id] ?? fallback ?? id;
+  const byName = fallback ? BY_NAME[fallback.replace(/\s+/g, " ").trim()] : undefined;
+  return byName ?? TASKS[id] ?? fallback ?? id;
 }
 
 // Demais textos dos diagramas (documentos, bases, raias, fluxos), pelo texto original normalizado.

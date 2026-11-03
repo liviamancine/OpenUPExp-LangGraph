@@ -219,6 +219,11 @@ def check_conformance(manifest: Manifest, bpmn_dir: Path) -> list[str]:
                     continue
                 if t.bpmn_element not in sp_els:
                     problems.append(f"tarefa {t.id}: {t.bpmn_element} ausente de {sp.bpmn_file}")
+                else:
+                    # o número no nome do elemento BPMN (ex.: "1.1.3 Identify Stakeholders") é o da tarefa
+                    number = re.match(r"(\d+(?:\.\d+)+)\s*\.?\s", sp_els[t.bpmn_element][1] + " ")
+                    if number and number.group(1) != t.id:
+                        problems.append(f"tarefa {t.id}: no BPMN é '{sp_els[t.bpmn_element][1]}'")
                 mapped.add(t.bpmn_element)
             for el_id, (tag, name) in sp_els.items():
                 if el_id not in mapped:

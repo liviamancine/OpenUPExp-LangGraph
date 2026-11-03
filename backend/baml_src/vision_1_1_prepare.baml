@@ -20,7 +20,18 @@ class ExplainabilityProblem {
   stakeholders_mencionados string[] @description("Nomes literais de stakeholders citados na entrada")
   impactos string[]
   criterios_de_sucesso string?
-  declaracao_problema ProblemStatement
+  declaracao_problema ProblemStatement? @description("Até o manifesto 0.4.0. A partir do 0.5.0 a Declaração do Problema é produzida em 1.1.2")
+  lacunas Lacuna[]
+}
+
+// 1.1.1 a partir do manifesto 0.5.0: só a Definição da Explicabilidade (Visão §1).
+class ExplainabilityDefinition {
+  necessidade_de_explicabilidade string
+  descricao_geral string
+  dominio_do_problema string
+  stakeholders_mencionados string[] @description("Nomes literais de stakeholders citados na entrada")
+  impactos string[]
+  criterios_de_sucesso string?
   lacunas Lacuna[]
 }
 
@@ -66,6 +77,7 @@ class Stakeholder {
   descricao string
   responsabilidade string? @description("Somente responsabilidade explicitamente sustentada pela entrada")
   ambiente_usuario string? @description("Template §3.2 — contexto de uso, plataformas, restrições, se houver evidência")
+  posicionamento_id string? @description("POS-n do perfil da Declaração de Posicionamento que este stakeholder detalha; null se não vier de um perfil")
   origem OrigemRef[]
   lacunas Lacuna[]
 }
@@ -78,13 +90,14 @@ class IdentifyStakeholdersInput {
   problema ExplainabilityProblem
   documento_escopo string
   stakeholders_existentes Stakeholder[]
+  posicionamentos Positioning[] @description("Perfis da Declaração de Posicionamento (1.1.2); vazio no manifesto 0.4.0")
 }
 
 function IdentifyStakeholders(entrada: IdentifyStakeholdersInput, contexto: ContextItem[]) -> StakeholdersArtifact {
   client OpenUPExpDefault
   prompt #"
     {{ _.role("system") }}
-    Você executa a tarefa 1.1.2 "Identify Stakeholders" do OpenUPExp: identificar quem precisa
+    Você executa a tarefa "Identify Stakeholders" do OpenUPExp: identificar quem precisa
     compreender, auditar, validar ou contestar as decisões do sistema de IA.
 
     {{ RegrasNaoInvencao() }}
@@ -96,10 +109,20 @@ function IdentifyStakeholders(entrada: IdentifyStakeholdersInput, contexto: Cont
     - 'responsabilidade': benefícios desejados ou objetivos do produto NÃO são responsabilidades.
       Sem evidência, deixe null e registre uma Lacuna.
     - 'origem': indique de onde veio cada stakeholder ('escopo' ou o campo do problema).
+    {% if entrada.posicionamentos %}
+    - Cada perfil "para quem" da Declaração de Posicionamento deve ser detalhado em pelo menos
+      um stakeholder; registre o POS-n correspondente em 'posicionamento_id'. Stakeholders que
+      não vêm de nenhum perfil ficam com 'posicionamento_id' null.
+    {% endif %}
 
     {{ _.role("user") }}
     PROBLEMA DE EXPLICABILIDADE (1.1.1)
     {{ entrada.problema }}
+    {% if entrada.posicionamentos %}
+
+    PERFIS DA DECLARAÇÃO DE POSICIONAMENTO (1.1.2)
+    {{ entrada.posicionamentos }}
+    {% endif %}
 
     DOCUMENTO DE ESCOPO
     {{ entrada.documento_escopo }}
@@ -251,6 +274,108 @@ function CreateInitialGlossary(entrada: CreateGlossaryInput, contexto: ContextIt
 
     GLOSSÁRIO EXISTENTE (preserve os IDs)
     {{ entrada.glossario_existente }}
+
+    {{ ContextoAdicional(contexto) }}
+
+    {{ ctx.output_format }}
+  "#
+}
+
+// ---------------------------------------------------------------------------
+// Manifesto 0.5.0 — 1.1.1 Define Explainability e 1.1.2 Positioning
+// ---------------------------------------------------------------------------
+
+function DefineExplainability(entrada: DefineProblemInput, contexto: ContextItem[]) -> ExplainabilityDefinition {
+  client OpenUPExpDefault
+  prompt #"
+    {{ _.role("system") }}
+    Você é um especialista em Engenharia de Requisitos para sistemas de IA, executando a tarefa
+    1.1.1 "Define Explainability" do processo OpenUPExp (Visão da Explicabilidade, seção 1).
+
+    OBJETIVO
+    Identificar por que e em qual contexto o sistema inteligente precisa fornecer explicações
+    sobre suas decisões ou comportamentos. A Declaração do Problema e o Posicionamento são
+    tarefas seguintes (1.1.2): não os produza aqui.
+
+    {{ RegrasNaoInvencao() }}
+
+    REGRAS ESPECÍFICAS
+    - Descreva a necessidade de transparência sem presumir técnicas de XAI.
+    - 'impactos': lista vazia se não houver impactos descritos.
+
+    {{ _.role("user") }}
+    DOCUMENTO DE ESCOPO DO PROJETO
+    {{ entrada.documento_escopo }}
+
+    {{ ContextoAdicional(contexto) }}
+
+    {{ ctx.output_format }}
+  "#
+}
+
+class ProblemStatementArtifact {
+  o_problema_da string? @description("Template §2.1 — 'O problema da'")
+  afeta string[] @description("Template §2.1 — 'afeta' (nomes literais da entrada)")
+  cujo_impacto_e string[] @description("Template §2.1 — 'cujo o impacto é'")
+  solucao_bem_sucedida string? @description("Template §2.1 — 'uma solução bem sucedida seria'")
+  lacunas Lacuna[]
+}
+
+class ProfilePositioning {
+  id string? @description("POS-n existente; null se novo")
+  para_quem string @description("Perfil de usuário que necessita de explicabilidade")
+  para_que string @description("Por que esse perfil precisa de explicação: compreender, auditar ou confiar nas decisões")
+  nome_produto string?
+  categoria_produto string?
+  beneficio_chave string? @description("O que o produto faz para esse perfil: benefício principal")
+  unlike string? @description("Principal alternativa concorrente; null se não estiver na entrada")
+  our_product string? @description("Principal diferencial do produto em relação à alternativa")
+  lacunas Lacuna[]
+}
+
+class PositioningResult {
+  declaracao_problema ProblemStatementArtifact
+  posicionamentos ProfilePositioning[]
+}
+
+class DefinePositioningInput {
+  definicao ExplainabilityProblem
+  documento_escopo string
+  declaracao_existente ProblemStatementArtifact?
+  posicionamentos_existentes ProfilePositioning[]
+}
+
+function DefinePositioning(entrada: DefinePositioningInput, contexto: ContextItem[]) -> PositioningResult {
+  client OpenUPExpDefault
+  prompt #"
+    {{ _.role("system") }}
+    Você executa a tarefa 1.1.2 "Positioning" do OpenUPExp: redigir a Declaração do Problema
+    (Visão §2.1) e a Declaração de Posicionamento da Explicabilidade (Visão §2.2), uma para
+    cada perfil de usuário que necessita de explicabilidade.
+
+    {{ RegrasNaoInvencao() }}
+    {{ RegrasIds("POS") }}
+
+    REGRAS ESPECÍFICAS
+    - Os perfis ("para quem") vêm do escopo e da Definição da Explicabilidade. Os stakeholders
+      serão detalhados depois (1.1.3); não crie IDs de stakeholder.
+    - Preencha todos os campos que o escopo sustentar. O que não estiver no escopo fica null,
+      com uma Lacuna, para o Engenheiro de Requisitos completar na revisão da Visão.
+    - 'nome_produto' e 'categoria_produto' descrevem o mesmo sistema: use os mesmos valores em
+      todas as declarações.
+
+    {{ _.role("user") }}
+    DEFINIÇÃO DA EXPLICABILIDADE (1.1.1)
+    {{ entrada.definicao }}
+
+    DOCUMENTO DE ESCOPO
+    {{ entrada.documento_escopo }}
+
+    DECLARAÇÃO DO PROBLEMA EXISTENTE
+    {{ entrada.declaracao_existente }}
+
+    POSICIONAMENTOS EXISTENTES (preserve os IDs)
+    {{ entrada.posicionamentos_existentes }}
 
     {{ ContextoAdicional(contexto) }}
 

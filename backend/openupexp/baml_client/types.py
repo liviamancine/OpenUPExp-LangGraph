@@ -145,7 +145,7 @@ class RequirementKind(str, Enum):
     COMPLEMENTAR = "COMPLEMENTAR"
 
 # #########################################################################
-# Generated classes (94)
+# Generated classes (99)
 # #########################################################################
 
 class AcceptanceCriteria(BaseModel):
@@ -277,6 +277,12 @@ class CreateGlossaryInput(BaseModel):
     termos: typing.List["DomainTerm"]
     glossario_existente: typing.List["GlossaryTerm"]
 
+class DefinePositioningInput(BaseModel):
+    definicao: "ExplainabilityProblem"
+    documento_escopo: str
+    declaracao_existente: typing.Optional["ProblemStatementArtifact"] = None
+    posicionamentos_existentes: typing.List["ProfilePositioning"]
+
 class DefineProblemInput(BaseModel):
     documento_escopo: str
 
@@ -348,6 +354,15 @@ class EvidenceRef(BaseModel):
     citacao: str = Field(description='Trecho LITERAL copiado do conteúdo desse item, sem reescrever')
     tipo: EvidenceKind
 
+class ExplainabilityDefinition(BaseModel):
+    necessidade_de_explicabilidade: str
+    descricao_geral: str
+    dominio_do_problema: str
+    stakeholders_mencionados: typing.List[str] = Field(description='Nomes literais de stakeholders citados na entrada')
+    impactos: typing.List[str]
+    criterios_de_sucesso: typing.Optional[str] = None
+    lacunas: typing.List["Lacuna"]
+
 class ExplainabilityLimitsArtifact(BaseModel):
     respostas: typing.List["LimitAnswer"]
 
@@ -371,7 +386,7 @@ class ExplainabilityProblem(BaseModel):
     stakeholders_mencionados: typing.List[str] = Field(description='Nomes literais de stakeholders citados na entrada')
     impactos: typing.List[str]
     criterios_de_sucesso: typing.Optional[str] = None
-    declaracao_problema: "ProblemStatement"
+    declaracao_problema: typing.Optional["ProblemStatement"] = Field(default=None, description='Até o manifesto 0.4.0. A partir do 0.5.0 a Declaração do Problema é produzida em 1.1.2')
     lacunas: typing.List["Lacuna"]
 
 class ExplainabilityRequirement(BaseModel):
@@ -478,6 +493,7 @@ class IdentifyStakeholdersInput(BaseModel):
     problema: "ExplainabilityProblem"
     documento_escopo: str
     stakeholders_existentes: typing.List["Stakeholder"]
+    posicionamentos: typing.List["Positioning"] = Field(description='Perfis da Declaração de Posicionamento (1.1.2); vazio no manifesto 0.4.0')
 
 class Lacuna(BaseModel):
     campo: str = Field(description='Nome do campo que não pôde ser preenchido')
@@ -535,7 +551,7 @@ class PlanQueriesInput(BaseModel):
 
 class Positioning(BaseModel):
     id: typing.Optional[str] = Field(default=None, description='POS-n existente; null se novo')
-    stakeholder_id: str
+    stakeholder_id: typing.Optional[str] = Field(default=None, description='Até o manifesto 0.4.0; a partir do 0.5.0 o stakeholder aponta para o perfil (posicionamento_id)')
     para_quem: str
     para_que: str
     nome_produto: typing.Optional[str] = None
@@ -555,6 +571,10 @@ class PositioningInput(BaseModel):
     necessidades: typing.List["ExplainabilityNeed"]
     posicionamentos_existentes: typing.List["Positioning"]
 
+class PositioningResult(BaseModel):
+    declaracao_problema: "ProblemStatementArtifact"
+    posicionamentos: typing.List["ProfilePositioning"]
+
 class PrioritiesArtifact(BaseModel):
     prioridades: typing.List["PriorityAssignment"]
 
@@ -573,6 +593,24 @@ class ProblemStatement(BaseModel):
     afeta: typing.List[str] = Field(description='Template §2.1 — \'afeta\' (nomes literais da entrada)')
     cujo_impacto_e: typing.List[str] = Field(description='Template §2.1 — \'cujo o impacto é\'')
     solucao_bem_sucedida: typing.Optional[str] = Field(default=None, description='Template §2.1 — \'uma solução bem sucedida seria\'')
+
+class ProblemStatementArtifact(BaseModel):
+    o_problema_da: typing.Optional[str] = Field(default=None, description='Template §2.1 — \'O problema da\'')
+    afeta: typing.List[str] = Field(description='Template §2.1 — \'afeta\' (nomes literais da entrada)')
+    cujo_impacto_e: typing.List[str] = Field(description='Template §2.1 — \'cujo o impacto é\'')
+    solucao_bem_sucedida: typing.Optional[str] = Field(default=None, description='Template §2.1 — \'uma solução bem sucedida seria\'')
+    lacunas: typing.List["Lacuna"]
+
+class ProfilePositioning(BaseModel):
+    id: typing.Optional[str] = Field(default=None, description='POS-n existente; null se novo')
+    para_quem: str = Field(description='Perfil de usuário que necessita de explicabilidade')
+    para_que: str = Field(description='Por que esse perfil precisa de explicação: compreender, auditar ou confiar nas decisões')
+    nome_produto: typing.Optional[str] = None
+    categoria_produto: typing.Optional[str] = None
+    beneficio_chave: typing.Optional[str] = Field(default=None, description='O que o produto faz para esse perfil: benefício principal')
+    unlike: typing.Optional[str] = Field(default=None, description='Principal alternativa concorrente; null se não estiver na entrada')
+    our_product: typing.Optional[str] = Field(default=None, description='Principal diferencial do produto em relação à alternativa')
+    lacunas: typing.List["Lacuna"]
 
 class ReferenceQuery(BaseModel):
     secao: ComplementaryCategory
@@ -649,6 +687,7 @@ class Stakeholder(BaseModel):
     descricao: str
     responsabilidade: typing.Optional[str] = Field(default=None, description='Somente responsabilidade explicitamente sustentada pela entrada')
     ambiente_usuario: typing.Optional[str] = Field(default=None, description='Template §3.2 — contexto de uso, plataformas, restrições, se houver evidência')
+    posicionamento_id: typing.Optional[str] = Field(default=None, description='POS-n do perfil da Declaração de Posicionamento que este stakeholder detalha; null se não vier de um perfil')
     origem: typing.List["OrigemRef"]
     lacunas: typing.List["Lacuna"]
 
@@ -697,7 +736,7 @@ class UserStory(BaseModel):
 
 
 # #########################################################################
-# Model rebuilds (94)
+# Model rebuilds (99)
 # #########################################################################
 # Resolve string forward references now that every model above is defined so
 # class declaration order never breaks Pydantic construction (issue #793).
@@ -726,6 +765,7 @@ ConsolidatedRequirement.model_rebuild()
 ConsolidatedRequirementsArtifact.model_rebuild()
 ContextItem.model_rebuild()
 CreateGlossaryInput.model_rebuild()
+DefinePositioningInput.model_rebuild()
 DefineProblemInput.model_rebuild()
 DependenciesArtifact.model_rebuild()
 DependenciesInput.model_rebuild()
@@ -740,6 +780,7 @@ ElicitationPlanItem.model_rebuild()
 ElicitedNeed.model_rebuild()
 ElicitedNeedsArtifact.model_rebuild()
 EvidenceRef.model_rebuild()
+ExplainabilityDefinition.model_rebuild()
 ExplainabilityLimitsArtifact.model_rebuild()
 ExplainabilityNeed.model_rebuild()
 ExplainabilityNeedsArtifact.model_rebuild()
@@ -774,10 +815,13 @@ PlanQueriesInput.model_rebuild()
 Positioning.model_rebuild()
 PositioningArtifact.model_rebuild()
 PositioningInput.model_rebuild()
+PositioningResult.model_rebuild()
 PrioritiesArtifact.model_rebuild()
 PrioritizeInput.model_rebuild()
 PriorityAssignment.model_rebuild()
 ProblemStatement.model_rebuild()
+ProblemStatementArtifact.model_rebuild()
+ProfilePositioning.model_rebuild()
 ReferenceQuery.model_rebuild()
 ReferenceQueryPlan.model_rebuild()
 RefineComplementaryInput.model_rebuild()

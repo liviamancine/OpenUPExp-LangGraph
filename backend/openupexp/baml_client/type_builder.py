@@ -20,7 +20,7 @@ from .globals import DO_NOT_USE_DIRECTLY_UNLESS_YOU_KNOW_WHAT_YOURE_DOING_RUNTIM
 class TypeBuilder(type_builder.TypeBuilder):
     def __init__(self):
         super().__init__(classes=set(
-          ["AcceptanceCriteria","AcceptanceCriteriaArtifact","AcceptanceInput","AcceptanceScenario","AspectClassification","AspectsArtifact","CaptureTermsInput","CharacteristicsInput","CharacterizeInput","CharacterizedRequirement","CharacterizedRequirementsArtifact","ChecklistQuestion","ClassifyAspectsInput","ComplementaryInput","ComplementaryRequirement","ComplementaryRequirementsArtifact","ConflictsArtifact","ConflictsInput","ConsolidateInput","ConsolidatedRequirement","ConsolidatedRequirementsArtifact","ContextItem","CreateGlossaryInput","DefineProblemInput","DependenciesArtifact","DependenciesInput","DependencyAnalysis","DigestInput","DiscardedItem","DomainTerm","DomainTermsArtifact","ElicitationEvidence","ElicitationPlanArtifact","ElicitationPlanItem","ElicitedNeed","ElicitedNeedsArtifact","EvidenceRef","ExplainabilityLimitsArtifact","ExplainabilityNeed","ExplainabilityNeedsArtifact","ExplainabilityProblem","ExplainabilityRequirement","ExplainabilityRequirementsArtifact","ExplanationCharacteristics","ExplanationCharacteristicsArtifact","ExplanationTypeMapping","ExplanationTypesArtifact","ExtractNeedsInput","FeasibilityArtifact","FeasibilityAssessment","FeasibilityInput","FeasibilityItem","GlossaryArtifact","GlossaryTerm","IdentifyNeedsInput","IdentifyRequirementsInput","IdentifyStakeholderNeedsInput","IdentifyStakeholdersInput","Lacuna","LimitAnswer","LimitsInput","MapTypesInput","OrigemRef","PhaseComplementaryArtifact","PhaseComplementaryRequirement","PhaseDigest","PlanElicitationInput","PlanQueriesInput","Positioning","PositioningArtifact","PositioningInput","PrioritiesArtifact","PrioritizeInput","PriorityAssignment","ProblemStatement","ReferenceQuery","ReferenceQueryPlan","RefineComplementaryInput","RequirementAnalysisSummary","RequirementConflict","RequirementConstraint","RequirementIndexEntry","RequirementPair","SimilarPair","SpecificationPlanEntry","SpecifyStoriesInput","Stakeholder","StakeholderNeed","StakeholderNeedsArtifact","StakeholdersArtifact","TraceabilityMatrix","TraceabilityRow","UserStoriesArtifact","UserStory",]
+          ["AcceptanceCriteria","AcceptanceCriteriaArtifact","AcceptanceInput","AcceptanceScenario","AspectClassification","AspectsArtifact","CaptureTermsInput","CharacteristicsInput","CharacterizeInput","CharacterizedRequirement","CharacterizedRequirementsArtifact","ChecklistQuestion","ClassifyAspectsInput","ComplementaryInput","ComplementaryRequirement","ComplementaryRequirementsArtifact","ConflictsArtifact","ConflictsInput","ConsolidateInput","ConsolidatedRequirement","ConsolidatedRequirementsArtifact","ContextItem","CreateGlossaryInput","DefinePositioningInput","DefineProblemInput","DependenciesArtifact","DependenciesInput","DependencyAnalysis","DigestInput","DiscardedItem","DomainTerm","DomainTermsArtifact","ElicitationEvidence","ElicitationPlanArtifact","ElicitationPlanItem","ElicitedNeed","ElicitedNeedsArtifact","EvidenceRef","ExplainabilityDefinition","ExplainabilityLimitsArtifact","ExplainabilityNeed","ExplainabilityNeedsArtifact","ExplainabilityProblem","ExplainabilityRequirement","ExplainabilityRequirementsArtifact","ExplanationCharacteristics","ExplanationCharacteristicsArtifact","ExplanationTypeMapping","ExplanationTypesArtifact","ExtractNeedsInput","FeasibilityArtifact","FeasibilityAssessment","FeasibilityInput","FeasibilityItem","GlossaryArtifact","GlossaryTerm","IdentifyNeedsInput","IdentifyRequirementsInput","IdentifyStakeholderNeedsInput","IdentifyStakeholdersInput","Lacuna","LimitAnswer","LimitsInput","MapTypesInput","OrigemRef","PhaseComplementaryArtifact","PhaseComplementaryRequirement","PhaseDigest","PlanElicitationInput","PlanQueriesInput","Positioning","PositioningArtifact","PositioningInput","PositioningResult","PrioritiesArtifact","PrioritizeInput","PriorityAssignment","ProblemStatement","ProblemStatementArtifact","ProfilePositioning","ReferenceQuery","ReferenceQueryPlan","RefineComplementaryInput","RequirementAnalysisSummary","RequirementConflict","RequirementConstraint","RequirementIndexEntry","RequirementPair","SimilarPair","SpecificationPlanEntry","SpecifyStoriesInput","Stakeholder","StakeholderNeed","StakeholderNeedsArtifact","StakeholdersArtifact","TraceabilityMatrix","TraceabilityRow","UserStoriesArtifact","UserStory",]
         ), enums=set(
           ["ComplementaryCategory","ConflictKind","ConstraintKind","DecisionRisk","ElicitationTechnique","EvidenceKind","ExplanationDetailLevel","ExplanationFormat","ExplanationGoal","ExplanationMoment","ExplanationType","ExplanatoryAspect","FeasibilityCriterion","FeasibilityStatus","MoSCoW","RequirementKind",]
         ), runtime=DO_NOT_USE_DIRECTLY_UNLESS_YOU_KNOW_WHAT_YOURE_DOING_RUNTIME)
@@ -95,7 +95,7 @@ class TypeBuilder(type_builder.TypeBuilder):
 
 
     # #########################################################################
-    # Generated classes 94
+    # Generated classes 99
     # #########################################################################
 
     @property
@@ -191,6 +191,10 @@ class TypeBuilder(type_builder.TypeBuilder):
         return CreateGlossaryInputViewer(self)
 
     @property
+    def DefinePositioningInput(self) -> "DefinePositioningInputViewer":
+        return DefinePositioningInputViewer(self)
+
+    @property
     def DefineProblemInput(self) -> "DefineProblemInputViewer":
         return DefineProblemInputViewer(self)
 
@@ -245,6 +249,10 @@ class TypeBuilder(type_builder.TypeBuilder):
     @property
     def EvidenceRef(self) -> "EvidenceRefViewer":
         return EvidenceRefViewer(self)
+
+    @property
+    def ExplainabilityDefinition(self) -> "ExplainabilityDefinitionViewer":
+        return ExplainabilityDefinitionViewer(self)
 
     @property
     def ExplainabilityLimitsArtifact(self) -> "ExplainabilityLimitsArtifactViewer":
@@ -383,6 +391,10 @@ class TypeBuilder(type_builder.TypeBuilder):
         return PositioningInputViewer(self)
 
     @property
+    def PositioningResult(self) -> "PositioningResultViewer":
+        return PositioningResultViewer(self)
+
+    @property
     def PrioritiesArtifact(self) -> "PrioritiesArtifactViewer":
         return PrioritiesArtifactViewer(self)
 
@@ -397,6 +409,14 @@ class TypeBuilder(type_builder.TypeBuilder):
     @property
     def ProblemStatement(self) -> "ProblemStatementViewer":
         return ProblemStatementViewer(self)
+
+    @property
+    def ProblemStatementArtifact(self) -> "ProblemStatementArtifactViewer":
+        return ProblemStatementArtifactViewer(self)
+
+    @property
+    def ProfilePositioning(self) -> "ProfilePositioningViewer":
+        return ProfilePositioningViewer(self)
 
     @property
     def ReferenceQuery(self) -> "ReferenceQueryViewer":
@@ -1314,7 +1334,7 @@ class RequirementKindValues:
 
 
 # #########################################################################
-# Generated classes 94
+# Generated classes 99
 # #########################################################################
 
 class AcceptanceCriteriaAst:
@@ -2454,6 +2474,57 @@ class CreateGlossaryInputProperties:
     
 
 
+class DefinePositioningInputAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("DefinePositioningInput")
+        self._properties: typing.Set[str] = set([  "definicao",  "documento_escopo",  "declaracao_existente",  "posicionamentos_existentes",  ])
+        self._props = DefinePositioningInputProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "DefinePositioningInputProperties":
+        return self._props
+
+
+class DefinePositioningInputViewer(DefinePositioningInputAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class DefinePositioningInputProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def definicao(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("definicao"))
+    
+    @property
+    def documento_escopo(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("documento_escopo"))
+    
+    @property
+    def declaracao_existente(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("declaracao_existente"))
+    
+    @property
+    def posicionamentos_existentes(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("posicionamentos_existentes"))
+    
+    
+
+
 class DefineProblemInputAst:
     def __init__(self, tb: type_builder.TypeBuilder):
         _tb = tb._tb # type: ignore (we know how to use this private attribute)
@@ -3112,6 +3183,69 @@ class EvidenceRefProperties:
     @property
     def tipo(self) -> type_builder.ClassPropertyViewer:
         return type_builder.ClassPropertyViewer(self.__bldr.property("tipo"))
+    
+    
+
+
+class ExplainabilityDefinitionAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("ExplainabilityDefinition")
+        self._properties: typing.Set[str] = set([  "necessidade_de_explicabilidade",  "descricao_geral",  "dominio_do_problema",  "stakeholders_mencionados",  "impactos",  "criterios_de_sucesso",  "lacunas",  ])
+        self._props = ExplainabilityDefinitionProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "ExplainabilityDefinitionProperties":
+        return self._props
+
+
+class ExplainabilityDefinitionViewer(ExplainabilityDefinitionAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class ExplainabilityDefinitionProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def necessidade_de_explicabilidade(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("necessidade_de_explicabilidade"))
+    
+    @property
+    def descricao_geral(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("descricao_geral"))
+    
+    @property
+    def dominio_do_problema(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("dominio_do_problema"))
+    
+    @property
+    def stakeholders_mencionados(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("stakeholders_mencionados"))
+    
+    @property
+    def impactos(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("impactos"))
+    
+    @property
+    def criterios_de_sucesso(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("criterios_de_sucesso"))
+    
+    @property
+    def lacunas(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("lacunas"))
     
     
 
@@ -4164,7 +4298,7 @@ class IdentifyStakeholdersInputAst:
     def __init__(self, tb: type_builder.TypeBuilder):
         _tb = tb._tb # type: ignore (we know how to use this private attribute)
         self._bldr = _tb.class_("IdentifyStakeholdersInput")
-        self._properties: typing.Set[str] = set([  "problema",  "documento_escopo",  "stakeholders_existentes",  ])
+        self._properties: typing.Set[str] = set([  "problema",  "documento_escopo",  "stakeholders_existentes",  "posicionamentos",  ])
         self._props = IdentifyStakeholdersInputProperties(self._bldr, self._properties)
 
     def type(self) -> baml_py.FieldType:
@@ -4203,6 +4337,10 @@ class IdentifyStakeholdersInputProperties:
     @property
     def stakeholders_existentes(self) -> type_builder.ClassPropertyViewer:
         return type_builder.ClassPropertyViewer(self.__bldr.property("stakeholders_existentes"))
+    
+    @property
+    def posicionamentos(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("posicionamentos"))
     
     
 
@@ -4862,6 +5000,49 @@ class PositioningInputProperties:
     
 
 
+class PositioningResultAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("PositioningResult")
+        self._properties: typing.Set[str] = set([  "declaracao_problema",  "posicionamentos",  ])
+        self._props = PositioningResultProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "PositioningResultProperties":
+        return self._props
+
+
+class PositioningResultViewer(PositioningResultAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class PositioningResultProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def declaracao_problema(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("declaracao_problema"))
+    
+    @property
+    def posicionamentos(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("posicionamentos"))
+    
+    
+
+
 class PrioritiesArtifactAst:
     def __init__(self, tb: type_builder.TypeBuilder):
         _tb = tb._tb # type: ignore (we know how to use this private attribute)
@@ -5042,6 +5223,132 @@ class ProblemStatementProperties:
     @property
     def solucao_bem_sucedida(self) -> type_builder.ClassPropertyViewer:
         return type_builder.ClassPropertyViewer(self.__bldr.property("solucao_bem_sucedida"))
+    
+    
+
+
+class ProblemStatementArtifactAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("ProblemStatementArtifact")
+        self._properties: typing.Set[str] = set([  "o_problema_da",  "afeta",  "cujo_impacto_e",  "solucao_bem_sucedida",  "lacunas",  ])
+        self._props = ProblemStatementArtifactProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "ProblemStatementArtifactProperties":
+        return self._props
+
+
+class ProblemStatementArtifactViewer(ProblemStatementArtifactAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class ProblemStatementArtifactProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def o_problema_da(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("o_problema_da"))
+    
+    @property
+    def afeta(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("afeta"))
+    
+    @property
+    def cujo_impacto_e(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("cujo_impacto_e"))
+    
+    @property
+    def solucao_bem_sucedida(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("solucao_bem_sucedida"))
+    
+    @property
+    def lacunas(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("lacunas"))
+    
+    
+
+
+class ProfilePositioningAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("ProfilePositioning")
+        self._properties: typing.Set[str] = set([  "id",  "para_quem",  "para_que",  "nome_produto",  "categoria_produto",  "beneficio_chave",  "unlike",  "our_product",  "lacunas",  ])
+        self._props = ProfilePositioningProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "ProfilePositioningProperties":
+        return self._props
+
+
+class ProfilePositioningViewer(ProfilePositioningAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class ProfilePositioningProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def id(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("id"))
+    
+    @property
+    def para_quem(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("para_quem"))
+    
+    @property
+    def para_que(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("para_que"))
+    
+    @property
+    def nome_produto(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("nome_produto"))
+    
+    @property
+    def categoria_produto(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("categoria_produto"))
+    
+    @property
+    def beneficio_chave(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("beneficio_chave"))
+    
+    @property
+    def unlike(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("unlike"))
+    
+    @property
+    def our_product(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("our_product"))
+    
+    @property
+    def lacunas(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("lacunas"))
     
     
 
@@ -5623,7 +5930,7 @@ class StakeholderAst:
     def __init__(self, tb: type_builder.TypeBuilder):
         _tb = tb._tb # type: ignore (we know how to use this private attribute)
         self._bldr = _tb.class_("Stakeholder")
-        self._properties: typing.Set[str] = set([  "id",  "nome",  "descricao",  "responsabilidade",  "ambiente_usuario",  "origem",  "lacunas",  ])
+        self._properties: typing.Set[str] = set([  "id",  "nome",  "descricao",  "responsabilidade",  "ambiente_usuario",  "posicionamento_id",  "origem",  "lacunas",  ])
         self._props = StakeholderProperties(self._bldr, self._properties)
 
     def type(self) -> baml_py.FieldType:
@@ -5670,6 +5977,10 @@ class StakeholderProperties:
     @property
     def ambiente_usuario(self) -> type_builder.ClassPropertyViewer:
         return type_builder.ClassPropertyViewer(self.__bldr.property("ambiente_usuario"))
+    
+    @property
+    def posicionamento_id(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("posicionamento_id"))
     
     @property
     def origem(self) -> type_builder.ClassPropertyViewer:

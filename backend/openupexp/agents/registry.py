@@ -20,7 +20,8 @@ class ArtifactType:
 ARTIFACT_TYPES: dict[str, ArtifactType] = {
     a.name: a
     for a in [
-        ArtifactType("vision.problem", T.ExplainabilityProblem, title="Problema de explicabilidade"),
+        ArtifactType("vision.problem", T.ExplainabilityProblem, title="Definição da explicabilidade"),
+        ArtifactType("vision.problem_statement", T.ProblemStatementArtifact, title="Declaração do problema"),
         ArtifactType("vision.stakeholders", T.StakeholdersArtifact, "stakeholders", T.Stakeholder, "STK",
                      lambda i: i.get("nome") or "", "Stakeholders"),
         ArtifactType("vision.stakeholder_needs", T.StakeholderNeedsArtifact, "solicitacoes", T.StakeholderNeed,
@@ -106,6 +107,7 @@ ARTIFACT_TYPES: dict[str, ArtifactType] = {
 # Ordem de apresentação das seções editáveis no Documento de Visão.
 VISION_EDITABLE = [
     "vision.problem",
+    "vision.problem_statement",
     "vision.positioning",
     "vision.stakeholders",
     "vision.stakeholder_needs",

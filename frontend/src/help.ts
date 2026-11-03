@@ -5,9 +5,14 @@ export type Help = { texto: string; fonte?: string };
 
 export const PART_HELP: Record<string, Help> = {
   "vision.problem": {
-    texto: "Visão geral do requisito de explicabilidade: o problema da falta de explicabilidade, quem ele afeta, "
-      + "qual o impacto e como seria uma solução bem-sucedida.",
-    fonte: "Documento de Visão, seções 1 e 2.1",
+    texto: "Visão geral do requisito de explicabilidade: por que e em qual contexto o sistema precisa explicar "
+      + "suas decisões, os impactos e os critérios de sucesso.",
+    fonte: "Documento de Visão, seção 1",
+  },
+  "vision.problem_statement": {
+    texto: "Resume o problema que o projeto visa resolver: o problema da falta de explicabilidade, quem ele "
+      + "afeta, qual o impacto e como seria uma solução bem-sucedida.",
+    fonte: "Documento de Visão, seção 2.1",
   },
   "vision.positioning": {
     texto: "Uma declaração para cada perfil de usuário que necessita de explicabilidade. Comunica a intenção do "
@@ -15,8 +20,8 @@ export const PART_HELP: Record<string, Help> = {
     fonte: "Documento de Visão, seção 2.2",
   },
   "vision.stakeholders": {
-    texto: "Os stakeholders que necessitam compreender, auditar ou validar as decisões do modelo: breve descrição, "
-      + "responsabilidades e o ambiente em que interagem com as explicações.",
+    texto: "Os stakeholders que necessitam compreender, auditar ou validar as decisões do modelo, detalhando os "
+      + "perfis da Declaração de Posicionamento: breve descrição e responsabilidades.",
     fonte: "Documento de Visão, seções 3.1 e 3.2",
   },
   "vision.stakeholder_needs": {
@@ -56,6 +61,12 @@ export const FIELD_HELP: Record<string, string> = {
   unlike: "A principal alternativa concorrente: o que esse público usa hoje ou poderia usar no lugar do sistema.",
   our_product: "O principal diferencial do produto em relação a essa alternativa.",
   need_ids: "As necessidades de explicabilidade (seção 4.1) que esta declaração atende.",
+  posicionamento_id: "O perfil da Declaração de Posicionamento (seção 2.2) que este stakeholder detalha.",
+  // Declaração do Problema (seção 2.1)
+  o_problema_da: "O problema que o projeto visa resolver, por exemplo a falta de explicabilidade das decisões.",
+  afeta: "Os stakeholders impactados pelo problema.",
+  cujo_impacto_e: "As consequências do problema: falta de confiança, barreiras legais, dificuldade de adoção ou de validação.",
+  solucao_bem_sucedida: "Os benefícios esperados de uma solução: transparência, auditoria, aceitação do sistema.",
   // Stakeholders (seções 3.1 e 3.2)
   descricao: "Breve descrição e a relação com o sistema ou com a explicabilidade.",
   responsabilidade: "Principais responsabilidades, interesses ou expectativas em relação à explicabilidade.",

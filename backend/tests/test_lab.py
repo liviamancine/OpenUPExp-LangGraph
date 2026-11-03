@@ -114,7 +114,7 @@ async def client():
 
 
 async def test_lab_api_access_and_rating(scope_bytes, law_bytes, client):
-    run_id, te_id = await _source(scope_bytes, law_bytes, "1.1.2")
+    run_id, te_id = await _source(scope_bytes, law_bytes, "1.1.3")
     async with session_scope() as s:
         eng = await create_user(s, "eng@x.org", "Engenheira", "senha123")
         await create_user(s, "fora@x.org", "De fora", "senha123")
@@ -160,8 +160,8 @@ async def test_strategies_repetitions_and_top_k_loss(scope_bytes, law_bytes, mon
     from openupexp.context import builder
 
     monkeypatch.setattr(builder, "B_TOP_K", 2)
-    # 1.1.3 recebe a lista de stakeholders: com top-2, a estratégia B perde stakeholders e necessidades
-    _, te_id = await _source(scope_bytes, law_bytes, "1.1.3")
+    # 1.1.4 recebe a lista de stakeholders: com top-2, a estratégia B perde stakeholders e necessidades
+    _, te_id = await _source(scope_bytes, law_bytes, "1.1.4")
     async with session_scope() as s:
         comp = await service.create_comparison(s, te_id, [service.FAKE], None, None,
                                                strategies=["original", "B", "C"], repeticoes=2)
@@ -189,12 +189,12 @@ async def test_strategy_b_in_a_real_run(scope_bytes, law_bytes):
         assert (await s.get(Run, run_id)).status == "waiting_human"
         from openupexp.db.models import ContextPackageRow
         pkg = await s.scalar(select(ContextPackageRow).join(TaskExecution, TaskExecution.id == ContextPackageRow.task_execution_id)
-                             .where(TaskExecution.run_id == run_id, TaskExecution.task_id == "1.1.3"))
+                             .where(TaskExecution.run_id == run_id, TaskExecution.task_id == "1.1.4"))
         assert pkg.strategy == "B-semantic@1.0"
 
 
 async def test_gold_api_and_csv(scope_bytes, law_bytes, client):
-    run_id, te_id = await _source(scope_bytes, law_bytes, "1.1.2")
+    run_id, te_id = await _source(scope_bytes, law_bytes, "1.1.3")
     async with session_scope() as s:
         eng = await create_user(s, "eng@x.org", "Engenheira", "senha123")
         run = await s.get(Run, run_id)
@@ -206,7 +206,7 @@ async def test_gold_api_and_csv(scope_bytes, law_bytes, client):
         "task_execution_id": str(te_id), "profiles": ["fake"], "strategies": ["original", "D"]})).json()["id"]
     await drain(["lab.trial"])
     r = await client.put("/api/lab/gold", headers=h, json={
-        "project_id": str(project_id), "task_id": "1.1.2", "artifact_type": "vision.stakeholders",
+        "project_id": str(project_id), "task_id": "1.1.3", "artifact_type": "vision.stakeholders",
         "itens": ["Solicitante", "Examinador", "Regulador", "Procurador", "Ministério"], "autoria": "teste"})
     assert r.status_code == 200
     d = (await client.get(f"/api/lab/comparisons/{cid}", headers=h)).json()

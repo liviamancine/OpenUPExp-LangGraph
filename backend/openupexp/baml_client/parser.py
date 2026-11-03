@@ -89,6 +89,12 @@ class LlmResponseParser:
         __result__ = self.__options.merge_options(baml_options).parse_response(function_name="DefineAcceptanceCriteria", llm_response=llm_response, mode="request")
         return typing.cast(types.AcceptanceCriteriaArtifact, __result__)
 
+    def DefineExplainability(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> types.ExplainabilityDefinition:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="DefineExplainability", llm_response=llm_response, mode="request")
+        return typing.cast(types.ExplainabilityDefinition, __result__)
+
     def DefineExplainabilityLimits(
         self, llm_response: str, baml_options: BamlCallOptions = {},
     ) -> types.ExplainabilityLimitsArtifact:
@@ -100,6 +106,12 @@ class LlmResponseParser:
     ) -> types.ExplainabilityProblem:
         __result__ = self.__options.merge_options(baml_options).parse_response(function_name="DefineExplainabilityProblem", llm_response=llm_response, mode="request")
         return typing.cast(types.ExplainabilityProblem, __result__)
+
+    def DefinePositioning(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> types.PositioningResult:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="DefinePositioning", llm_response=llm_response, mode="request")
+        return typing.cast(types.PositioningResult, __result__)
 
     def DevelopComplementaryRequirements(
         self, llm_response: str, baml_options: BamlCallOptions = {},
@@ -253,6 +265,12 @@ class LlmStreamParser:
         __result__ = self.__options.merge_options(baml_options).parse_response(function_name="DefineAcceptanceCriteria", llm_response=llm_response, mode="stream")
         return typing.cast(stream_types.AcceptanceCriteriaArtifact, __result__)
 
+    def DefineExplainability(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> stream_types.ExplainabilityDefinition:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="DefineExplainability", llm_response=llm_response, mode="stream")
+        return typing.cast(stream_types.ExplainabilityDefinition, __result__)
+
     def DefineExplainabilityLimits(
         self, llm_response: str, baml_options: BamlCallOptions = {},
     ) -> stream_types.ExplainabilityLimitsArtifact:
@@ -264,6 +282,12 @@ class LlmStreamParser:
     ) -> stream_types.ExplainabilityProblem:
         __result__ = self.__options.merge_options(baml_options).parse_response(function_name="DefineExplainabilityProblem", llm_response=llm_response, mode="stream")
         return typing.cast(stream_types.ExplainabilityProblem, __result__)
+
+    def DefinePositioning(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> stream_types.PositioningResult:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="DefinePositioning", llm_response=llm_response, mode="stream")
+        return typing.cast(stream_types.PositioningResult, __result__)
 
     def DevelopComplementaryRequirements(
         self, llm_response: str, baml_options: BamlCallOptions = {},

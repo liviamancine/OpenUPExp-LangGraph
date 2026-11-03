@@ -58,14 +58,57 @@ async def t_1_1_1(ctx: TaskContext) -> list[WriteResult]:
     return [WriteResult("vision.problem", out.model_dump(mode="json"))]
 
 
+async def t_define_explainability(ctx: TaskContext) -> list[WriteResult]:
+    """1.1.1 (manifesto 0.5.0): só a Definição da Explicabilidade (Visão §1)."""
+    out = await ctx.call("DefineExplainability", T.DefineProblemInput(
+        documento_escopo=ctx.package.required("project.scope_document")))
+    return [WriteResult("vision.problem", {**out.model_dump(mode="json"), "declaracao_problema": None})]
+
+
+async def t_define_positioning(ctx: TaskContext) -> list[WriteResult]:
+    """1.1.2 (manifesto 0.5.0): Declaração do Problema (§2.1) e Posicionamento por perfil (§2.2)."""
+    prev_statement = ctx.package.previous("vision.problem_statement")
+    out = await ctx.call("DefinePositioning", T.DefinePositioningInput(
+        definicao=T.ExplainabilityProblem.model_validate(ctx.package.required("vision.problem")),
+        documento_escopo=ctx.package.required("project.scope_document"),
+        declaracao_existente=T.ProblemStatementArtifact.model_validate(prev_statement) if prev_statement else None,
+        posicionamentos_existentes=_models(
+            T.ProfilePositioning, _items(ctx.package.previous("vision.positioning"), "posicionamentos")),
+    ))
+    # os perfis ainda não têm stakeholder nem necessidades: a ligação vem do stakeholder (1.1.3)
+    profiles = [{**p, "stakeholder_id": None, "need_ids": []} for p in _dump_list(out.posicionamentos)]
+    return [
+        WriteResult("vision.problem_statement", out.declaracao_problema.model_dump(mode="json")),
+        WriteResult("vision.positioning", {}, raw_items=profiles),
+    ]
+
+
 async def t_1_1_2(ctx: TaskContext) -> list[WriteResult]:
+    """Identify Stakeholders: 1.1.2 no manifesto 0.4.0; 1.1.3 a partir do 0.5.0, detalhando os perfis."""
     prev = _items(ctx.package.previous("vision.stakeholders"), "stakeholders")
-    out = await ctx.call("IdentifyStakeholders", T.IdentifyStakeholdersInput(
+    profiles = _items(ctx.package.required("vision.positioning"), "posicionamentos")
+    base = dict(
         problema=T.ExplainabilityProblem.model_validate(ctx.package.required("vision.problem")),
         documento_escopo=ctx.package.required("project.scope_document"),
         stakeholders_existentes=_models(T.Stakeholder, prev),
-    ))
-    return [WriteResult("vision.stakeholders", {}, raw_items=_dump_list(out.stakeholders))]
+    )
+    out = await ctx.call("IdentifyStakeholders", T.IdentifyStakeholdersInput(
+        posicionamentos=_models(T.Positioning, profiles), **base))
+    result = _dump_list(out.stakeholders)
+
+    # coverage guard: todo perfil do Posicionamento detalhado em ao menos um stakeholder
+    missing = [p for p in profiles if p["id"] not in {s.get("posicionamento_id") for s in result}]
+    if missing:
+        retry = await ctx.call("IdentifyStakeholders", T.IdentifyStakeholdersInput(
+            posicionamentos=_models(T.Positioning, missing), **{**base, "stakeholders_existentes": []}))
+        result += [s for s in _dump_list(retry.stakeholders) if s.get("posicionamento_id")]
+        covered = {s.get("posicionamento_id") for s in result}
+        ctx.package.coverage.output_missing_ids = [p["id"] for p in profiles if p["id"] not in covered]
+    valid = {p["id"] for p in profiles}
+    for r in result:
+        if r.get("posicionamento_id") and r["posicionamento_id"] not in valid:
+            r["alerta"] = f"posicionamento_id inexistente: {r['posicionamento_id']}"
+    return [WriteResult("vision.stakeholders", {}, raw_items=result)]
 
 
 async def t_1_1_3(ctx: TaskContext) -> list[WriteResult]:
@@ -229,15 +272,24 @@ async def t_1_3_1(ctx: TaskContext) -> list[WriteResult]:
 
     cur = await store.current_versions(ctx.session, ctx.run.id)
     c = {k: v.content for k, v in cur.items()}
-    stk = {s["id"] for s in _items(c.get("vision.stakeholders"), "stakeholders")}
-    pos = {p.get("stakeholder_id") for p in _items(c.get("vision.positioning"), "posicionamentos")}
+    stakeholders = _items(c.get("vision.stakeholders"), "stakeholders")
+    stk = {s["id"] for s in stakeholders}
+    profiles = _items(c.get("vision.positioning"), "posicionamentos")
+    pos = {p.get("stakeholder_id") for p in profiles}
     needs = _items(c.get("vision.explainability_needs"), "necessidades")
     crs = _items(c.get("vision.complementary_requirements"), "requisitos")
     limits = _items(c.get("vision.limits"), "respostas")
 
+    if any(p.get("stakeholder_id") for p in profiles):  # manifesto 0.4.0: posicionamento por stakeholder
+        coverage = {"id": "stk_tem_pos", "descricao": "Todo stakeholder tem posicionamento (§2.2)",
+                    "ok": stk <= pos, "detalhes": sorted(stk - pos)}
+    else:  # 0.5.0: o perfil vem antes (1.1.2) e o stakeholder o detalha (1.1.3)
+        detailed = {s.get("posicionamento_id") for s in stakeholders}
+        orphan = sorted(p["id"] for p in profiles if p["id"] not in detailed)
+        coverage = {"id": "pos_tem_stk", "descricao": "Todo perfil do posicionamento é detalhado por um stakeholder (§2.2 e §3.1)",
+                    "ok": not orphan, "detalhes": orphan}
     checks = [
-        {"id": "stk_tem_pos", "descricao": "Todo stakeholder tem posicionamento (§2.2)",
-         "ok": stk <= pos, "detalhes": sorted(stk - pos)},
+        coverage,
         {"id": "need_tem_stk", "descricao": "Toda necessidade aponta para stakeholder existente",
          "ok": all(set(n.get("stakeholder_ids") or []) & stk for n in needs),
          "detalhes": [n["id"] for n in needs if not set(n.get("stakeholder_ids") or []) & stk]},
@@ -269,6 +321,22 @@ async def t_1_3_1(ctx: TaskContext) -> list[WriteResult]:
                         origin="deterministic")]
 
 
+# Handlers por nome (manifesto 0.5.0 em diante): o número da tarefa segue o BPMN e pode mudar.
+NAMED_HANDLERS = {
+    "define_explainability": t_define_explainability,
+    "define_positioning": t_define_positioning,
+    "identify_stakeholders": t_1_1_2,
+    "identify_stakeholder_needs": t_1_1_3,
+    "capture_domain_terminology": t_1_1_4,
+    "create_initial_glossary": t_1_1_5,
+    "identify_explainability_needs": t_1_2_1,
+    "identify_complementary_requirements": t_1_2_2,
+    "define_explainability_limits": t_1_2_3,
+    "assemble_draft_vision": t_1_2_4,
+    "pre_review_checklist": t_1_3_1,
+}
+
+# Handlers pelo número da tarefa (manifestos até o 0.4.0).
 HANDLERS = {
     "1.1.1": t_1_1_1,
     "1.1.2": t_1_1_2,

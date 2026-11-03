@@ -52,7 +52,9 @@ _env.filters.update(t=_t, c=_cell, lst=_lst)
 def _lacunas(contents: dict[str, dict]) -> list[tuple[str, dict]]:
     out: list[tuple[str, dict]] = []
     problem = contents.get("vision.problem") or {}
-    out += [("Problema", lac) for lac in problem.get("lacunas", [])]
+    out += [("Definição", lac) for lac in problem.get("lacunas", [])]
+    statement = contents.get("vision.problem_statement") or {}
+    out += [("Declaração do problema", lac) for lac in statement.get("lacunas", [])]
     for atype, field, label in [
         ("vision.stakeholders", "stakeholders", "Stakeholder"),
         ("vision.explainability_needs", "necessidades", "Necessidade"),
@@ -74,9 +76,15 @@ def render_vision_markdown(contents: dict[str, dict], meta: dict) -> str:
     grouped: dict[str, list] = {}
     for r in limits:
         grouped.setdefault(r.get("dimensao", "Outros"), []).append(r)
+    problem = contents.get("vision.problem")
+    # 0.5.0: Declaração do Problema própria (1.1.2); até o 0.4.0 ela vinha dentro do problema (1.1.1)
+    statement = contents.get("vision.problem_statement") or (problem or {}).get("declaracao_problema")
+    profiles = {p.get("id"): p.get("para_quem") for p in (contents.get("vision.positioning") or {}).get("posicionamentos", [])}
     return _env.get_template("visao.md.j2").render(
         meta=meta,
-        problem=contents.get("vision.problem"),
+        problem=problem,
+        statement=statement,
+        profile_name=lambda pid: profiles.get(pid, pid),
         positioning=(contents.get("vision.positioning") or {}).get("posicionamentos", []),
         stakeholders=stakeholders,
         stakeholder_needs=(contents.get("vision.stakeholder_needs") or {}).get("solicitacoes", []),

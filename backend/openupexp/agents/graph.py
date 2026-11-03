@@ -34,6 +34,13 @@ from openupexp.retrieval.embeddings import Embedder
 HANDLERS = {**phase1.HANDLERS, **phase2.HANDLERS, **phase3.HANDLERS, **phase4.HANDLERS}
 
 
+def handler_for(task: TaskSpec):
+    """Handler de uma tarefa: pelo nome declarado no manifesto (0.5.0 em diante) ou pelo número."""
+    if task.handler == "consolidate_vision":
+        return consolidate_vision
+    return phase1.NAMED_HANDLERS.get(task.handler or "") or HANDLERS.get(task.id)
+
+
 class RunState(TypedDict, total=False):
     run_id: str
     iteration: dict[str, int]
@@ -103,7 +110,7 @@ def build_phase_graph(manifest: Manifest, phase_id: str, gateway: AgentGateway, 
 
     def make_task_node(task: TaskSpec):
         sp = phase.subprocess_of(task.id)
-        handler = consolidate_vision if task.handler == "consolidate_vision" else HANDLERS[task.id]
+        handler = handler_for(task)
 
         async def node(state: RunState) -> RunState:
             run_id = uuid.UUID(state["run_id"])

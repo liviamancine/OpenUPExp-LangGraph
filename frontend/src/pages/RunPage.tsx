@@ -43,10 +43,13 @@ export default function RunPage() {
 
   const run = useQuery({ queryKey: ["run", runId], queryFn: () => api.get<RunDetail>(`/runs/${runId}`) });
   const tasks = useQuery({ queryKey: ["tasks", runId], queryFn: () => api.get<TaskExec[]>(`/runs/${runId}/tasks`) });
-  const manifest = useQuery({ queryKey: ["manifest"], queryFn: () => api.get<Manifest>("/process/manifest"), staleTime: Infinity });
+  // cada execução usa o manifesto com que rodou: a numeração das tarefas muda entre versões
+  const version = run.data?.manifest_version;
+  const manifest = useQuery({ queryKey: ["manifest", version], enabled: !!version, staleTime: Infinity,
+    queryFn: () => api.get<Manifest>(`/process/manifest?version=${encodeURIComponent(version!)}`) });
   const retry = useMutation({ mutationFn: () => api.post(`/runs/${runId}/retry`), onSuccess: () => run.refetch() });
 
-  if (run.isLoading || manifest.isLoading) return <Loading what="Carregando a execução" />;
+  if (run.isLoading || (run.data && !manifest.data && !manifest.error)) return <Loading what="Carregando a execução" />;
   if (!run.data || !manifest.data) return <ErrorBox error={run.error ?? manifest.error} />;
   const r = run.data;
   const info = PHASES[r.phase];

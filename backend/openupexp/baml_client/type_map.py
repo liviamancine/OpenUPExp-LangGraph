@@ -85,6 +85,9 @@ type_map = {
     "types.CreateGlossaryInput": types.CreateGlossaryInput,
     "stream_types.CreateGlossaryInput": stream_types.CreateGlossaryInput,
 
+    "types.DefinePositioningInput": types.DefinePositioningInput,
+    "stream_types.DefinePositioningInput": stream_types.DefinePositioningInput,
+
     "types.DefineProblemInput": types.DefineProblemInput,
     "stream_types.DefineProblemInput": stream_types.DefineProblemInput,
 
@@ -126,6 +129,9 @@ type_map = {
 
     "types.EvidenceRef": types.EvidenceRef,
     "stream_types.EvidenceRef": stream_types.EvidenceRef,
+
+    "types.ExplainabilityDefinition": types.ExplainabilityDefinition,
+    "stream_types.ExplainabilityDefinition": stream_types.ExplainabilityDefinition,
 
     "types.ExplainabilityLimitsArtifact": types.ExplainabilityLimitsArtifact,
     "stream_types.ExplainabilityLimitsArtifact": stream_types.ExplainabilityLimitsArtifact,
@@ -229,6 +235,9 @@ type_map = {
     "types.PositioningInput": types.PositioningInput,
     "stream_types.PositioningInput": stream_types.PositioningInput,
 
+    "types.PositioningResult": types.PositioningResult,
+    "stream_types.PositioningResult": stream_types.PositioningResult,
+
     "types.PrioritiesArtifact": types.PrioritiesArtifact,
     "stream_types.PrioritiesArtifact": stream_types.PrioritiesArtifact,
 
@@ -240,6 +249,12 @@ type_map = {
 
     "types.ProblemStatement": types.ProblemStatement,
     "stream_types.ProblemStatement": stream_types.ProblemStatement,
+
+    "types.ProblemStatementArtifact": types.ProblemStatementArtifact,
+    "stream_types.ProblemStatementArtifact": stream_types.ProblemStatementArtifact,
+
+    "types.ProfilePositioning": types.ProfilePositioning,
+    "stream_types.ProfilePositioning": stream_types.ProfilePositioning,
 
     "types.ReferenceQuery": types.ReferenceQuery,
     "stream_types.ReferenceQuery": stream_types.ReferenceQuery,

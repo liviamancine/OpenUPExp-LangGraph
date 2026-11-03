@@ -82,7 +82,7 @@ async def test_full_phase1_with_revisit_and_approval(scope_bytes, law_bytes):
                [i["id"] for i in (await s.get(ArtifactVersion, stk_v1)).content["stakeholders"]]
         # feedback humano entregue no contexto da reexecução
         te = await s.scalar(select(TaskExecution).where(TaskExecution.run_id == run_id,
-                                                        TaskExecution.task_id == "1.1.2",
+                                                        TaskExecution.task_id == "1.1.3",
                                                         TaskExecution.iteracao == 2))
         pkg = await s.scalar(select(ContextPackageRow).where(ContextPackageRow.task_execution_id == te.id))
         feedback = [i for i in pkg.items if i["origin"] == "feedback"]

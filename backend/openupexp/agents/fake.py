@@ -58,15 +58,40 @@ def DefineExplainabilityProblem(entrada: T.DefineProblemInput, contexto) -> T.Ex
     )
 
 
+def DefineExplainability(entrada: T.DefineProblemInput, contexto) -> T.ExplainabilityDefinition:
+    p = DefineExplainabilityProblem(entrada, contexto)
+    return T.ExplainabilityDefinition(**p.model_dump(exclude={"declaracao_problema"}))
+
+
+def DefinePositioning(entrada: T.DefinePositioningInput, contexto) -> T.PositioningResult:
+    existing = {p.para_quem.lower(): p.id for p in entrada.posicionamentos_existentes}
+    roles = entrada.definicao.stakeholders_mencionados
+    statement = T.ProblemStatementArtifact(
+        o_problema_da="falta de explicabilidade das decisões do sistema", afeta=roles, cujo_impacto_e=[],
+        solucao_bem_sucedida=None, lacunas=[_lacuna("solucao_bem_sucedida")])
+    return T.PositioningResult(declaracao_problema=statement, posicionamentos=[
+        T.ProfilePositioning(
+            id=existing.get(nome.lower()), para_quem=nome,
+            para_que="compreender, auditar ou contestar as decisões do sistema",
+            nome_produto=None, categoria_produto=None, beneficio_chave=None, unlike=None, our_product=None,
+            lacunas=[_lacuna("nome_produto"), _lacuna("unlike")])
+        for nome in roles
+    ])
+
+
 def IdentifyStakeholders(entrada: T.IdentifyStakeholdersInput, contexto) -> T.StakeholdersArtifact:
     existing = {s.nome.lower(): s.id for s in entrada.stakeholders_existentes}
+    profiles = {p.para_quem.lower(): p.id for p in entrada.posicionamentos}
     out = []
-    for nome in entrada.problema.stakeholders_mencionados:
+    names = entrada.problema.stakeholders_mencionados or [p.para_quem for p in entrada.posicionamentos]
+    if entrada.posicionamentos and not entrada.stakeholders_existentes:
+        names = [n for n in names if n.lower() in profiles] or [p.para_quem for p in entrada.posicionamentos]
+    for nome in names:
         sentence = _find_sentence(entrada.documento_escopo, nome)
         out.append(T.Stakeholder(
             id=existing.get(nome.lower()), nome=nome,
             descricao=sentence or f"{nome} mencionado no problema de explicabilidade.",
-            responsabilidade=None, ambiente_usuario=None,
+            responsabilidade=None, ambiente_usuario=None, posicionamento_id=profiles.get(nome.lower()),
             origem=[T.OrigemRef(referencia="escopo", relacao="mencionado no documento de escopo")],
             lacunas=[_lacuna("responsabilidade")],
         ))

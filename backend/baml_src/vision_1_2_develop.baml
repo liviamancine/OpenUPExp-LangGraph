@@ -70,7 +70,7 @@ function IdentifyExplainabilityNeeds(entrada: IdentifyNeedsInput, contexto: Cont
 
 class Positioning {
   id string? @description("POS-n existente; null se novo")
-  stakeholder_id string
+  stakeholder_id string? @description("Até o manifesto 0.4.0; a partir do 0.5.0 o stakeholder aponta para o perfil (posicionamento_id)")
   para_quem string
   para_que string
   nome_produto string?

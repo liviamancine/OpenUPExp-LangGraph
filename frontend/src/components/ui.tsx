@@ -90,6 +90,8 @@ const FIELD_LABEL: Record<string, string> = {
   // rótulos da Declaração de Posicionamento, como no Documento de Visão (seção 2.2)
   nome_produto: "nome do produto", categoria_produto: "categoria do produto", beneficio_chave: "que (benefício principal)",
   unlike: "unlike (principal alternativa)", our_product: "our product (diferencial)", ambiente_usuario: "ambiente do usuário",
+  posicionamento_id: "perfil (posicionamento)", o_problema_da: "o problema da", afeta: "afeta",
+  cujo_impacto_e: "cujo impacto é", solucao_bem_sucedida: "uma solução bem-sucedida seria",
   descricao: "descrição", prioridade: "prioridade", aspecto_associado: "aspecto associado", planned_release: "planned release",
 };
 

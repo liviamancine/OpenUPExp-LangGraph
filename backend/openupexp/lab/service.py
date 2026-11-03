@@ -57,10 +57,10 @@ class LabError(Exception):
         self.status = status
 
 
-def _handlers() -> dict:
-    from openupexp.agents.graph import HANDLERS
+def _handler(task):
+    from openupexp.agents.graph import handler_for
 
-    return HANDLERS
+    return handler_for(task)
 
 
 # ---------------------------------------------------------------------------
@@ -233,7 +233,7 @@ async def _source(session: AsyncSession, te_id: uuid.UUID) -> tuple[TaskExecutio
         raise LabError("Tarefa inexistente.", 404)
     run = await session.get(Run, te.run_id)
     task = get_manifest(run.manifest_version).task(te.task_id)
-    if task.mechanism != "agent" or te.task_id not in _handlers():
+    if task.mechanism != "agent" or _handler(task) is None:
         raise LabError("Só tarefas executadas pela IA podem ir ao laboratório.")
     if te.status != "completed":
         raise LabError("Escolha uma tarefa concluída.")
@@ -246,7 +246,6 @@ async def _source(session: AsyncSession, te_id: uuid.UUID) -> tuple[TaskExecutio
 async def eligible_sources(session: AsyncSession, run_id: uuid.UUID) -> list[dict]:
     run = await session.get(Run, run_id)
     manifest = get_manifest(run.manifest_version)
-    handlers = _handlers()
     rows = (await session.execute(
         select(TaskExecution, ContextPackageRow)
         .join(ContextPackageRow, ContextPackageRow.task_execution_id == TaskExecution.id)
@@ -258,7 +257,7 @@ async def eligible_sources(session: AsyncSession, run_id: uuid.UUID) -> list[dic
             spec = manifest.task(te.task_id)
         except KeyError:
             continue
-        if spec.mechanism == "agent" and te.task_id in handlers:
+        if spec.mechanism == "agent" and _handler(spec) is not None:
             out.append({"task_execution_id": str(te.id), "task_id": te.task_id, "nome": spec.name,
                         "funcao": spec.baml_function, "iteracao": te.iteracao, "inicio": te.inicio.isoformat(),
                         "tokens_contexto": pkg.token_estimate})
@@ -383,7 +382,7 @@ async def run_trial(trial_id: uuid.UUID) -> str:
                                         if package.coverage.required_ids else 0.0),
                         "ids_fora_do_contexto": list(package.coverage.missing_ids), **notes}
             ctx = TaskContext(s, run, phase, task, package, gateway, embedder, te, te.iteracao)
-            results = await _handlers()[te.task_id](ctx)
+            results = await _handler(task)(ctx)
             metrics = trial_metrics(results, package, gateway.calls, _retrieved_refs(pkg_row.items),
                                     int((time.perf_counter() - started) * 1000))
             metrics["contexto"] = contexto

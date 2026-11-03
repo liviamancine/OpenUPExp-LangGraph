@@ -36,19 +36,21 @@ _Pendente._
 
 ### 2.1 Declaração do Problema
 
-{% if problem %}
+{% if statement %}
 | Elemento | Descrição |
 |---|---|
-| **O problema da** | {{ problem.declaracao_problema.o_problema_da | c }} |
-| **afeta** | {{ problem.declaracao_problema.afeta | lst | c }} |
-| **cujo o impacto é** | {{ problem.declaracao_problema.cujo_impacto_e | lst | c }} |
-| **uma solução bem sucedida seria** | {{ problem.declaracao_problema.solucao_bem_sucedida | c }} |
+| **O problema da** | {{ statement.o_problema_da | c }} |
+| **afeta** | {{ statement.afeta | lst | c }} |
+| **cujo o impacto é** | {{ statement.cujo_impacto_e | lst | c }} |
+| **uma solução bem sucedida seria** | {{ statement.solucao_bem_sucedida | c }} |
+{% else %}
+_Pendente._
 {% endif %}
 
 ### 2.2 Declaração de Posicionamento da Explicabilidade
 
 {% for p in positioning %}
-#### {{ p.id }} — {{ stakeholder_name(p.stakeholder_id) }}
+#### {{ p.id }} — {{ stakeholder_name(p.stakeholder_id) if p.stakeholder_id else p.para_quem }}
 
 | Elemento | Descrição |
 |---|---|
@@ -70,11 +72,20 @@ _Pendente._
 
 ### 3.1 Resumo dos stakeholders
 
+{% set with_profile = stakeholders | selectattr("posicionamento_id") | list %}
+{% if with_profile %}
+| ID | Stakeholder | Perfil (§2.2) | Descrição | Responsabilidade |
+|---|---|---|---|---|
+{% for s in stakeholders -%}
+| {{ s.id }} | **{{ s.nome | c }}** | {% if s.posicionamento_id %}{{ s.posicionamento_id }} — {{ profile_name(s.posicionamento_id) | c }}{% else %}—{% endif %} | {{ s.descricao | c }} | {{ s.responsabilidade | c }} |
+{% endfor %}
+{% else %}
 | ID | Stakeholder | Descrição | Responsabilidade |
 |---|---|---|---|
 {% for s in stakeholders -%}
 | {{ s.id }} | **{{ s.nome | c }}** | {{ s.descricao | c }} | {{ s.responsabilidade | c }} |
 {% endfor %}
+{% endif %}
 
 ### 3.2 Ambiente do usuário
 

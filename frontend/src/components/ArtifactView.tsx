@@ -19,7 +19,31 @@ const SHARED_FIELDS: Record<string, string[]> = { "vision.positioning": ["nome_p
 // Campos mantidos pela plataforma (rastreabilidade, pontos em aberto): ficam fora do formulário, mas são preservados.
 const SYSTEM_FIELDS = ["lacunas", "lacuna", "origem", "baseada_em", "evidencias", "fundamentacao_verificada", "alerta", "descartados"];
 
+// Campos de manifestos antigos: saem do formulário quando estão vazios (a partir do 0.5.0, o perfil
+// do Posicionamento não aponta para stakeholder nem necessidades, e a Definição não traz a Declaração do Problema).
+const LEGACY_FIELDS: Record<string, string[]> = {
+  "vision.positioning": ["stakeholder_id", "need_ids"],
+  "vision.problem": ["declaracao_problema"],
+};
+
 type Item = Record<string, unknown>;
+
+// Ordem dos campos como no contrato (e no modelo do documento): o banco guarda o JSON com as
+// chaves reordenadas, então a leitura não pode confiar na ordem em que elas chegam.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function fieldOrder(schema: any, listField?: string): string[] {
+  if (!schema) return [];
+  const defs = schema.$defs ?? {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const deref = (x: any) => (x?.$ref ? defs[x.$ref.split("/").pop()] : x) ?? {};
+  const target = listField ? deref(deref(schema.properties?.[listField]).items) : schema;
+  return Object.keys(target.properties ?? {});
+}
+
+function ordered(obj: Item, order: string[]): [string, unknown][] {
+  const rank = (k: string) => (order.indexOf(k) < 0 ? order.length : order.indexOf(k));
+  return Object.entries(obj).sort(([a], [b]) => rank(a) - rank(b));
+}
 
 function sharedValue(items: Item[], k: string): unknown {
   return items.map((it) => it[k]).find((x) => !isEmpty(x)) ?? null;
@@ -33,7 +57,7 @@ export default function ArtifactView({ versionId, onComment, onNewVersion }: {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<unknown>(null);
   const schema = useQuery({
-    queryKey: ["schema", v.data?.artifact_type], enabled: editing && !!v.data,
+    queryKey: ["schema", v.data?.artifact_type], enabled: !!v.data, staleTime: Infinity,
     queryFn: () => api.get<Record<string, unknown>>(`/artifact-types/${v.data!.artifact_type}/schema`),
   });
   const save = useMutation({
@@ -64,6 +88,9 @@ export default function ArtifactView({ versionId, onComment, onNewVersion }: {
   const items = field ? ((d.content[field] as Item[]) ?? []) : [];
   const shared = SHARED_FIELDS[d.artifact_type] ?? [];
   const help = PART_HELP[d.artifact_type];
+  const order = fieldOrder(schema.data, field);
+  const legacy = (LEGACY_FIELDS[d.artifact_type] ?? []).filter((k) =>
+    field ? items.every((it) => isEmpty(it[k])) : isEmpty(d.content[k]));
   const evByItem = new Map<string, Evidence[]>();
   d.evidencias.forEach((e) => evByItem.set(e.item_key, [...(evByItem.get(e.item_key) ?? []), e]));
 
@@ -90,7 +117,7 @@ export default function ArtifactView({ versionId, onComment, onNewVersion }: {
               onChange={(next) => setDraft({ ...(draft as Item), [field]: next })} />
           )}
           {schema.data
-            ? <SchemaForm schema={schema.data} value={draft} onChange={setDraft} hidden={[...SYSTEM_FIELDS, ...shared]} />
+            ? <SchemaForm schema={schema.data} value={draft} onChange={setDraft} hidden={[...SYSTEM_FIELDS, ...shared, ...legacy]} />
             : <Loading what="Carregando o formulário" />}
           <ErrorBox error={save.error} />
           <div className="row">
@@ -106,7 +133,7 @@ export default function ArtifactView({ versionId, onComment, onNewVersion }: {
           {items.length === 0 && <div className="muted">Nenhum item.</div>}
           {shared.length > 0 && items.length > 0 && <SharedFieldsView fields={shared} items={items} />}
           {items.map((it, i) => (
-            <ItemCard key={String(it.id ?? i)} item={it} hide={shared} evidences={evByItem.get(String(it.id)) ?? []}
+            <ItemCard key={String(it.id ?? i)} item={it} hide={shared} order={order} evidences={evByItem.get(String(it.id)) ?? []}
               onComment={onComment ? (texto) => onComment({ alvo: `${d.artifact_type}#${it.id ?? i}`, texto }) : undefined} />
           ))}
           {discarded.length > 0 && (
@@ -117,7 +144,7 @@ export default function ArtifactView({ versionId, onComment, onNewVersion }: {
           )}
         </div>
       ) : (
-        <ObjectView value={d.content} onComment={onComment ? (texto) => onComment({ alvo: d.artifact_type, texto }) : undefined} />
+        <ObjectView value={d.content} order={order} onComment={onComment ? (texto) => onComment({ alvo: d.artifact_type, texto }) : undefined} />
       )}
     </div>
   );
@@ -162,8 +189,8 @@ function SharedFieldsEditor({ fields, items, onChange }: { fields: string[]; ite
   );
 }
 
-function ItemCard({ item, hide = [], evidences, onComment }: {
-  item: Item; hide?: string[]; evidences: Evidence[]; onComment?: (texto: string) => void;
+function ItemCard({ item, hide = [], order = [], evidences, onComment }: {
+  item: Item; hide?: string[]; order?: string[]; evidences: Evidence[]; onComment?: (texto: string) => void;
 }) {
   const lacunas = ((item.lacunas as Gap[] | undefined) ?? []).filter((g) => !hide.includes(g.campo));
   const lacuna = item.lacuna as { motivo: string; pergunta_sugerida?: string } | null | undefined;
@@ -179,7 +206,7 @@ function ItemCard({ item, hide = [], evidences, onComment }: {
         {onComment && <CommentButton onSubmit={onComment} />}
       </div>
       <dl className="kv">
-        {Object.entries(item).filter(([k, v]) => !HIDDEN.has(k) && !hide.includes(k) && k !== "fundamentacao_verificada"
+        {ordered(item, order).filter(([k, v]) => !HIDDEN.has(k) && !hide.includes(k) && k !== "fundamentacao_verificada"
           && k !== "alerta" && !isEmpty(v)).map(([k, v]) => (
           <FragmentKV key={k} k={k} v={v} />
         ))}
@@ -203,17 +230,22 @@ function FragmentKV({ k, v }: { k: string; v: unknown }) {
   return <><dt>{fieldLabel(k)}<InfoTip text={FIELD_HELP[k]} /></dt><dd>{show(v)}</dd></>;
 }
 
-function ObjectView({ value, onComment }: { value: Record<string, unknown>; onComment?: (t: string) => void }) {
+function ObjectView({ value, order = [], onComment }: { value: Item; order?: string[]; onComment?: (t: string) => void }) {
   return (
     <div className="item-card">
       {onComment && <div className="item-head"><span className="grow" /><CommentButton onSubmit={onComment} /></div>}
       <dl className="kv">
-        {Object.entries(value).filter(([k]) => k !== "lacunas").map(([k, v]) => (
+        {ordered(value, order).filter(([k, v]) => k !== "lacunas" && !isEmpty(v)).map(([k, v]) => (
           typeof v === "object" && v !== null && !Array.isArray(v)
             ? <FragmentKV key={k} k={k} v={Object.entries(v).map(([a, b]) => `${a}: ${show(b)}`).join(" · ")} />
             : <FragmentKV key={k} k={k} v={v} />
         ))}
       </dl>
+      {((value.lacunas as Gap[] | undefined) ?? []).length > 0 && (
+        <div className="stack small" style={{ marginTop: 6 }}>
+          {(value.lacunas as Gap[]).map((g, i) => <GapLine key={i} gap={g} />)}
+        </div>
+      )}
     </div>
   );
 }

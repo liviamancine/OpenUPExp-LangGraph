@@ -3,7 +3,7 @@
 import re
 from pathlib import Path
 
-from openupexp.agents.phase1 import HANDLERS
+from openupexp.agents.phase1 import HANDLERS, NAMED_HANDLERS
 from openupexp.config import get_settings
 from openupexp.domain.diff import diff_contents
 from openupexp.domain.ids import assign_keys
@@ -26,11 +26,28 @@ def test_phase1_tasks_have_handlers_and_inputs_are_produced_before_use():
     produced = {"project.scope_document"}
     for t in phase.tasks():
         if t.mechanism in ("agent", "deterministic") and t.handler != "consolidate_vision":
-            assert t.id in HANDLERS, f"tarefa {t.id} sem handler"
+            assert t.handler in NAMED_HANDLERS or t.id in HANDLERS, f"tarefa {t.id} sem handler"
         for r in t.reads:
             if r.required:
                 assert r.artifact in produced, f"{t.id} lê {r.artifact} antes de ser produzido"
         produced |= {w.artifact for w in t.writes}
+
+
+def test_previous_manifest_still_loads_with_id_handlers():
+    """Execuções antigas (0.4.0) continuam com os handlers pelo número da tarefa."""
+    old = load_manifest(get_settings().process_dir / "manifest" / "openupexp-0.4.0.yaml")
+    for t in old.phase("1").tasks():
+        if t.mechanism in ("agent", "deterministic") and t.handler != "consolidate_vision":
+            assert t.id in HANDLERS, f"0.4.0: tarefa {t.id} sem handler"
+
+
+def test_bpmn_task_numbers_match_manifest():
+    """A verificação de conformidade pega renumerações no BPMN (ex.: 1.1.2 -> 1.1.3)."""
+    m = load_manifest()
+    task = m.task("1.1.3")
+    task.id = "1.1.2"
+    problems = check_conformance(m, get_settings().bpmn_dir)
+    assert any("tarefa 1.1.2: no BPMN é '1.1.3 Identify Stakeholders'" in p for p in problems)
 
 
 def test_phase2_tasks_have_handlers_and_read_phase1_or_earlier_outputs():
