@@ -22,7 +22,8 @@ from openupexp.observability.llm import record_llm_call
 log = logging.getLogger("openupexp.gateway")
 
 # Esperar não resolve falta de crédito nem chave inválida, mesmo quando o provedor responde 429.
-_PERMANENT = re.compile(r"insufficient_quota|credit_balance|invalid.?api.?key", re.IGNORECASE)
+# A cota diária do plano gratuito (ex.: Gemini, 20 chamadas por dia) também: só volta horas depois.
+_PERMANENT = re.compile(r"insufficient_quota|credit_balance|invalid.?api.?key|per ?day|PerDay", re.IGNORECASE)
 _RETRY_AFTER = re.compile(r"try again in\s+(?:(\d+)m)?\s*([\d.]+)\s*s", re.IGNORECASE)
 
 

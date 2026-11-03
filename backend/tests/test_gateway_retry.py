@@ -32,7 +32,16 @@ def test_waits_what_the_provider_asks_for():
     assert wait_before_retry(ProviderError(503, GEMINI_503), 1) == 30
 
 
+GEMINI_DAILY_429 = ('Request failed with status code: 429 Too Many Requests. {"error":{"code":429,"message":"You exceeded '
+                    'your current quota, please check your plan and billing details. * Quota exceeded for metric: '
+                    'generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: '
+                    'gemini-3.6-flash, description: Generate content requests per day limit exceeded on Free Tier. '
+                    'Please retry in 9h48m4.125694465s.","status":"RESOURCE_EXHAUSTED","details":[{"quotaId":'
+                    '"GenerateRequestsPerDayPerProjectPerModel-FreeTier"}]}}')
+
+
 def test_does_not_wait_when_waiting_cannot_help():
+    assert wait_before_retry(ProviderError(429, GEMINI_DAILY_429), 0) is None  # cota diária: volta em horas
     assert wait_before_retry(ProviderError(429, OPENAI_NO_CREDIT), 0) is None
     assert wait_before_retry(ProviderError(401, "x-api-key header is required"), 0) is None
     assert wait_before_retry(ValueError("resposta fora do contrato"), 0) is None
