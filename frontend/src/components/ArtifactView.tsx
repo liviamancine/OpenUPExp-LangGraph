@@ -130,7 +130,9 @@ export default function ArtifactView({ versionId, onComment, onNewVersion }: {
         <Markdown>{String(d.content.markdown ?? "")}</Markdown>
       ) : field ? (
         <div className="stack">
-          {items.length === 0 && <div className="muted">Nenhum item.</div>}
+          {items.length === 0 && (d.content.desligado
+            ? <div className="alert info small"><Icon name="info" />{String(d.content.motivo ?? "Parte desligada nesta instalação.")}</div>
+            : <div className="muted">Nenhum item.</div>)}
           {shared.length > 0 && items.length > 0 && <SharedFieldsView fields={shared} items={items} />}
           {items.map((it, i) => (
             <ItemCard key={String(it.id ?? i)} item={it} hide={shared} order={order} evidences={evByItem.get(String(it.id)) ?? []}

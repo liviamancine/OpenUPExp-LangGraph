@@ -107,7 +107,7 @@ async def test_full_phase1_with_revisit_and_approval(scope_bytes, law_bytes):
         text = Path(exp.storage_path).read_text(encoding="utf-8")
         assert "# Documento de Visão" in text and "aprovado" in text and "\\n" not in text
         n_calls = await s.scalar(select(func.count(LlmCall.id)).where(LlmCall.run_id == run_id))
-        assert n_calls >= 20
+        assert n_calls >= 16  # glossário desligado: 1.1.5 e 1.1.6 sem IA nas duas passagens por 1.1
 
 
 async def test_gate_is_idempotent_on_reexecution(scope_bytes, law_bytes):
@@ -198,3 +198,34 @@ async def test_artifacts_are_scoped_by_run(scope_bytes, law_bytes):
     async with session_scope() as s:
         n = await s.scalar(select(func.count(Artifact.id)).where(Artifact.run_id == r1))
         assert n >= 10
+
+
+async def test_glossary_off_skips_the_llm_but_keeps_the_tasks(scope_bytes, law_bytes):
+    """GLOSSARY_ENABLED=false (padrão): 1.1.5 e 1.1.6 rodam, gravam as partes vazias e não chamam a IA."""
+    run_id = await _setup(scope_bytes, law_bytes)
+    await drain()
+    async with session_scope() as s:
+        cur = await store.current_versions(s, run_id)
+        assert cur["glossary"].content["termos"] == [] and cur["glossary"].content["desligado"] is True
+        assert cur["vision.domain_terms"].content["termos"] == []
+        functions = set((await s.scalars(select(LlmCall.baml_function).where(LlmCall.run_id == run_id))).all())
+        assert not functions & {"CaptureDomainTerminology", "CreateInitialGlossary"}
+        done = set((await s.scalars(select(TaskExecution.task_id).where(
+            TaskExecution.run_id == run_id, TaskExecution.status == "completed"))).all())
+        assert {"1.1.5", "1.1.6"} <= done
+
+
+async def test_glossary_on_generates_terms(scope_bytes, law_bytes, monkeypatch):
+    from openupexp.config import get_settings
+
+    monkeypatch.setenv("GLOSSARY_ENABLED", "true")
+    get_settings.cache_clear()
+    try:
+        run_id = await _setup(scope_bytes, law_bytes)
+        await drain()
+        async with session_scope() as s:
+            cur = await store.current_versions(s, run_id)
+            assert cur["glossary"].content["termos"] and not cur["glossary"].content.get("desligado")
+    finally:
+        monkeypatch.delenv("GLOSSARY_ENABLED")
+        get_settings.cache_clear()

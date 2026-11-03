@@ -7,6 +7,7 @@ from openupexp.agents.evidence import verify_item_evidences
 from openupexp.agents.registry import ARTIFACT_TYPES, VISION_EDITABLE
 from openupexp.agents.runtime import TaskContext, WriteResult
 from openupexp.baml_client import types as T
+from openupexp.config import get_settings
 from openupexp.context.builder import PackageItem
 from openupexp.exports.vision import render_vision_markdown
 from openupexp.retrieval.search import hybrid_search
@@ -127,7 +128,13 @@ async def t_1_1_3(ctx: TaskContext) -> list[WriteResult]:
     return [WriteResult("vision.stakeholder_needs", {}, raw_items=raw)]
 
 
+# Glossário desligado (GLOSSARY_ENABLED=false): a tarefa segue no processo e grava a parte vazia, sem IA.
+GLOSSARY_OFF = {"desligado": True, "motivo": "Glossário desligado nesta instalação (GLOSSARY_ENABLED=false)."}
+
+
 async def t_1_1_4(ctx: TaskContext) -> list[WriteResult]:
+    if not get_settings().glossary_enabled:
+        return [WriteResult("vision.domain_terms", dict(GLOSSARY_OFF), raw_items=[], origin="deterministic")]
     out = await ctx.call("CaptureDomainTerminology", T.CaptureTermsInput(
         documento_escopo=ctx.package.required("project.scope_document"),
         problema=T.ExplainabilityProblem.model_validate(ctx.package.required("vision.problem")),
@@ -136,6 +143,8 @@ async def t_1_1_4(ctx: TaskContext) -> list[WriteResult]:
 
 
 async def t_1_1_5(ctx: TaskContext) -> list[WriteResult]:
+    if not get_settings().glossary_enabled:
+        return [WriteResult("glossary", dict(GLOSSARY_OFF), raw_items=[], origin="deterministic")]
     terms = _items(ctx.package.required("vision.domain_terms"), "termos")
     prev = _items(ctx.package.previous("glossary"), "termos")
     out = await ctx.call("CreateInitialGlossary", T.CreateGlossaryInput(

@@ -31,6 +31,10 @@ class Settings(BaseSettings):
     ollama_url: str = "http://ollama:11434"
     ollama_model: str = "openupexp-qwen3-4b"
     ollama_base_model: str = "qwen3:4b-instruct-2507-q4_K_M"
+    # Glossário da Visão (1.1.5 Capture Domain Terminology e 1.1.6 Create Initial Glossary): desligado
+    # enquanto a plataforma roda com modelos gratuitos; as tarefas seguem no processo, sem chamar a IA.
+    # Ligar com GLOSSARY_ENABLED=true (ex.: na avaliação com um modelo pago).
+    glossary_enabled: bool = False
     # provedor sobrecarregado (503) ou no limite por minuto (429): espera o tempo pedido e tenta de novo
     llm_wait_retries: int = 5
     llm_max_wait_seconds: float = 60.0

@@ -92,6 +92,7 @@ def render_vision_markdown(contents: dict[str, dict], meta: dict) -> str:
         complementary=(contents.get("vision.complementary_requirements") or {}).get("requisitos", []),
         limits_by_dimension=list(grouped.items()),
         glossary=(contents.get("glossary") or {}).get("termos", []),
+        glossary_off=bool((contents.get("glossary") or {}).get("desligado")),
         lacunas=_lacunas(contents),
         sections5=SECTIONS_5,
         stakeholder_name=lambda sid: names.get(sid, sid),

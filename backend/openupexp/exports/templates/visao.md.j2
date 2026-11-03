@@ -162,11 +162,15 @@ _Pendente._
 
 ## Glossário
 
+{% if glossary_off %}
+_Glossário não gerado nesta execução: desligado na instalação (GLOSSARY_ENABLED=false)._
+{% else %}
 | ID | Termo | Definição | Sinônimos |
 |---|---|---|---|
 {% for g in glossary -%}
 | {{ g.id }} | **{{ g.termo | c }}** | {{ g.definicao | c }} | {{ g.sinonimos | lst | c }} |
 {% endfor %}
+{% endif %}
 
 ---
 
