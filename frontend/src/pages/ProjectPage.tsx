@@ -91,7 +91,12 @@ function Journey({ project: p, isEngineer, goTo }: {
   const [choice, setChoice] = useState<string | null>(null);  // id do perfil ou "fake"
   const [strategy, setStrategy] = useState("D");
   const usable = profiles.data?.filter((x) => x.disponivel) ?? [];
-  const selected = choice ?? (usable.find((x) => x.padrao) ?? usable[0])?.id ?? "fake";
+  // Sem escolha nesta visita, vale o modelo da última execução do projeto (se ainda disponível):
+  // o que aparece marcado é o que o próximo Começar / Refazer / Recomeçar vai usar.
+  const last = [...p.execucoes].sort((a, b) => b.created_at.localeCompare(a.created_at))[0];
+  const lastProfile = (last?.model_profile as { profile_id?: string } | undefined)?.profile_id;
+  const lastUsed = last?.agent_gateway === "fake" ? "fake" : usable.find((x) => x.id === lastProfile)?.id;
+  const selected = choice ?? lastUsed ?? (usable.find((x) => x.padrao) ?? usable[0])?.id ?? "fake";
   const gateway = selected === "fake" ? "fake" : "baml";
   const start = useMutation({
     mutationFn: ({ phase, base }: { phase: string; base: string | null }) => api.post<RunSummary>(
@@ -162,7 +167,8 @@ function Journey({ project: p, isEngineer, goTo }: {
         {isEngineer && (
           <div className="card stack">
             <div className="card-head"><span className="icon-bubble"><Icon name="settings" /></span><h2>Como a IA vai trabalhar</h2></div>
-            <div className="small muted">Qual modelo de IA vai executar as próximas etapas:</div>
+            <div className="small muted">Qual modelo de IA vai executar as próximas etapas:
+              {!choice && lastUsed && <> (marcado: o usado na última execução)</>}</div>
             <div className="choices">
               {ordered.map((x) => (
                 <label key={x.id} className={`choice ${selected === x.id ? "selected" : ""}`}
