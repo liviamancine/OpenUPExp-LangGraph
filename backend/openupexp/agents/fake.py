@@ -206,6 +206,21 @@ def DevelopComplementaryRequirements(entrada: T.ComplementaryInput, contexto) ->
     return T.ComplementaryRequirementsArtifact(requisitos=out)
 
 
+def DevelopComplementaryInformation(entrada: T.ComplementaryInput, contexto) -> T.ComplementaryRequirementsArtifact:
+    out = DevelopComplementaryRequirements(entrada, contexto)
+    for r in out.requisitos:
+        fonte = r.requisito.split("orientação de ", 1)[-1].split(" na explicação")[0]
+        r.requisito = f"Importante disponibilizar informações sobre as decisões conforme {fonte}."
+        r.justificativa = r.justificativa.replace("Relacionado a", "Ajuda a preparar as entrevistas sobre")
+    return out
+
+
+def IdentifyExplainabilityNeedsWithoutAspect(entrada: T.IdentifyNeedsInput, contexto) -> T.ExplainabilityNeedsCoreArtifact:
+    full = IdentifyExplainabilityNeeds(entrada, contexto)
+    return T.ExplainabilityNeedsCoreArtifact(necessidades=[
+        T.ExplainabilityNeedCore(**n.model_dump(exclude={"aspecto_associado"})) for n in full.necessidades])
+
+
 def DefineExplainabilityLimits(entrada: T.LimitsInput, contexto) -> T.ExplainabilityLimitsArtifact:
     nomes = ", ".join(s.nome for s in entrada.stakeholders)
     out = []

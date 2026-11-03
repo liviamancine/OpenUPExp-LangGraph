@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { createContext, useContext, type ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import Icon, { type IconName } from "./Icon";
@@ -97,6 +97,37 @@ const FIELD_LABEL: Record<string, string> = {
 
 export function fieldLabel(k: string): string {
   return FIELD_LABEL[k] ?? k.replace(/_/g, " ");
+}
+
+// Rótulos que mudam conforme a parte do documento (ex.: nas Informações complementares da Visão,
+// o campo "requisito" é uma informação, não um requisito).
+const PART_FIELD_LABEL: Record<string, Record<string, string>> = {
+  "vision.complementary_requirements": { requisito: "informação", justificativa: "por que importa",
+    requisitos: "informações" },
+};
+
+// Nome de um item de lista que muda conforme a parte (botões Adicionar/Remover do formulário).
+export const PART_ITEM_NOUN: Record<string, Record<string, string>> = {
+  "vision.complementary_requirements": { requisitos: "informação" },
+};
+
+// Valores de listas fechadas com nome legível (categoria das seções 5.1 a 5.5 da Visão).
+const VALUE_LABEL: Record<string, string> = {
+  NORMAS_REGULAMENTOS: "Padrões, normas e regulamentos", PLATAFORMA_DESEMPENHO: "Plataforma, hardware e desempenho",
+  QUALIDADE_EXPLICACOES: "Qualidade das explicações", RESTRICOES_DEPENDENCIAS: "Restrições, dependências e assunções",
+  DOCUMENTACAO_SUPORTE: "Documentação e suporte",
+};
+
+export function valueLabel(v: string): string {
+  return VALUE_LABEL[v] ?? v;
+}
+
+/** Tipo da parte aberta, para rótulos e dicas próprios dela. */
+export const PartTypeContext = createContext<string>("");
+
+export function usePartLabel(): (k: string) => string {
+  const part = useContext(PartTypeContext);
+  return (k) => PART_FIELD_LABEL[part]?.[k] ?? fieldLabel(k);
 }
 
 const STATUS_ICON: Record<string, IconName> = {

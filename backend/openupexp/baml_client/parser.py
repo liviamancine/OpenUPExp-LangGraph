@@ -113,6 +113,12 @@ class LlmResponseParser:
         __result__ = self.__options.merge_options(baml_options).parse_response(function_name="DefinePositioning", llm_response=llm_response, mode="request")
         return typing.cast(types.PositioningResult, __result__)
 
+    def DevelopComplementaryInformation(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> types.ComplementaryRequirementsArtifact:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="DevelopComplementaryInformation", llm_response=llm_response, mode="request")
+        return typing.cast(types.ComplementaryRequirementsArtifact, __result__)
+
     def DevelopComplementaryRequirements(
         self, llm_response: str, baml_options: BamlCallOptions = {},
     ) -> types.ComplementaryRequirementsArtifact:
@@ -136,6 +142,12 @@ class LlmResponseParser:
     ) -> types.ExplainabilityNeedsArtifact:
         __result__ = self.__options.merge_options(baml_options).parse_response(function_name="IdentifyExplainabilityNeeds", llm_response=llm_response, mode="request")
         return typing.cast(types.ExplainabilityNeedsArtifact, __result__)
+
+    def IdentifyExplainabilityNeedsWithoutAspect(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> types.ExplainabilityNeedsCoreArtifact:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="IdentifyExplainabilityNeedsWithoutAspect", llm_response=llm_response, mode="request")
+        return typing.cast(types.ExplainabilityNeedsCoreArtifact, __result__)
 
     def IdentifyExplainabilityRequirements(
         self, llm_response: str, baml_options: BamlCallOptions = {},
@@ -289,6 +301,12 @@ class LlmStreamParser:
         __result__ = self.__options.merge_options(baml_options).parse_response(function_name="DefinePositioning", llm_response=llm_response, mode="stream")
         return typing.cast(stream_types.PositioningResult, __result__)
 
+    def DevelopComplementaryInformation(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> stream_types.ComplementaryRequirementsArtifact:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="DevelopComplementaryInformation", llm_response=llm_response, mode="stream")
+        return typing.cast(stream_types.ComplementaryRequirementsArtifact, __result__)
+
     def DevelopComplementaryRequirements(
         self, llm_response: str, baml_options: BamlCallOptions = {},
     ) -> stream_types.ComplementaryRequirementsArtifact:
@@ -312,6 +330,12 @@ class LlmStreamParser:
     ) -> stream_types.ExplainabilityNeedsArtifact:
         __result__ = self.__options.merge_options(baml_options).parse_response(function_name="IdentifyExplainabilityNeeds", llm_response=llm_response, mode="stream")
         return typing.cast(stream_types.ExplainabilityNeedsArtifact, __result__)
+
+    def IdentifyExplainabilityNeedsWithoutAspect(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> stream_types.ExplainabilityNeedsCoreArtifact:
+        __result__ = self.__options.merge_options(baml_options).parse_response(function_name="IdentifyExplainabilityNeedsWithoutAspect", llm_response=llm_response, mode="stream")
+        return typing.cast(stream_types.ExplainabilityNeedsCoreArtifact, __result__)
 
     def IdentifyExplainabilityRequirements(
         self, llm_response: str, baml_options: BamlCallOptions = {},

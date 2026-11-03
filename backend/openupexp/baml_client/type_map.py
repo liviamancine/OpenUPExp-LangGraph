@@ -139,8 +139,14 @@ type_map = {
     "types.ExplainabilityNeed": types.ExplainabilityNeed,
     "stream_types.ExplainabilityNeed": stream_types.ExplainabilityNeed,
 
+    "types.ExplainabilityNeedCore": types.ExplainabilityNeedCore,
+    "stream_types.ExplainabilityNeedCore": stream_types.ExplainabilityNeedCore,
+
     "types.ExplainabilityNeedsArtifact": types.ExplainabilityNeedsArtifact,
     "stream_types.ExplainabilityNeedsArtifact": stream_types.ExplainabilityNeedsArtifact,
+
+    "types.ExplainabilityNeedsCoreArtifact": types.ExplainabilityNeedsCoreArtifact,
+    "stream_types.ExplainabilityNeedsCoreArtifact": stream_types.ExplainabilityNeedsCoreArtifact,
 
     "types.ExplainabilityProblem": types.ExplainabilityProblem,
     "stream_types.ExplainabilityProblem": stream_types.ExplainabilityProblem,

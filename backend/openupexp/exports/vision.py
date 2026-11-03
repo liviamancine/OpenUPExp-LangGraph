@@ -20,6 +20,21 @@ SECTIONS_5 = [
     ("RESTRICOES_DEPENDENCIAS", "5.4 Restrições de Design, Dependências e Assunções"),
     ("DOCUMENTACAO_SUPORTE", "5.5 Requisitos de Documentação e Suporte"),
 ]
+# A partir do manifesto 0.6.0 a seção 5 traz Informações complementares, não requisitos.
+SECTIONS_5_INFO = [
+    ("NORMAS_REGULAMENTOS", "5.1 Padrões, Normas e Regulamentos Aplicáveis"),
+    ("PLATAFORMA_DESEMPENHO", "5.2 Plataforma, Hardware e Desempenho"),
+    ("QUALIDADE_EXPLICACOES", "5.3 Qualidade das Explicações"),
+    ("RESTRICOES_DEPENDENCIAS", "5.4 Restrições de Design, Dependências e Assunções"),
+    ("DOCUMENTACAO_SUPORTE", "5.5 Documentação e Suporte"),
+]
+
+
+def complementary_as_information(manifest_version: str | None) -> bool:
+    try:
+        return tuple(int(x) for x in (manifest_version or "").split(".")) >= (0, 6, 0)
+    except ValueError:
+        return False
 
 _env = Environment(
     loader=FileSystemLoader(Path(__file__).parent / "templates"),
@@ -94,8 +109,10 @@ def render_vision_markdown(contents: dict[str, dict], meta: dict) -> str:
         glossary=(contents.get("glossary") or {}).get("termos", []),
         glossary_off=bool((contents.get("glossary") or {}).get("desligado")),
         lacunas=_lacunas(contents),
-        sections5=SECTIONS_5,
+        info_mode=complementary_as_information(meta.get("manifesto")),
+        sections5=SECTIONS_5_INFO if complementary_as_information(meta.get("manifesto")) else SECTIONS_5,
         stakeholder_name=lambda sid: names.get(sid, sid),
+        stakeholder_names=lambda ids: ", ".join(names.get(i, i) for i in ids or []),
     )
 
 

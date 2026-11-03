@@ -5,8 +5,14 @@ import { api } from "../api/client";
 import type { Evidence, ItemComment, VersionDetail } from "../api/types";
 import { SchemaForm } from "./SchemaForm";
 import Icon from "./Icon";
-import { ErrorBox, InfoTip, Loading, Markdown, Status, fieldLabel, show } from "./ui";
-import { FIELD_HELP, PART_HELP } from "../help";
+import { useContext } from "react";
+import { ErrorBox, InfoTip, Loading, Markdown, PartTypeContext, Status, show, usePartLabel, valueLabel } from "./ui";
+import { FIELD_HELP, PART_FIELD_HELP, PART_HELP } from "../help";
+
+function usePartHelp(): (k: string) => string | undefined {
+  const part = useContext(PartTypeContext);
+  return (k) => PART_FIELD_HELP[part]?.[k] ?? FIELD_HELP[k];
+}
 
 const LIST_FIELD: Record<string, string> = {
   "vision.stakeholders": "stakeholders", "vision.stakeholder_needs": "solicitacoes", "vision.domain_terms": "termos",
@@ -24,6 +30,7 @@ const SYSTEM_FIELDS = ["lacunas", "lacuna", "origem", "baseada_em", "evidencias"
 const LEGACY_FIELDS: Record<string, string[]> = {
   "vision.positioning": ["stakeholder_id", "need_ids"],
   "vision.problem": ["declaracao_problema"],
+  "vision.explainability_needs": ["aspecto_associado"],
 };
 
 type Item = Record<string, unknown>;
@@ -95,6 +102,7 @@ export default function ArtifactView({ versionId, onComment, onNewVersion }: {
   d.evidencias.forEach((e) => evByItem.set(e.item_key, [...(evByItem.get(e.item_key) ?? []), e]));
 
   return (
+    <PartTypeContext.Provider value={d.artifact_type}>
     <div className="stack">
       <div className="stack tight">
         <div className="row" style={{ flexWrap: "nowrap", alignItems: "flex-start" }}>
@@ -149,12 +157,14 @@ export default function ArtifactView({ versionId, onComment, onNewVersion }: {
         <ObjectView value={d.content} order={order} onComment={onComment ? (texto) => onComment({ alvo: d.artifact_type, texto }) : undefined} />
       )}
     </div>
+    </PartTypeContext.Provider>
   );
 }
 
 type Gap = { campo: string; motivo: string; pergunta_sugerida?: string };
 
 function GapLine({ gap }: { gap: Gap }) {
+  const fieldLabel = usePartLabel();
   return <div className="gap"><Icon name="help" size={16} /><span>Falta informação em <strong>{fieldLabel(gap.campo)}</strong>: {gap.motivo}
     {gap.pergunta_sugerida && <> — <em>pergunte: {gap.pergunta_sugerida}</em></>}</span></div>;
 }
@@ -175,13 +185,15 @@ function SharedFieldsView({ fields, items }: { fields: string[]; items: Item[] }
 }
 
 function SharedFieldsEditor({ fields, items, onChange }: { fields: string[]; items: Item[]; onChange: (items: Item[]) => void }) {
+  const fieldLabel = usePartLabel();
+  const help = usePartHelp();
   return (
     <fieldset className="item-card stack" style={{ margin: 0 }}>
       <legend className="small muted">Vale para todas as declarações</legend>
       {fields.map((k) => {
         const value = sharedValue(items, k);
         return (
-          <label key={k}><span className="label-text">{fieldLabel(k)}<InfoTip text={FIELD_HELP[k]} /></span>
+          <label key={k}><span className="label-text">{fieldLabel(k)}<InfoTip text={help(k)} /></span>
             <input value={value == null ? "" : String(value)}
               onChange={(e) => onChange(items.map((it) => ({ ...it, [k]: e.target.value || null })))} />
           </label>
@@ -229,7 +241,9 @@ function isEmpty(v: unknown): boolean {
 }
 
 function FragmentKV({ k, v }: { k: string; v: unknown }) {
-  return <><dt>{fieldLabel(k)}<InfoTip text={FIELD_HELP[k]} /></dt><dd>{show(v)}</dd></>;
+  const fieldLabel = usePartLabel();
+  const help = usePartHelp();
+  return <><dt>{fieldLabel(k)}<InfoTip text={help(k)} /></dt><dd>{typeof v === "string" ? valueLabel(v) : show(v)}</dd></>;
 }
 
 function ObjectView({ value, order = [], onComment }: { value: Item; order?: string[]; onComment?: (t: string) => void }) {

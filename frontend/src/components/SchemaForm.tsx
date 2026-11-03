@@ -1,7 +1,8 @@
 /** Formulário gerado a partir do JSON Schema dos tipos BAML (via Pydantic). */
 import Icon from "./Icon";
-import { InfoTip, fieldLabel } from "./ui";
-import { FIELD_HELP } from "../help";
+import { useContext } from "react";
+import { InfoTip, PART_ITEM_NOUN, PartTypeContext, usePartLabel, valueLabel } from "./ui";
+import { FIELD_HELP, PART_FIELD_HELP } from "../help";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Schema = any;
@@ -51,7 +52,9 @@ function nextId(items: unknown[]): string {
 }
 
 function Label({ name }: { name: string }) {
-  return <span className="label-text">{fieldLabel(name)}<InfoTip text={FIELD_HELP[name]} /></span>;
+  const fieldLabel = usePartLabel();
+  const part = useContext(PartTypeContext);
+  return <span className="label-text">{fieldLabel(name)}<InfoTip text={PART_FIELD_HELP[part]?.[name] ?? FIELD_HELP[name]} /></span>;
 }
 
 export function FieldEditor({ name, schema, value, onChange, defs, hidden, gap, depth = 0 }: {
@@ -59,6 +62,7 @@ export function FieldEditor({ name, schema, value, onChange, defs, hidden, gap, 
   hidden: string[]; gap?: Gap; depth?: number;
 }) {
   const { schema: s, nullable } = resolve(schema, defs);
+  const part = useContext(PartTypeContext);
   const gapNote = gap && (
     <span className="gap small"><Icon name="help" size={14} /><span>Falta informação: {gap.motivo}
       {gap.pergunta_sugerida && <> — <em>pergunte: {gap.pergunta_sugerida}</em></>}</span></span>
@@ -69,7 +73,7 @@ export function FieldEditor({ name, schema, value, onChange, defs, hidden, gap, 
       <label><Label name={name} />
         <select value={String(value ?? "")} onChange={(e) => onChange(e.target.value || (nullable ? null : ""))}>
           {nullable && <option value="">—</option>}
-          {s.enum.map((v: string) => <option key={v} value={v}>{v}</option>)}
+          {s.enum.map((v: string) => <option key={v} value={v}>{valueLabel(v)}</option>)}
         </select>
         {gapNote}
       </label>
@@ -87,7 +91,7 @@ export function FieldEditor({ name, schema, value, onChange, defs, hidden, gap, 
         </label>
       );
     }
-    const noun = ITEM_NOUN[name] ?? "item";
+    const noun = PART_ITEM_NOUN[part]?.[name] ?? ITEM_NOUN[name] ?? "item";
     const remove = (i: number) => {
       const id = (items[i] as Record<string, unknown> | null)?.id;
       if (window.confirm(`Remover ${noun}${id ? ` ${id}` : ""}? A remoção só vale quando você salvar a parte.`)) {

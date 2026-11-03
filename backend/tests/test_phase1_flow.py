@@ -229,3 +229,28 @@ async def test_glossary_on_generates_terms(scope_bytes, law_bytes, monkeypatch):
     finally:
         monkeypatch.delenv("GLOSSARY_ENABLED")
         get_settings.cache_clear()
+
+
+async def test_manifest_060_needs_without_aspect_and_complementary_information(scope_bytes, law_bytes):
+    """0.6.0: 1.2.1 sem aspecto associado; 1.2.2 produz informações em tom de orientação."""
+    run_id = await _setup(scope_bytes, law_bytes)
+    await drain()
+    async with session_scope() as s:
+        assert (await s.get(Run, run_id)).manifest_version == "0.6.0"
+        functions = set((await s.scalars(select(LlmCall.baml_function).where(LlmCall.run_id == run_id))).all())
+        assert {"IdentifyExplainabilityNeedsWithoutAspect", "DevelopComplementaryInformation"} <= functions
+        assert not functions & {"IdentifyExplainabilityNeeds", "DevelopComplementaryRequirements"}
+        cur = await store.current_versions(s, run_id)
+        needs = cur["vision.explainability_needs"].content["necessidades"]
+        assert needs and all(n["aspecto_associado"] is None for n in needs)
+        infos = cur["vision.complementary_requirements"].content["requisitos"]
+        assert infos and all(i["requisito"].startswith("Importante") and not i.get("alerta") for i in infos)
+
+
+def test_imposition_is_flagged():
+    from openupexp.agents.phase1 import _IMPOSITION
+
+    assert _IMPOSITION.search("O sistema deve informar os critérios da decisão.")
+    assert _IMPOSITION.search("A plataforma deverá registrar a revisão.")
+    assert not _IMPOSITION.search("Importante disponibilizar informações sobre os critérios da decisão.")
+    assert not _IMPOSITION.search("Considerar que o titular pode pedir revisão (o sistema deve permitir).")

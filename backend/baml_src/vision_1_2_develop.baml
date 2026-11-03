@@ -48,7 +48,7 @@ function IdentifyExplainabilityNeeds(entrada: IdentifyNeedsInput, contexto: Cont
     STAKEHOLDERS
     {{ entrada.stakeholders }}
 
-    SOLICITAÇÕES DOS STAKEHOLDERS (1.1.3)
+    SOLICITAÇÕES DOS STAKEHOLDERS
     {{ entrada.solicitacoes }}
 
     GLOSSÁRIO
@@ -300,6 +300,117 @@ function DefineExplainabilityLimits(entrada: LimitsInput, contexto: ContextItem[
 
     REQUISITOS COMPLEMENTARES
     {{ entrada.requisitos_complementares }}
+
+    {{ ContextoAdicional(contexto) }}
+
+    {{ ctx.output_format }}
+  "#
+}
+
+// ---------------------------------------------------------------------------
+// Manifesto 0.6.0 — 1.2.1 sem aspecto associado; 1.2.2 Informações complementares
+// ---------------------------------------------------------------------------
+
+// Necessidade sem aspecto associado: o aspecto é tratado na elicitação e na análise (3.2.1).
+class ExplainabilityNeedCore {
+  id string? @description("NEED-n existente; null se nova")
+  necessidade string @description("Necessidade de explicabilidade em nível conceitual (o quê e por quê, não o como)")
+  stakeholder_ids string[] @description("IDs STK-n relacionados")
+  solicitacao_ids string[] @description("IDs SN-n que sustentam a necessidade")
+  prioridade string? @description("Somente se explicitamente indicada na entrada; caso contrário null")
+  planned_release string? @description("Somente se explicitamente indicada na entrada; caso contrário null")
+  lacunas Lacuna[]
+}
+
+class ExplainabilityNeedsCoreArtifact {
+  necessidades ExplainabilityNeedCore[]
+}
+
+function IdentifyExplainabilityNeedsWithoutAspect(entrada: IdentifyNeedsInput, contexto: ContextItem[]) -> ExplainabilityNeedsCoreArtifact {
+  client OpenUPExpDefault
+  prompt #"
+    {{ _.role("system") }}
+    Você executa a tarefa 1.2.1 "Identify Explainability Needs" do OpenUPExp: transformar as
+    solicitações dos stakeholders em necessidades de explicabilidade em nível conceitual
+    (Visão §4.1). Os aspectos de explicabilidade serão tratados na elicitação e na análise;
+    não os identifique aqui.
+
+    {{ RegrasNaoInvencao() }}
+    {{ RegrasIds("NEED") }}
+
+    REGRAS ESPECÍFICAS
+    - Consolide solicitações equivalentes de stakeholders diferentes numa só necessidade,
+      sem perder distinções relevantes; cite os SN-n que a sustentam e os STK-n envolvidos.
+    - Descreva o que precisa ser explicado e por quê, não o como: nada de funcionalidades,
+      mecanismos, algoritmos ou métricas.
+    - Prioridade e release: null quando não houver evidência explícita (registre Lacuna);
+      o Engenheiro de Requisitos define na revisão.
+    - Se não houver evidência suficiente, retorne a lista vazia.
+
+    {{ _.role("user") }}
+    STAKEHOLDERS
+    {{ entrada.stakeholders }}
+
+    SOLICITAÇÕES DOS STAKEHOLDERS
+    {{ entrada.solicitacoes }}
+
+    GLOSSÁRIO
+    {{ entrada.glossario }}
+
+    NECESSIDADES EXISTENTES (preserve os IDs)
+    {{ entrada.necessidades_existentes }}
+
+    {{ ContextoAdicional(contexto) }}
+
+    {{ ctx.output_format }}
+  "#
+}
+
+// Mesmo formato dos requisitos complementares (a etapa 2 continua lendo este artefato), mas o
+// conteúdo é orientação ao engenheiro para conhecer o negócio antes das entrevistas.
+function DevelopComplementaryInformation(entrada: ComplementaryInput, contexto: ContextItem[]) -> ComplementaryRequirementsArtifact {
+  client OpenUPExpDefault
+  prompt #"
+    {{ _.role("system") }}
+    Você executa a tarefa 1.2.2 "Identify Complementary Information" do OpenUPExp: reunir
+    informações complementares relacionadas à explicabilidade (Visão §5), fundamentadas nos
+    trechos da Explainability Reference Base fornecidos no contexto (origem 'retrieved').
+    O objetivo é preparar o Engenheiro de Requisitos: conhecer o negócio, as normas e as
+    restrições antes das entrevistas. NÃO são requisitos do sistema.
+
+    {{ RegrasNaoInvencao() }}
+    {{ RegrasIds("CR") }}
+
+    COMO ESCREVER
+    - Em 'requisito', escreva a INFORMAÇÃO como orientação, por exemplo:
+      "Importante disponibilizar informações sobre os critérios usados na decisão, pois ..."
+      ou "Considerar que o titular pode solicitar a revisão de decisões automatizadas."
+    - NUNCA escreva como imposição ao sistema: proibido "O sistema deve ...", "deverá",
+      "é obrigatório que o sistema ...".
+    - Em 'justificativa', explique por que importa conhecer essa informação antes das
+      entrevistas e como ela se relaciona com as necessidades.
+
+    VALIDAÇÃO OBRIGATÓRIA DAS EVIDÊNCIAS
+    1. Cada informação deve se relacionar a pelo menos uma necessidade (need_ids).
+    2. Identifique o trecho exato que a sustenta. Em 'evidencias', use a 'referencia' do item
+       de contexto e copie a 'citacao' LITERALMENTE. Citações são verificadas mecanicamente.
+    3. Verifique se o trecho se aplica ao domínio e à situação. Não generalize uma obrigação
+       prevista para um contexto específico.
+    4. Diferencie o tipo: OBRIGACAO_NORMATIVA, RECOMENDACAO_TECNICA ou DERIVADO_VISAO.
+    5. Não afirme que uma lei exige algo se o trecho não estabelece essa obrigação.
+    6. Não detalhe implementação, não atribua prioridade nem release.
+    7. Não crie informações só para preencher categorias. Sem evidência suficiente, descarte.
+       Retorne lista vazia se nenhuma for fundamentada.
+
+    {{ _.role("user") }}
+    DEFINIÇÃO DA EXPLICABILIDADE
+    {{ entrada.problema }}
+
+    NECESSIDADES DE EXPLICABILIDADE
+    {{ entrada.necessidades }}
+
+    INFORMAÇÕES COMPLEMENTARES EXISTENTES (preserve os IDs)
+    {{ entrada.requisitos_existentes }}
 
     {{ ContextoAdicional(contexto) }}
 

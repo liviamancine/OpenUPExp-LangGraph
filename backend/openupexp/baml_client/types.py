@@ -145,7 +145,7 @@ class RequirementKind(str, Enum):
     COMPLEMENTAR = "COMPLEMENTAR"
 
 # #########################################################################
-# Generated classes (99)
+# Generated classes (101)
 # #########################################################################
 
 class AcceptanceCriteria(BaseModel):
@@ -376,8 +376,20 @@ class ExplainabilityNeed(BaseModel):
     aspecto_associado: typing.Optional[str] = Field(default=None, description='Opcional (decisão A-06 pendente); somente se a entrada sustentar')
     lacunas: typing.List["Lacuna"]
 
+class ExplainabilityNeedCore(BaseModel):
+    id: typing.Optional[str] = Field(default=None, description='NEED-n existente; null se nova')
+    necessidade: str = Field(description='Necessidade de explicabilidade em nível conceitual (o quê e por quê, não o como)')
+    stakeholder_ids: typing.List[str] = Field(description='IDs STK-n relacionados')
+    solicitacao_ids: typing.List[str] = Field(description='IDs SN-n que sustentam a necessidade')
+    prioridade: typing.Optional[str] = Field(default=None, description='Somente se explicitamente indicada na entrada; caso contrário null')
+    planned_release: typing.Optional[str] = Field(default=None, description='Somente se explicitamente indicada na entrada; caso contrário null')
+    lacunas: typing.List["Lacuna"]
+
 class ExplainabilityNeedsArtifact(BaseModel):
     necessidades: typing.List["ExplainabilityNeed"]
+
+class ExplainabilityNeedsCoreArtifact(BaseModel):
+    necessidades: typing.List["ExplainabilityNeedCore"]
 
 class ExplainabilityProblem(BaseModel):
     necessidade_de_explicabilidade: str
@@ -736,7 +748,7 @@ class UserStory(BaseModel):
 
 
 # #########################################################################
-# Model rebuilds (99)
+# Model rebuilds (101)
 # #########################################################################
 # Resolve string forward references now that every model above is defined so
 # class declaration order never breaks Pydantic construction (issue #793).
@@ -783,7 +795,9 @@ EvidenceRef.model_rebuild()
 ExplainabilityDefinition.model_rebuild()
 ExplainabilityLimitsArtifact.model_rebuild()
 ExplainabilityNeed.model_rebuild()
+ExplainabilityNeedCore.model_rebuild()
 ExplainabilityNeedsArtifact.model_rebuild()
+ExplainabilityNeedsCoreArtifact.model_rebuild()
 ExplainabilityProblem.model_rebuild()
 ExplainabilityRequirement.model_rebuild()
 ExplainabilityRequirementsArtifact.model_rebuild()

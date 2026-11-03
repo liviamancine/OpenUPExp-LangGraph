@@ -3,6 +3,8 @@
 Ver docs/architecture/02-mapeamento-fase-1-visao.md.
 """
 
+import re
+
 from openupexp.agents.evidence import verify_item_evidences
 from openupexp.agents.registry import ARTIFACT_TYPES, VISION_EDITABLE
 from openupexp.agents.runtime import TaskContext, WriteResult
@@ -193,7 +195,39 @@ async def t_1_2_pos(ctx: TaskContext) -> list[WriteResult]:
     return [WriteResult("vision.positioning", {}, raw_items=result)]
 
 
+async def t_needs_without_aspect(ctx: TaskContext) -> list[WriteResult]:
+    """1.2.1 (manifesto 0.6.0): necessidades sem aspecto associado (fica para a elicitação e a análise)."""
+    out = await ctx.call("IdentifyExplainabilityNeedsWithoutAspect", T.IdentifyNeedsInput(
+        stakeholders=_models(T.Stakeholder, _items(ctx.package.required("vision.stakeholders"), "stakeholders")),
+        solicitacoes=_models(T.StakeholderNeed,
+                             _items(ctx.package.required("vision.stakeholder_needs"), "solicitacoes")),
+        glossario=_models(T.GlossaryTerm, _items(ctx.package.required("glossary"), "termos")),
+        necessidades_existentes=_models(
+            T.ExplainabilityNeed, _items(ctx.package.previous("vision.explainability_needs"), "necessidades")),
+    ))
+    needs = [{**n, "aspecto_associado": None} for n in _dump_list(out.necessidades)]
+    return [WriteResult("vision.explainability_needs", {}, raw_items=needs)]
+
+
+# Informações complementares (0.6.0) são orientação ao engenheiro, não imposição ao sistema.
+_IMPOSITION = re.compile(r"^\s*(o|a)\s+(sistema|plataforma|solu[cç][aã]o)\s+(deve|dever[aá]|precisa)\b", re.IGNORECASE)
+
+
 async def t_1_2_2(ctx: TaskContext) -> list[WriteResult]:
+    """Identify Complementary Requirements (até o manifesto 0.5.0)."""
+    return await _complementary(ctx, "DevelopComplementaryRequirements")
+
+
+async def t_complementary_information(ctx: TaskContext) -> list[WriteResult]:
+    """1.2.2 (manifesto 0.6.0): Informações complementares, em tom de orientação e com fonte."""
+    results = await _complementary(ctx, "DevelopComplementaryInformation")
+    for item in results[1].raw_items or []:
+        if _IMPOSITION.search(item.get("requisito") or ""):
+            item["alerta"] = "escrito como imposição ao sistema; reescreva como orientação"
+    return results
+
+
+async def _complementary(ctx: TaskContext, function: str) -> list[WriteResult]:
     problema = T.ExplainabilityProblem.model_validate(ctx.package.required("vision.problem"))
     needs = _models(T.ExplainabilityNeed, _items(ctx.package.required("vision.explainability_needs"), "necessidades"))
     plan = await ctx.call("PlanReferenceQueries", T.PlanQueriesInput(problema=problema, necessidades=needs))
@@ -220,7 +254,7 @@ async def t_1_2_2(ctx: TaskContext) -> list[WriteResult]:
         by_ref[h.ref] = h
 
     prev = _items(ctx.package.previous("vision.complementary_requirements"), "requisitos")
-    out = await ctx.call("DevelopComplementaryRequirements", T.ComplementaryInput(
+    out = await ctx.call(function, T.ComplementaryInput(
         problema=problema, necessidades=needs,
         requisitos_existentes=_models(T.ComplementaryRequirement, prev)))
 
@@ -305,10 +339,10 @@ async def t_1_3_1(ctx: TaskContext) -> list[WriteResult]:
         {"id": "need_tem_origem", "descricao": "Toda necessidade é sustentada por solicitações (SN)",
          "ok": all(n.get("solicitacao_ids") for n in needs),
          "detalhes": [n["id"] for n in needs if not n.get("solicitacao_ids")]},
-        {"id": "cr_tem_evidencia", "descricao": "Todo requisito complementar tem evidência verificada",
+        {"id": "cr_tem_evidencia", "descricao": "Toda informação complementar tem evidência verificada",
          "ok": all(r.get("fundamentacao_verificada") for r in crs),
          "detalhes": [r["id"] for r in crs if not r.get("fundamentacao_verificada")]},
-        {"id": "cr_tem_need", "descricao": "Todo requisito complementar se relaciona a uma necessidade",
+        {"id": "cr_tem_need", "descricao": "Toda informação complementar se relaciona a uma necessidade",
          "ok": all(r.get("need_ids") for r in crs), "detalhes": [r["id"] for r in crs if not r.get("need_ids")]},
         {"id": "limites_completos", "descricao": "Checklist de limites com todas as perguntas",
          "ok": len(limits) == len(LIMITS_CHECKLIST), "detalhes": []},
@@ -339,7 +373,9 @@ NAMED_HANDLERS = {
     "capture_domain_terminology": t_1_1_4,
     "create_initial_glossary": t_1_1_5,
     "identify_explainability_needs": t_1_2_1,
+    "identify_explainability_needs_without_aspect": t_needs_without_aspect,
     "identify_complementary_requirements": t_1_2_2,
+    "identify_complementary_information": t_complementary_information,
     "define_explainability_limits": t_1_2_3,
     "assemble_draft_vision": t_1_2_4,
     "pre_review_checklist": t_1_3_1,

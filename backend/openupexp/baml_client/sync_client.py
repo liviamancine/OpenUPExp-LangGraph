@@ -304,6 +304,20 @@ class BamlSyncClient:
                 "entrada": entrada,"contexto": contexto,
             })
             return typing.cast(types.PositioningResult, __result__.cast_to(types, types, stream_types, False, __runtime__))
+    def DevelopComplementaryInformation(self, entrada: types.ComplementaryInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> types.ComplementaryRequirementsArtifact:
+        # Check if on_tick is provided
+        if 'on_tick' in baml_options:
+            __stream__ = self.stream.DevelopComplementaryInformation(entrada=entrada,contexto=contexto,
+                baml_options=baml_options)
+            return __stream__.get_final_response()
+        else:
+            # Original non-streaming code
+            __result__ = self.__options.merge_options(baml_options).call_function_sync(function_name="DevelopComplementaryInformation", args={
+                "entrada": entrada,"contexto": contexto,
+            })
+            return typing.cast(types.ComplementaryRequirementsArtifact, __result__.cast_to(types, types, stream_types, False, __runtime__))
     def DevelopComplementaryRequirements(self, entrada: types.ComplementaryInput,contexto: typing.List["types.ContextItem"],
         baml_options: BamlCallOptions = {},
     ) -> types.ComplementaryRequirementsArtifact:
@@ -360,6 +374,20 @@ class BamlSyncClient:
                 "entrada": entrada,"contexto": contexto,
             })
             return typing.cast(types.ExplainabilityNeedsArtifact, __result__.cast_to(types, types, stream_types, False, __runtime__))
+    def IdentifyExplainabilityNeedsWithoutAspect(self, entrada: types.IdentifyNeedsInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> types.ExplainabilityNeedsCoreArtifact:
+        # Check if on_tick is provided
+        if 'on_tick' in baml_options:
+            __stream__ = self.stream.IdentifyExplainabilityNeedsWithoutAspect(entrada=entrada,contexto=contexto,
+                baml_options=baml_options)
+            return __stream__.get_final_response()
+        else:
+            # Original non-streaming code
+            __result__ = self.__options.merge_options(baml_options).call_function_sync(function_name="IdentifyExplainabilityNeedsWithoutAspect", args={
+                "entrada": entrada,"contexto": contexto,
+            })
+            return typing.cast(types.ExplainabilityNeedsCoreArtifact, __result__.cast_to(types, types, stream_types, False, __runtime__))
     def IdentifyExplainabilityRequirements(self, entrada: types.IdentifyRequirementsInput,contexto: typing.List["types.ContextItem"],
         baml_options: BamlCallOptions = {},
     ) -> types.ExplainabilityRequirementsArtifact:
@@ -675,6 +703,18 @@ class BamlStreamClient:
           lambda x: typing.cast(types.PositioningResult, x.cast_to(types, types, stream_types, False, __runtime__)),
           __ctx__,
         )
+    def DevelopComplementaryInformation(self, entrada: types.ComplementaryInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.BamlSyncStream[stream_types.ComplementaryRequirementsArtifact, types.ComplementaryRequirementsArtifact]:
+        __ctx__, __result__ = self.__options.merge_options(baml_options).create_sync_stream(function_name="DevelopComplementaryInformation", args={
+            "entrada": entrada,"contexto": contexto,
+        })
+        return baml_py.BamlSyncStream[stream_types.ComplementaryRequirementsArtifact, types.ComplementaryRequirementsArtifact](
+          __result__,
+          lambda x: typing.cast(stream_types.ComplementaryRequirementsArtifact, x.cast_to(types, types, stream_types, True, __runtime__)),
+          lambda x: typing.cast(types.ComplementaryRequirementsArtifact, x.cast_to(types, types, stream_types, False, __runtime__)),
+          __ctx__,
+        )
     def DevelopComplementaryRequirements(self, entrada: types.ComplementaryInput,contexto: typing.List["types.ContextItem"],
         baml_options: BamlCallOptions = {},
     ) -> baml_py.BamlSyncStream[stream_types.ComplementaryRequirementsArtifact, types.ComplementaryRequirementsArtifact]:
@@ -721,6 +761,18 @@ class BamlStreamClient:
           __result__,
           lambda x: typing.cast(stream_types.ExplainabilityNeedsArtifact, x.cast_to(types, types, stream_types, True, __runtime__)),
           lambda x: typing.cast(types.ExplainabilityNeedsArtifact, x.cast_to(types, types, stream_types, False, __runtime__)),
+          __ctx__,
+        )
+    def IdentifyExplainabilityNeedsWithoutAspect(self, entrada: types.IdentifyNeedsInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.BamlSyncStream[stream_types.ExplainabilityNeedsCoreArtifact, types.ExplainabilityNeedsCoreArtifact]:
+        __ctx__, __result__ = self.__options.merge_options(baml_options).create_sync_stream(function_name="IdentifyExplainabilityNeedsWithoutAspect", args={
+            "entrada": entrada,"contexto": contexto,
+        })
+        return baml_py.BamlSyncStream[stream_types.ExplainabilityNeedsCoreArtifact, types.ExplainabilityNeedsCoreArtifact](
+          __result__,
+          lambda x: typing.cast(stream_types.ExplainabilityNeedsCoreArtifact, x.cast_to(types, types, stream_types, True, __runtime__)),
+          lambda x: typing.cast(types.ExplainabilityNeedsCoreArtifact, x.cast_to(types, types, stream_types, False, __runtime__)),
           __ctx__,
         )
     def IdentifyExplainabilityRequirements(self, entrada: types.IdentifyRequirementsInput,contexto: typing.List["types.ContextItem"],
@@ -944,6 +996,13 @@ class BamlHttpRequestClient:
             "entrada": entrada,"contexto": contexto,
         }, mode="request")
         return __result__
+    def DevelopComplementaryInformation(self, entrada: types.ComplementaryInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        __result__ = self.__options.merge_options(baml_options).create_http_request_sync(function_name="DevelopComplementaryInformation", args={
+            "entrada": entrada,"contexto": contexto,
+        }, mode="request")
+        return __result__
     def DevelopComplementaryRequirements(self, entrada: types.ComplementaryInput,contexto: typing.List["types.ContextItem"],
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
@@ -969,6 +1028,13 @@ class BamlHttpRequestClient:
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
         __result__ = self.__options.merge_options(baml_options).create_http_request_sync(function_name="IdentifyExplainabilityNeeds", args={
+            "entrada": entrada,"contexto": contexto,
+        }, mode="request")
+        return __result__
+    def IdentifyExplainabilityNeedsWithoutAspect(self, entrada: types.IdentifyNeedsInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        __result__ = self.__options.merge_options(baml_options).create_http_request_sync(function_name="IdentifyExplainabilityNeedsWithoutAspect", args={
             "entrada": entrada,"contexto": contexto,
         }, mode="request")
         return __result__
@@ -1148,6 +1214,13 @@ class BamlHttpStreamRequestClient:
             "entrada": entrada,"contexto": contexto,
         }, mode="stream")
         return __result__
+    def DevelopComplementaryInformation(self, entrada: types.ComplementaryInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        __result__ = self.__options.merge_options(baml_options).create_http_request_sync(function_name="DevelopComplementaryInformation", args={
+            "entrada": entrada,"contexto": contexto,
+        }, mode="stream")
+        return __result__
     def DevelopComplementaryRequirements(self, entrada: types.ComplementaryInput,contexto: typing.List["types.ContextItem"],
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
@@ -1173,6 +1246,13 @@ class BamlHttpStreamRequestClient:
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
         __result__ = self.__options.merge_options(baml_options).create_http_request_sync(function_name="IdentifyExplainabilityNeeds", args={
+            "entrada": entrada,"contexto": contexto,
+        }, mode="stream")
+        return __result__
+    def IdentifyExplainabilityNeedsWithoutAspect(self, entrada: types.IdentifyNeedsInput,contexto: typing.List["types.ContextItem"],
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        __result__ = self.__options.merge_options(baml_options).create_http_request_sync(function_name="IdentifyExplainabilityNeedsWithoutAspect", args={
             "entrada": entrada,"contexto": contexto,
         }, mode="stream")
         return __result__

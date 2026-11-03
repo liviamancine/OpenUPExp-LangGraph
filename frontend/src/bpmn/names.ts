@@ -14,8 +14,8 @@ const TASKS: Record<string, string> = {
   "1.1.5": "Levantar os termos do domínio",
   "1.1.6": "Criar o glossário inicial",
   "1.2": "Desenvolver a Visão",
-  "1.2.1": "Identificar as necessidades e os aspectos associados",
-  "1.2.2": "Identificar requisitos complementares",
+  "1.2.1": "Identificar as necessidades de explicabilidade",
+  "1.2.2": "Identificar informações complementares",
   "1.2.3": "Definir o escopo e os limites da explicabilidade",
   "1.2.4": "Montar o rascunho da Visão",
   "1.3": "Validar a Visão",
@@ -83,6 +83,8 @@ const BY_NAME: Record<string, string> = {
   "Create Initial Glossary": "Criar o glossário inicial",
   "Identify Explainability Needs": "Identificar as necessidades de explicabilidade",
   "Identify associated aspects": "Identificar as necessidades e os aspectos associados",
+  "Identify Complementary Requirements": "Identificar requisitos complementares",
+  "Identify Complementary Information": "Identificar informações complementares",
 };
 
 export function taskName(id: string, fallback?: string | null): string {

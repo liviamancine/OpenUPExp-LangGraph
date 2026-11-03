@@ -20,7 +20,7 @@ from .globals import DO_NOT_USE_DIRECTLY_UNLESS_YOU_KNOW_WHAT_YOURE_DOING_RUNTIM
 class TypeBuilder(type_builder.TypeBuilder):
     def __init__(self):
         super().__init__(classes=set(
-          ["AcceptanceCriteria","AcceptanceCriteriaArtifact","AcceptanceInput","AcceptanceScenario","AspectClassification","AspectsArtifact","CaptureTermsInput","CharacteristicsInput","CharacterizeInput","CharacterizedRequirement","CharacterizedRequirementsArtifact","ChecklistQuestion","ClassifyAspectsInput","ComplementaryInput","ComplementaryRequirement","ComplementaryRequirementsArtifact","ConflictsArtifact","ConflictsInput","ConsolidateInput","ConsolidatedRequirement","ConsolidatedRequirementsArtifact","ContextItem","CreateGlossaryInput","DefinePositioningInput","DefineProblemInput","DependenciesArtifact","DependenciesInput","DependencyAnalysis","DigestInput","DiscardedItem","DomainTerm","DomainTermsArtifact","ElicitationEvidence","ElicitationPlanArtifact","ElicitationPlanItem","ElicitedNeed","ElicitedNeedsArtifact","EvidenceRef","ExplainabilityDefinition","ExplainabilityLimitsArtifact","ExplainabilityNeed","ExplainabilityNeedsArtifact","ExplainabilityProblem","ExplainabilityRequirement","ExplainabilityRequirementsArtifact","ExplanationCharacteristics","ExplanationCharacteristicsArtifact","ExplanationTypeMapping","ExplanationTypesArtifact","ExtractNeedsInput","FeasibilityArtifact","FeasibilityAssessment","FeasibilityInput","FeasibilityItem","GlossaryArtifact","GlossaryTerm","IdentifyNeedsInput","IdentifyRequirementsInput","IdentifyStakeholderNeedsInput","IdentifyStakeholdersInput","Lacuna","LimitAnswer","LimitsInput","MapTypesInput","OrigemRef","PhaseComplementaryArtifact","PhaseComplementaryRequirement","PhaseDigest","PlanElicitationInput","PlanQueriesInput","Positioning","PositioningArtifact","PositioningInput","PositioningResult","PrioritiesArtifact","PrioritizeInput","PriorityAssignment","ProblemStatement","ProblemStatementArtifact","ProfilePositioning","ReferenceQuery","ReferenceQueryPlan","RefineComplementaryInput","RequirementAnalysisSummary","RequirementConflict","RequirementConstraint","RequirementIndexEntry","RequirementPair","SimilarPair","SpecificationPlanEntry","SpecifyStoriesInput","Stakeholder","StakeholderNeed","StakeholderNeedsArtifact","StakeholdersArtifact","TraceabilityMatrix","TraceabilityRow","UserStoriesArtifact","UserStory",]
+          ["AcceptanceCriteria","AcceptanceCriteriaArtifact","AcceptanceInput","AcceptanceScenario","AspectClassification","AspectsArtifact","CaptureTermsInput","CharacteristicsInput","CharacterizeInput","CharacterizedRequirement","CharacterizedRequirementsArtifact","ChecklistQuestion","ClassifyAspectsInput","ComplementaryInput","ComplementaryRequirement","ComplementaryRequirementsArtifact","ConflictsArtifact","ConflictsInput","ConsolidateInput","ConsolidatedRequirement","ConsolidatedRequirementsArtifact","ContextItem","CreateGlossaryInput","DefinePositioningInput","DefineProblemInput","DependenciesArtifact","DependenciesInput","DependencyAnalysis","DigestInput","DiscardedItem","DomainTerm","DomainTermsArtifact","ElicitationEvidence","ElicitationPlanArtifact","ElicitationPlanItem","ElicitedNeed","ElicitedNeedsArtifact","EvidenceRef","ExplainabilityDefinition","ExplainabilityLimitsArtifact","ExplainabilityNeed","ExplainabilityNeedCore","ExplainabilityNeedsArtifact","ExplainabilityNeedsCoreArtifact","ExplainabilityProblem","ExplainabilityRequirement","ExplainabilityRequirementsArtifact","ExplanationCharacteristics","ExplanationCharacteristicsArtifact","ExplanationTypeMapping","ExplanationTypesArtifact","ExtractNeedsInput","FeasibilityArtifact","FeasibilityAssessment","FeasibilityInput","FeasibilityItem","GlossaryArtifact","GlossaryTerm","IdentifyNeedsInput","IdentifyRequirementsInput","IdentifyStakeholderNeedsInput","IdentifyStakeholdersInput","Lacuna","LimitAnswer","LimitsInput","MapTypesInput","OrigemRef","PhaseComplementaryArtifact","PhaseComplementaryRequirement","PhaseDigest","PlanElicitationInput","PlanQueriesInput","Positioning","PositioningArtifact","PositioningInput","PositioningResult","PrioritiesArtifact","PrioritizeInput","PriorityAssignment","ProblemStatement","ProblemStatementArtifact","ProfilePositioning","ReferenceQuery","ReferenceQueryPlan","RefineComplementaryInput","RequirementAnalysisSummary","RequirementConflict","RequirementConstraint","RequirementIndexEntry","RequirementPair","SimilarPair","SpecificationPlanEntry","SpecifyStoriesInput","Stakeholder","StakeholderNeed","StakeholderNeedsArtifact","StakeholdersArtifact","TraceabilityMatrix","TraceabilityRow","UserStoriesArtifact","UserStory",]
         ), enums=set(
           ["ComplementaryCategory","ConflictKind","ConstraintKind","DecisionRisk","ElicitationTechnique","EvidenceKind","ExplanationDetailLevel","ExplanationFormat","ExplanationGoal","ExplanationMoment","ExplanationType","ExplanatoryAspect","FeasibilityCriterion","FeasibilityStatus","MoSCoW","RequirementKind",]
         ), runtime=DO_NOT_USE_DIRECTLY_UNLESS_YOU_KNOW_WHAT_YOURE_DOING_RUNTIME)
@@ -95,7 +95,7 @@ class TypeBuilder(type_builder.TypeBuilder):
 
 
     # #########################################################################
-    # Generated classes 99
+    # Generated classes 101
     # #########################################################################
 
     @property
@@ -263,8 +263,16 @@ class TypeBuilder(type_builder.TypeBuilder):
         return ExplainabilityNeedViewer(self)
 
     @property
+    def ExplainabilityNeedCore(self) -> "ExplainabilityNeedCoreViewer":
+        return ExplainabilityNeedCoreViewer(self)
+
+    @property
     def ExplainabilityNeedsArtifact(self) -> "ExplainabilityNeedsArtifactViewer":
         return ExplainabilityNeedsArtifactViewer(self)
+
+    @property
+    def ExplainabilityNeedsCoreArtifact(self) -> "ExplainabilityNeedsCoreArtifactViewer":
+        return ExplainabilityNeedsCoreArtifactViewer(self)
 
     @property
     def ExplainabilityProblem(self) -> "ExplainabilityProblemViewer":
@@ -1334,7 +1342,7 @@ class RequirementKindValues:
 
 
 # #########################################################################
-# Generated classes 99
+# Generated classes 101
 # #########################################################################
 
 class AcceptanceCriteriaAst:
@@ -3356,6 +3364,69 @@ class ExplainabilityNeedProperties:
     
 
 
+class ExplainabilityNeedCoreAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("ExplainabilityNeedCore")
+        self._properties: typing.Set[str] = set([  "id",  "necessidade",  "stakeholder_ids",  "solicitacao_ids",  "prioridade",  "planned_release",  "lacunas",  ])
+        self._props = ExplainabilityNeedCoreProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "ExplainabilityNeedCoreProperties":
+        return self._props
+
+
+class ExplainabilityNeedCoreViewer(ExplainabilityNeedCoreAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class ExplainabilityNeedCoreProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def id(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("id"))
+    
+    @property
+    def necessidade(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("necessidade"))
+    
+    @property
+    def stakeholder_ids(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("stakeholder_ids"))
+    
+    @property
+    def solicitacao_ids(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("solicitacao_ids"))
+    
+    @property
+    def prioridade(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("prioridade"))
+    
+    @property
+    def planned_release(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("planned_release"))
+    
+    @property
+    def lacunas(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("lacunas"))
+    
+    
+
+
 class ExplainabilityNeedsArtifactAst:
     def __init__(self, tb: type_builder.TypeBuilder):
         _tb = tb._tb # type: ignore (we know how to use this private attribute)
@@ -3382,6 +3453,45 @@ class ExplainabilityNeedsArtifactViewer(ExplainabilityNeedsArtifactAst):
 
 
 class ExplainabilityNeedsArtifactProperties:
+    def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
+        self.__bldr = bldr
+        self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821
+
+    
+    
+    @property
+    def necessidades(self) -> type_builder.ClassPropertyViewer:
+        return type_builder.ClassPropertyViewer(self.__bldr.property("necessidades"))
+    
+    
+
+
+class ExplainabilityNeedsCoreArtifactAst:
+    def __init__(self, tb: type_builder.TypeBuilder):
+        _tb = tb._tb # type: ignore (we know how to use this private attribute)
+        self._bldr = _tb.class_("ExplainabilityNeedsCoreArtifact")
+        self._properties: typing.Set[str] = set([  "necessidades",  ])
+        self._props = ExplainabilityNeedsCoreArtifactProperties(self._bldr, self._properties)
+
+    def type(self) -> baml_py.FieldType:
+        return self._bldr.field()
+
+    @property
+    def props(self) -> "ExplainabilityNeedsCoreArtifactProperties":
+        return self._props
+
+
+class ExplainabilityNeedsCoreArtifactViewer(ExplainabilityNeedsCoreArtifactAst):
+    def __init__(self, tb: type_builder.TypeBuilder):
+        super().__init__(tb)
+
+    
+    def list_properties(self) -> typing.List[typing.Tuple[str, type_builder.ClassPropertyViewer]]:
+        return [(name, type_builder.ClassPropertyViewer(self._bldr.property(name))) for name in self._properties]
+    
+
+
+class ExplainabilityNeedsCoreArtifactProperties:
     def __init__(self, bldr: baml_py.ClassBuilder, properties: typing.Set[str]):
         self.__bldr = bldr
         self.__properties = properties # type: ignore (we know how to use this private attribute) # noqa: F821

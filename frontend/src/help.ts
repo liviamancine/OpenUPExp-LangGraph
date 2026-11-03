@@ -30,13 +30,14 @@ export const PART_HELP: Record<string, Help> = {
     fonte: "Definir a Visão, passo 4",
   },
   "vision.explainability_needs": {
-    texto: "As capacidades necessárias e o porquê (não o como), em nível geral, com a prioridade, a característica "
-      + "ou aspecto associado e o lançamento planejado.",
+    texto: "As capacidades necessárias e o porquê (não o como), em nível geral, com a prioridade e o lançamento "
+      + "planejado. Os aspectos de explicabilidade são tratados na elicitação e na análise.",
     fonte: "Documento de Visão, seção 4.1",
   },
   "vision.complementary_requirements": {
-    texto: "Requisitos adicionais que não são funcionalidades: padrões, normas e regulamentos, plataforma e "
-      + "desempenho, qualidade das explicações, restrições, dependências e documentação.",
+    texto: "Informações complementares para o engenheiro conhecer o negócio antes das entrevistas: normas e "
+      + "regulamentos, plataforma e desempenho, qualidade das explicações, restrições e documentação, sempre com a "
+      + "fonte. Não são requisitos do sistema.",
     fonte: "Documento de Visão, seção 5",
   },
   "vision.limits": {
@@ -48,6 +49,15 @@ export const PART_HELP: Record<string, Help> = {
     texto: "Vocabulário comum: termos do domínio e da explicabilidade com suas definições, para evitar "
       + "interpretações divergentes ao longo do projeto.",
     fonte: "Definir a Visão, passo 3",
+  },
+};
+
+// Dicas de campos que mudam conforme a parte (ver PART_FIELD_LABEL em components/ui.tsx).
+export const PART_FIELD_HELP: Record<string, Record<string, string>> = {
+  "vision.complementary_requirements": {
+    requisito: "Orientação para conhecer o negócio antes das entrevistas, por exemplo \"Importante disponibilizar "
+      + "informações sobre ...\". Não é requisito do sistema.",
+    justificativa: "Por que é importante conhecer esta informação antes das entrevistas e com quais necessidades ela se relaciona.",
   },
 };
 

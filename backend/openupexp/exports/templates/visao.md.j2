@@ -99,6 +99,8 @@ _Não identificado nas informações disponíveis; requer investigação._
 
 ## 4. Visão Geral da Explicabilidade
 
+{% set with_aspect = needs | selectattr("aspecto_associado") | list %}
+{% if with_aspect or not info_mode %}
 ### 4.1 Necessidades e Aspecto Associado
 
 | ID | Necessidade | Stakeholders | Prioridade | Aspecto associado | Planned Release |
@@ -106,9 +108,18 @@ _Não identificado nas informações disponíveis; requer investigação._
 {% for n in needs -%}
 | {{ n.id }} | {{ n.necessidade | c }} | {{ n.stakeholder_ids | lst | c }} | {{ n.prioridade | c }} | {{ n.aspecto_associado | c }} | {{ n.planned_release | c }} |
 {% endfor %}
+{% else %}
+### 4.1 Necessidades
+
+| ID | Necessidade | Stakeholders | Prioridade | Planned Release |
+|---|---|---|---|---|
+{% for n in needs -%}
+| {{ n.id }} | {{ n.necessidade | c }} | {{ stakeholder_names(n.stakeholder_ids) | c }} | {{ n.prioridade | c }} | {{ n.planned_release | c }} |
+{% endfor %}
+{% endif %}
 
 {% if stakeholder_needs %}
-<details><summary>Solicitações dos stakeholders que sustentam as necessidades (1.1.3)</summary>
+<details><summary>Solicitações dos stakeholders que sustentam as necessidades</summary>
 
 | ID | Stakeholder | Solicitação |
 |---|---|---|
@@ -120,7 +131,13 @@ _Não identificado nas informações disponíveis; requer investigação._
 
 ---
 
+{% if info_mode %}
+## 5. Informações complementares relacionadas à explicabilidade
+
+_Orientações para o Engenheiro de Requisitos conhecer o negócio, as normas e as restrições antes das entrevistas. Não são requisitos do sistema._
+{% else %}
 ## 5. Requisitos Adicionais relacionados à Explicabilidade
+{% endif %}
 
 {% for secao, titulo in sections5 %}
 ### {{ titulo }}
@@ -128,14 +145,14 @@ _Não identificado nas informações disponíveis; requer investigação._
 {% for r in complementary if r.categoria == secao %}
 **{{ r.id }}.** {{ r.requisito | t }}
 
-- *Justificativa:* {{ r.justificativa | t }}
+- *{{ "Por que importa" if info_mode else "Justificativa" }}:* {{ r.justificativa | t }}
 - *Necessidades relacionadas:* {{ r.need_ids | lst }}
 {% for e in r.evidencias %}
 - *Evidência ({{ e.tipo }}{% if e.verificacao %}, {{ e.verificacao }}{% endif %}):* `{{ e.chunk_ref }}` — "{{ e.citacao | t }}"
 {% endfor %}
 
 {% else %}
-_Nenhum requisito fundamentado pelas evidências recuperadas. Isso não significa que não existam; pode ser necessária investigação adicional._
+{% if info_mode %}_Nenhuma informação fundamentada pelas evidências recuperadas. Isso não significa que não existam; pode ser necessária investigação adicional._{% else %}_Nenhum requisito fundamentado pelas evidências recuperadas. Isso não significa que não existam; pode ser necessária investigação adicional._{% endif %}
 
 {% endfor %}
 {% endfor %}

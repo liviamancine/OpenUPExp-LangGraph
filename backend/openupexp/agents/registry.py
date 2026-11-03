@@ -39,7 +39,7 @@ ARTIFACT_TYPES: dict[str, ArtifactType] = {
         ArtifactType("vision.reference_queries", T.ReferenceQueryPlan, title="Consultas à base de referência"),
         ArtifactType("vision.complementary_requirements", T.ComplementaryRequirementsArtifact, "requisitos",
                      T.ComplementaryRequirement, "CR", lambda i: i.get("requisito") or "",
-                     "Requisitos complementares"),
+                     "Informações complementares"),
         ArtifactType("vision.limits", T.ExplainabilityLimitsArtifact, title="Limites da explicabilidade"),
         ArtifactType("vision.draft", None, title="Rascunho do Documento de Visão"),
         ArtifactType("vision.review_report", None, title="Checklist de pré-revisão"),
