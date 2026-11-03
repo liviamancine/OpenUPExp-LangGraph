@@ -144,3 +144,27 @@ async def test_phase2_human_points_via_api(client, scope_bytes, law_bytes):
     assert detail["kind"] == "approval" and detail["review_report"]["checks"]
     arts = (await client.get(f"/api/runs/{run}/artifacts", headers=eng)).json()
     assert {a["artifact_type"] for a in arts if a["secao"]} >= {"elicitation.plan", "requirements.consolidated"}
+
+
+async def test_retry_after_failure_via_api(client, scope_bytes, law_bytes):
+    """Tentar de novo: a execução com falha volta à fila e continua (antes respondia 500 e nada era gravado)."""
+    from openupexp.db.models import Run
+
+    async with session_scope() as s:
+        await create_user(s, "eng@x.org", "Engenheira", "senha123")
+    eng = await _login(client, "eng@x.org")
+    pid = (await client.post("/api/projects", json={"nome": "Retry"}, headers=eng)).json()["id"]
+    await client.post(f"/api/projects/{pid}/sources", headers=eng,
+                      files={"file": ("escopo.txt", scope_bytes)}, data={"source_kind": "escopo"})
+    run_id = (await client.post(f"/api/projects/{pid}/runs", headers=eng,
+                                json={"phase": "1", "agent_gateway": "fake"})).json()["id"]
+    await drain()
+    async with session_scope() as s:  # como se o provedor de IA tivesse falhado (job já encerrado)
+        run = await s.get(Run, run_id)
+        run.status, run.error = "failed", "BamlClientHttpError: 429"
+    r = await client.post(f"/api/runs/{run_id}/retry", headers=eng)
+    assert r.status_code == 200, r.text
+    assert r.json()["status"] == "queued"
+    await drain()
+    assert (await client.get(f"/api/runs/{run_id}", headers=eng)).json()["status"] == "waiting_human"
+    assert (await client.post(f"/api/runs/{run_id}/retry", headers=eng)).status_code == 409  # já não falhou

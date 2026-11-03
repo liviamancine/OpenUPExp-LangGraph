@@ -76,6 +76,9 @@ async def get_run(run_id: uuid.UUID, user: AppUser = Depends(current_user), sess
 async def retry(run_id: uuid.UUID, user: AppUser = Depends(current_user), session: AsyncSession = Depends(get_session)):
     run = await _run_for(session, run_id, user, ("requirements_engineer",))
     await services.retry_run(session, run, user.id)
+    # updated_at muda no banco: sem recarregar, run_summary leria fora do contexto assíncrono (500)
+    await session.flush()
+    await session.refresh(run)
     return run_summary(run)
 
 

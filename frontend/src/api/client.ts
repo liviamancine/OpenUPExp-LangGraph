@@ -29,10 +29,12 @@ async function request<T>(method: string, path: string, body?: unknown, isForm =
     if (!location.pathname.startsWith("/login")) location.assign("/login");
   }
   if (!res.ok) {
-    let detail = res.statusText;
+    // atrás de proxy HTTP/2 o statusText chega vazio: a mensagem nunca pode ficar em branco
+    let detail = res.status >= 500 ? `Erro no servidor (${res.status}). Tente de novo em instantes.`
+      : res.statusText || `Erro ${res.status}`;
     try {
       const data = await res.json();
-      detail = typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail);
+      if (data.detail) detail = typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail);
     } catch { /* corpo não-JSON */ }
     throw new ApiError(res.status, detail);
   }
