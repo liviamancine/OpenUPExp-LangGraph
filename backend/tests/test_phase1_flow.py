@@ -236,7 +236,8 @@ async def test_manifest_060_needs_without_aspect_and_complementary_information(s
     run_id = await _setup(scope_bytes, law_bytes)
     await drain()
     async with session_scope() as s:
-        assert (await s.get(Run, run_id)).manifest_version == "0.6.0"
+        version = (await s.get(Run, run_id)).manifest_version  # 0.6.0 ou mais novo (mesma Fase 1)
+        assert tuple(int(x) for x in version.split(".")) >= (0, 6, 0)
         functions = set((await s.scalars(select(LlmCall.baml_function).where(LlmCall.run_id == run_id))).all())
         assert {"IdentifyExplainabilityNeedsWithoutAspect", "DevelopComplementaryInformation"} <= functions
         assert not functions & {"IdentifyExplainabilityNeeds", "DevelopComplementaryRequirements"}

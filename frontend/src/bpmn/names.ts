@@ -31,7 +31,7 @@ const TASKS: Record<string, string> = {
   "2.2.1.in": "Enviar o material das conversas",
   "2.2.2": "Identificar os requisitos de explicabilidade",
   "2.2.3": "Identificar requisitos complementares",
-  "2.2.4": "Organizar e consolidar os requisitos",
+  "2.2.4": "Montar o rascunho do DRE",
   "2.2.5": "Buscar o consenso da equipe",
   "2.3": "Validar os requisitos",
   "2.3.1": "Revisar os requisitos",
@@ -85,6 +85,8 @@ const BY_NAME: Record<string, string> = {
   "Identify associated aspects": "Identificar as necessidades e os aspectos associados",
   "Identify Complementary Requirements": "Identificar requisitos complementares",
   "Identify Complementary Information": "Identificar informações complementares",
+  "Organize and Consolidate Requirements": "Organizar e consolidar os requisitos",
+  "Elaborate Explainability Requirements": "Montar o rascunho do DRE",
 };
 
 export function taskName(id: string, fallback?: string | null): string {

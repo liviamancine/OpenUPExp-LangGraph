@@ -38,7 +38,8 @@ def handler_for(task: TaskSpec):
     """Handler de uma tarefa: pelo nome declarado no manifesto (0.5.0 em diante) ou pelo número."""
     if task.handler == "consolidate_vision":
         return consolidate_vision
-    return phase1.NAMED_HANDLERS.get(task.handler or "") or HANDLERS.get(task.id)
+    named = {**phase1.NAMED_HANDLERS, **phase2.NAMED_HANDLERS}
+    return named.get(task.handler or "") or HANDLERS.get(task.id)
 
 
 class RunState(TypedDict, total=False):

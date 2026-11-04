@@ -5,6 +5,7 @@ Tarefas com muitos itens rodam em map (uma chamada por stakeholder ou por necess
 cada uma só com o próprio contexto; um join determinístico garante que nenhum item se perde.
 """
 
+import copy
 import math
 
 from sqlalchemy import select
@@ -17,6 +18,7 @@ from openupexp.baml_client import types as T
 from openupexp.context.builder import PackageItem
 from openupexp.db.models import Chunk, HitlRequest, HitlResponse, SourceDocument
 from openupexp.domain import artifacts as store
+from openupexp.domain.ids import assign_keys
 from openupexp.exports import requirements as erd
 from openupexp.exports import vision as visao
 from openupexp.retrieval.ingest import ELICITATION_KINDS, build_corpus_version
@@ -354,14 +356,10 @@ async def t_2_3_1(ctx: TaskContext) -> list[WriteResult]:
                         origin="deterministic")]
 
 
-async def t_2_3_2(ctx: TaskContext) -> list[WriteResult]:
-    """Consolida a Fase 2: aprova as versões e compõe o ERD (Visão aprovada + Requisitos)."""
-    cur = await store.current_versions(ctx.session, ctx.run.id)
-    phase_types = set(ctx.phase.writers())
-    await store.set_status(ctx.session, [v.id for t, v in cur.items() if t in phase_types], "approved")
-    contents = {t: v.content for t, v in cur.items()}
+async def _compose_erd(ctx: TaskContext, contents: dict, status: str, versao: str) -> tuple[str, str]:
+    """ERD = Visão aprovada (parte 1) + requisitos da Fase 2 (parte 2); devolve (documento, parte 2)."""
     base = await erd.base_contents(ctx.session, ctx.run)
-    meta = await visao._meta(ctx.session, ctx.run, "aprovado", f"2.{ctx.iteration - 1}")
+    meta = await visao._meta(ctx.session, ctx.run, status, versao)
     meta["base_run_id"] = str(ctx.run.base_run_id)
     part2 = erd.render_requirements_markdown(contents, base, meta, await erd.consensus_records(ctx.session, ctx.run))
     vision_md = (ctx.package.required("vision.draft") or {}).get("markdown", "")
@@ -371,6 +369,36 @@ async def t_2_3_2(ctx: TaskContext) -> list[WriteResult]:
         "> Parte 2 — Requisitos elicitados na Fase 2.\n\n---\n\n"
         f"{vision_md}\n\n---\n\n{part2}"
     )
+    return markdown, part2
+
+
+async def t_elaborate_requirements(ctx: TaskContext) -> list[WriteResult]:
+    """2.2.4 (manifesto 0.7.0): consolida os requisitos e monta o rascunho do DRE, como 1.2.4 na Visão.
+
+    O consenso (2.2.5) e a revisão (2.3.1) trabalham sobre esse rascunho; 2.3.2 o recompõe aprovado.
+    """
+    results = await t_2_2_4(ctx)
+    consolidated = results[0]
+    cur = await store.current_versions(ctx.session, ctx.run.id)
+    contents = {t: v.content for t, v in cur.items()}
+    # os requisitos recém-consolidados ainda não estão gravados: as chaves (REQ-n) são calculadas numa
+    # cópia com as mesmas entradas que persist_writes usará (assign_keys é determinística)
+    at = ARTIFACT_TYPES["requirements.consolidated"]
+    prev = ctx.package.previous("requirements.consolidated") or {}
+    existing = {i["id"]: i for i in prev.get(at.list_field, []) if i.get("id")}
+    keyed = assign_keys(at.prefix, copy.deepcopy(consolidated.raw_items or []), existing, at.text_of)
+    contents["requirements.consolidated"] = {**consolidated.content, at.list_field: [i for _, i in keyed]}
+    markdown, _ = await _compose_erd(ctx, contents, "rascunho", f"rascunho (iteração {ctx.iteration})")
+    return results + [WriteResult("requirements.draft", {"markdown": markdown}, origin="deterministic")]
+
+
+async def t_2_3_2(ctx: TaskContext) -> list[WriteResult]:
+    """Consolida a Fase 2: aprova as versões e compõe o ERD (Visão aprovada + Requisitos)."""
+    cur = await store.current_versions(ctx.session, ctx.run.id)
+    phase_types = set(ctx.phase.writers())
+    await store.set_status(ctx.session, [v.id for t, v in cur.items() if t in phase_types], "approved")
+    contents = {t: v.content for t, v in cur.items()}
+    markdown, part2 = await _compose_erd(ctx, contents, "aprovado", f"2.{ctx.iteration - 1}")
     req_ids = [r["id"] for r in _items(contents.get("requirements.consolidated"), "requisitos")]
     digest = await ctx.call("BuildPhaseDigest", T.DigestInput(documento=part2, ids_obrigatorios=req_ids))
     mentioned = set(digest.ids_cobertos) | {i for i in req_ids if i in digest.resumo}
@@ -383,6 +411,9 @@ async def t_2_3_2(ctx: TaskContext) -> list[WriteResult]:
         WriteResult("digest.requirements", digest_content, status="approved"),
     ]
 
+
+# Handlers por nome (manifesto 0.7.0 em diante).
+NAMED_HANDLERS = {"elaborate_requirements": t_elaborate_requirements}
 
 HANDLERS = {
     "2.1.1": t_2_1_1,

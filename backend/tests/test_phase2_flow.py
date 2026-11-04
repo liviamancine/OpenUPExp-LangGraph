@@ -94,6 +94,12 @@ async def test_phase2_full_flow(scope_bytes, law_bytes):
     assert req.kind == "consensus" and req.task_id == "2.2.5" and req.iteracao == 1
     async with session_scope() as s:
         cur = await store.current_versions(s, run_id)
+        # 0.7.0: o consenso trabalha sobre o rascunho do DRE montado em 2.2.4, já com as chaves REQ-n
+        draft = cur["requirements.draft"]
+        assert draft.status in ("draft", "in_review") and req.payload["reviews"] == "requirements.draft"
+        req_ids = [r["id"] for r in cur["requirements.consolidated"].content["requisitos"]]
+        assert req_ids and all(i in draft.content["markdown"] for i in req_ids)
+        assert "None" not in draft.content["markdown"]
         rns = cur["elicitation.needs"].content["necessidades"]
         assert rns and all(n["fundamentacao_verificada"] for n in rns)
         evidences = (await s.scalars(select(Evidence).where(
