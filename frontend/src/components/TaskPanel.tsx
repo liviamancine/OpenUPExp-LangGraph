@@ -87,7 +87,9 @@ function ExecutionDetail({ exec }: { exec: TaskExec }) {
       )}
       {pkg && (
         <details open>
-          <summary><strong>O que a IA recebeu para ler</strong> · ~{pkg.token_estimate.toLocaleString("pt-BR")} tokens ·{" "}
+          {/* tarefas automáticas também leem artefatos: o número é o tamanho do texto, não gasto com IA */}
+          <summary><strong>{d.llm_calls.length > 0 ? "O que a IA recebeu para ler" : "O que a tarefa leu (sem IA, sem custo)"}</strong>
+            {" "}· ~{pkg.token_estimate.toLocaleString("pt-BR")} tokens de texto ·{" "}
             {pkg.coverage.satisfied ? <span className="badge ok">nada faltou</span>
               : <span className="badge err">faltou {pkg.coverage.missing_ids.join(", ")}</span>}
           </summary>
