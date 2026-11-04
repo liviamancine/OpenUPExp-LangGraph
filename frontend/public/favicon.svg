@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="OpenUPExp">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7c5cff"/>
+      <stop offset="1" stop-color="#14b8a6"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#g)"/>
+  <!-- lente: olhar dentro da IA -->
+  <circle cx="28" cy="28" r="15" fill="#ffffff" fill-opacity="0.16" stroke="#ffffff" stroke-width="4"/>
+  <path d="M39 39 50 50" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
+  <!-- rede: decisão do modelo, explicada -->
+  <path d="M21 33 28 21 35 33Z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round"/>
+  <circle cx="28" cy="21" r="3.6" fill="#ffffff"/>
+  <circle cx="21" cy="33" r="3.6" fill="#ffffff"/>
+  <circle cx="35" cy="33" r="3.6" fill="#fde047"/>
+</svg>

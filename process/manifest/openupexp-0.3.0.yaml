@@ -1,0 +1,632 @@
+# Manifesto do processo OpenUPExp — liga os elementos BPMN de referência à execução.
+# Ver docs/architecture/02-mapeamento-fase-1-visao.md (§2.6) e 12-decisoes-pendentes.md.
+#
+# mechanism:
+#   agent          -> função BAML (LLM)
+#   deterministic  -> código, sem LLM
+#   hitl_approval  -> aprovação individual (gateway)
+#   hitl_consensus -> consenso assíncrono
+# select (reads):
+#   full | all_items | digest
+# Campos "pending" referenciam decisões em aberto da autora (A-xx).
+
+manifest_version: "0.3.0"
+process: openupexp
+bpmn_source:
+  repo: OpenUPExp
+  path: web/bpmn
+  commit_file: process/bpmn/SOURCE_COMMIT
+root:
+  bpmn_file: OpenUPExp Process.bpmn
+
+phases:
+  - id: "1"
+    name: Define Explainability Vision
+    openup_phase: inception
+    implemented: true
+    bpmn_file: "1 Define Explainability Vision.bpmn"
+    bpmn_element: Id_430f37ed-5aef-4b2c-af4e-59ff311e2b2e
+    subprocesses:
+      - id: "1.1"
+        name: Prepare Explainability Vision
+        bpmn_file: "1.1 Prepare Explainability Vision.bpmn"
+        bpmn_element: Id_b3b842eb-4166-45dc-b51b-089fa06a8fdb
+        pending: [A-02]
+        tasks:
+          - id: "1.1.1"
+            name: Define Explainability Problem
+            bpmn_element: Id_d905d16a-33c7-4283-adff-653cf4956381
+            mechanism: agent
+            baml_function: DefineExplainabilityProblem
+            theory_ref: tarefas/definir-visao.md#passo-2
+            reads:
+              - { artifact: project.scope_document, select: full, required: true }
+            writes:
+              - { artifact: vision.problem }
+            template_sections: ["visao §1", "visao §2.1"]
+
+          - id: "1.1.2"
+            name: Identify Stakeholders
+            bpmn_element: Id_cacbf0a9-0ef6-4e84-97ac-1f57ea641981
+            mechanism: agent
+            baml_function: IdentifyStakeholders
+            theory_ref: tarefas/definir-visao.md#passo-1
+            reads:
+              - { artifact: vision.problem, select: full, required: true }
+              - { artifact: project.scope_document, select: full, required: true }
+            writes:
+              - { artifact: vision.stakeholders, item_prefix: STK }
+            template_sections: ["visao §3.1", "visao §3.2"]
+
+          - id: "1.1.3"
+            name: Identify Stakeholder Needs
+            bpmn_element: Id_688b9fd5-781a-4f2d-83b7-2c5b249b8a18
+            mechanism: agent
+            baml_function: IdentifyStakeholderNeeds
+            theory_ref: tarefas/definir-visao.md#passo-4
+            pending: [A-04]
+            reads:
+              - { artifact: vision.stakeholders, select: all_items, required: true }
+              - { artifact: project.scope_document, select: full, required: true }
+            writes:
+              - { artifact: vision.stakeholder_needs, item_prefix: SN }
+            completeness: all_items
+
+          - id: "1.1.4"
+            name: Capture Domain Terminology
+            bpmn_element: Id_2965ae2a-77fd-40a1-802f-97a3eeb0dbca
+            mechanism: agent
+            baml_function: CaptureDomainTerminology
+            theory_ref: tarefas/definir-visao.md#passo-3
+            reads:
+              - { artifact: project.scope_document, select: full, required: true }
+              - { artifact: vision.problem, select: full, required: true }
+            writes:
+              - { artifact: vision.domain_terms, item_prefix: DT }
+
+          - id: "1.1.5"
+            name: Create Initial Glossary
+            bpmn_element: Id_1db0cf6b-bde5-4864-95c5-24e867d101cc
+            mechanism: agent
+            baml_function: CreateInitialGlossary
+            theory_ref: tarefas/definir-visao.md#passo-3
+            pending: [A-10]
+            reads:
+              - { artifact: vision.domain_terms, select: all_items, required: true }
+            writes:
+              - { artifact: glossary, item_prefix: TERM }
+            template_sections: ["DRE §2 Glossário"]
+
+      - id: "1.2"
+        name: Develop Explainability Vision
+        bpmn_file: "1.2 Develop Explainability Vision.bpmn"
+        bpmn_element: Id_fe4680cc-f44f-45ae-862d-5bae83812c6a
+        pending: [A-02]
+        tasks:
+          - id: "1.2.1"
+            name: Identify Explainability Needs
+            bpmn_element: Id_af892c99-ac4d-4fdf-909f-621086c03a58
+            mechanism: agent
+            baml_function: IdentifyExplainabilityNeeds
+            theory_ref: tarefas/definir-visao.md#passo-1
+            pending: [A-04, A-06]
+            reads:
+              - { artifact: vision.stakeholders, select: all_items, required: true }
+              - { artifact: vision.stakeholder_needs, select: all_items, required: true }
+              - { artifact: glossary, select: all_items, required: false }
+            writes:
+              - { artifact: vision.explainability_needs, item_prefix: NEED }
+            template_sections: ["visao §4.1"]
+
+          - id: "1.2.pos"
+            name: Generate Explainability Positioning
+            bpmn_element: null            # sem tarefa BPMN correspondente (A-03)
+            bpmn_anchor: Id_04110efa-231e-4d99-bcc9-304c73317d95
+            mechanism: agent
+            baml_function: GenerateExplainabilityPositioning
+            theory_ref: tarefas/definir-visao.md#passo-1
+            pending: [A-03]
+            reads:
+              - { artifact: vision.problem, select: full, required: true }
+              - { artifact: vision.stakeholders, select: all_items, required: true }
+              - { artifact: vision.explainability_needs, select: all_items, required: true }
+            writes:
+              - { artifact: vision.positioning, item_prefix: POS }
+            completeness: all_items
+            template_sections: ["visao §2.2"]
+
+          - id: "1.2.2"
+            name: Identify Complementary Requirements
+            bpmn_element: Id_ee223aee-e789-4b4d-9084-dd1d70483c10
+            mechanism: agent
+            baml_function: DevelopComplementaryRequirements
+            theory_ref: tarefas/definir-visao.md#passo-5
+            reads:
+              - { artifact: vision.problem, select: full, required: true }
+              - { artifact: vision.explainability_needs, select: all_items, required: true }
+            retrieval:
+              store: reference_base
+              planner: PlanReferenceQueries
+              mode: hybrid
+              top_k: 12
+              per_query_k: 6
+            writes:
+              - { artifact: vision.reference_queries }
+              - { artifact: vision.complementary_requirements, item_prefix: CR, evidence: required }
+            template_sections: ["visao §5.1-5.5"]
+
+          - id: "1.2.3"
+            name: Define Explainability Scope and Limits
+            bpmn_element: Id_30d605ee-ff11-4002-9057-209048cb8c8e
+            mechanism: agent
+            baml_function: DefineExplainabilityLimits
+            theory_ref: tarefas/definir-visao.md#passo-6
+            reads:
+              - { artifact: vision.stakeholders, select: all_items, required: true }
+              - { artifact: vision.explainability_needs, select: all_items, required: true }
+              - { artifact: vision.complementary_requirements, select: all_items, required: false }
+            writes:
+              - { artifact: vision.limits }
+            template_sections: ["DRE Limite da Explicabilidade"]
+
+          - id: "1.2.4"
+            name: Elaborate Explainability
+            bpmn_element: Id_04110efa-231e-4d99-bcc9-304c73317d95
+            mechanism: deterministic
+            handler: assemble_draft_vision
+            reads:
+              - { artifact: vision.problem, select: full, required: true }
+              - { artifact: vision.stakeholders, select: all_items, required: true }
+              - { artifact: vision.stakeholder_needs, select: all_items, required: true }
+              - { artifact: glossary, select: all_items, required: false }
+              - { artifact: vision.explainability_needs, select: all_items, required: true }
+              - { artifact: vision.positioning, select: all_items, required: true }
+              - { artifact: vision.complementary_requirements, select: all_items, required: false }
+              - { artifact: vision.limits, select: full, required: true }
+            writes:
+              - { artifact: vision.draft }
+
+      - id: "1.3"
+        name: Validate Explainability Vision
+        bpmn_file: "1.3 Validate Explainability Vision.bpmn"
+        bpmn_element: Id_aa3edf0f-f1f3-4f2a-9b6a-5e591e81b352
+        tasks:
+          - id: "1.3.1"
+            name: Review Explainability Vision
+            bpmn_element: Id_6d97a064-9674-4754-9a95-136259d5f5fa
+            mechanism: deterministic
+            handler: pre_review_checklist
+            pending: [A-08]
+            reads:
+              - { artifact: vision.draft, select: full, required: true }
+            writes:
+              - { artifact: vision.review_report }
+
+          - id: "1.3.gate"
+            name: Explainability Vision approved?
+            bpmn_element: Id_d7c8e559-18d9-47d2-a3de-19db3082835a
+            mechanism: hitl_approval
+            decided_by_role: requirements_engineer
+            reviews: vision.draft
+            pending: [A-01]
+            outcomes:
+              approve: { next: "1.3.2" }
+              revisit_1_1: { next: "1.1", comment_required: true }
+              revisit_1_2: { next: "1.2", comment_required: true }
+
+          - id: "1.3.2"
+            name: Consolidate Explainability Vision
+            bpmn_element: Id_7e496f88-9dfe-4b59-83e4-40244ff17f02
+            mechanism: deterministic
+            handler: consolidate_vision
+            baml_function: BuildPhaseDigest
+            reads:
+              - { artifact: vision.draft, select: full, required: true }
+            writes:
+              - { artifact: digest.vision }
+
+  # ---------------------------------------------------------------------------
+  # Fase 2 — executável com interpretações provisórias (A-01, A-12, A-13, A-14, A-18),
+  # registradas em docs/architecture/12-decisoes-pendentes.md §12.4.
+  # ---------------------------------------------------------------------------
+  - id: "2"
+    name: Elicit Explainability Requirements
+    openup_phase: elaboration
+    implemented: true
+    requires_phase: "1"
+    bpmn_file: "2 -Elicit Explainability Requirements.bpmn"
+    bpmn_element: Id_40b39228-2230-4e40-a18e-2cf9907f53d6
+    subprocesses:
+      - id: "2.1"
+        name: Prepare Explainability Elicitation
+        bpmn_file: "2.1 Prepare Explainability Elicitation.bpmn"
+        bpmn_element: Id_ad7abb97-9ade-45be-ac6d-bcb0c84e7fec
+        tasks:
+          - id: "2.1.1"
+            name: Review Explainability Vision
+            bpmn_element: Id_82a4e5fb-cdad-4ba7-8827-d645e6a8b8ef
+            mechanism: deterministic
+            handler: review_vision_baseline
+            theory_ref: tarefas/encontrar-descrever-requisitos.md#entradas
+            reads:
+              - { artifact: vision.draft, select: full, required: true }
+            writes:
+              - { artifact: elicitation.vision_baseline }
+
+          - id: "2.1.2"
+            name: Explainability Elicitation Plan
+            bpmn_element: Id_003916cf-684c-474e-841a-daa32eea4eab
+            mechanism: agent
+            baml_function: PlanElicitation
+            theory_ref: tarefas/encontrar-descrever-requisitos.md#passo-1
+            pending: [A-14]
+            reads:
+              - { artifact: vision.stakeholders, select: all_items, required: true }
+              - { artifact: vision.explainability_needs, select: all_items, required: true }
+              - { artifact: elicitation.vision_baseline, select: full, required: true }
+            writes:
+              - { artifact: elicitation.plan, item_prefix: EP }
+            completeness: all_items
+
+      - id: "2.2"
+        name: Elicit Explainability Requirements
+        bpmn_file: "2.2 Elicit Explainability Requirements.bpmn"
+        bpmn_element: Id_87bad3d1-d9ef-49ed-8a99-151bac2338f6
+        tasks:
+          - id: "2.2.1"
+            name: Obtain Explainability Needs
+            bpmn_element: Id_a8231a43-8b92-4416-9a46-ca9a80722470
+            mechanism: agent
+            baml_function: ExtractElicitedNeeds
+            theory_ref: tarefas/encontrar-descrever-requisitos.md#passo-4
+            pending: [A-14]
+            human_input:
+              kind: elicitation_material
+              name: Material de elicitação
+              decided_by_role: requirements_engineer
+              outcomes:
+                submit: { next: "2.2.1" }
+                no_material: { next: "2.2.1", comment_required: true }
+            reads:
+              - { artifact: elicitation.plan, select: all_items, required: true }
+              - { artifact: vision.stakeholders, select: all_items, required: true }
+              - { artifact: vision.stakeholder_needs, select: all_items, required: true }
+              - { artifact: vision.explainability_needs, select: all_items, required: true }
+            retrieval:
+              store: elicitation
+              mode: hybrid
+              top_k: 8
+            writes:
+              - { artifact: elicitation.sources }
+              - { artifact: elicitation.needs, item_prefix: RN, evidence: required }
+
+          - id: "2.2.2"
+            name: Identify Explainability Requirements
+            bpmn_element: Id_9a1145e6-d6ff-4946-aeac-f93c757a3610
+            mechanism: agent
+            baml_function: IdentifyExplainabilityRequirements
+            theory_ref: tarefas/encontrar-descrever-requisitos.md#passo-3
+            pending: [A-14]
+            reads:
+              - { artifact: elicitation.needs, select: all_items, required: true }
+              - { artifact: vision.explainability_needs, select: all_items, required: true }
+              - { artifact: vision.stakeholders, select: all_items, required: true }
+              - { artifact: glossary, select: all_items, required: false }
+            writes:
+              - { artifact: requirements.identified, item_prefix: RI }
+            completeness: all_items
+
+          - id: "2.2.3"
+            name: Identify Complementary Requirements
+            bpmn_element: Id_9be0f9b6-0687-4ff1-a9c5-3d458f32c002
+            mechanism: agent
+            baml_function: RefineComplementaryRequirements
+            theory_ref: tarefas/encontrar-descrever-requisitos.md#passo-5
+            pending: [A-18]
+            reads:
+              - { artifact: requirements.identified, select: all_items, required: true }
+              - { artifact: vision.complementary_requirements, select: all_items, required: false }
+            retrieval:
+              store: reference_base
+              mode: hybrid
+              top_k: 12
+              per_query_k: 4
+            writes:
+              - { artifact: requirements.complementary, item_prefix: RC, evidence: required }
+
+          - id: "2.2.4"
+            name: Organize and Consolidate Requirements
+            bpmn_element: Id_4b45ac1c-09f8-46cf-884e-df8a50389e3a
+            mechanism: agent
+            baml_function: ConsolidateRequirements
+            reads:
+              - { artifact: requirements.identified, select: all_items, required: true }
+              - { artifact: requirements.complementary, select: all_items, required: false }
+            writes:
+              - { artifact: requirements.consolidated, item_prefix: REQ }
+            completeness: all_items
+            similarity_threshold: 0.9
+
+          - id: "2.2.5"
+            name: Reach Consensus
+            bpmn_element: Id_071a728c-2009-45a3-8374-a3b71fba9135
+            mechanism: hitl_consensus
+            theory_ref: tarefas/encontrar-descrever-requisitos.md#passo-6
+            decided_by_role: requirements_engineer
+            reviews: requirements.consolidated
+            pending: [A-13]
+            consensus:
+              participant_roles: [participant, requirements_engineer]
+              rule: no_blocking_objection
+            outcomes:
+              close: { next: "2.3.1" }
+              revisit_2_2: { next: "2.2", comment_required: true }
+
+      - id: "2.3"
+        name: Validate Explainability Requirements
+        bpmn_file: "2.3 Validate Explainability Requirements.bpmn"
+        bpmn_element: Id_93af4fb6-fcbd-46ff-85a2-29fd35b47898
+        tasks:
+          - id: "2.3.1"
+            name: Review Explainability Requirements
+            bpmn_element: Id_47f02f6c-c0a5-4668-bacd-105a1add1dd4
+            mechanism: deterministic
+            handler: pre_review_requirements
+            reads:
+              - { artifact: requirements.consolidated, select: all_items, required: true }
+            writes:
+              - { artifact: requirements.review_report }
+
+          - id: "2.3.gate"
+            name: "Explainability Requirements approved?"
+            bpmn_element: Id_ac7a16bd-cdb5-427f-90e8-fc14e84e209b
+            mechanism: hitl_approval
+            decided_by_role: requirements_engineer
+            reviews: requirements.consolidated
+            pending: [A-01]
+            outcomes:
+              approve: { next: "2.3.2" }
+              revisit_2_1: { next: "2.1", comment_required: true }
+              revisit_2_2: { next: "2.2", comment_required: true }
+
+          - id: "2.3.2"
+            name: Consolidate Explainability Requirements
+            bpmn_element: Id_d27d0be5-985e-41ab-a526-5245bf2c5d3c
+            mechanism: deterministic
+            handler: consolidate_requirements
+            baml_function: BuildPhaseDigest
+            pending: [A-12]
+            reads:
+              - { artifact: vision.draft, select: full, required: true }
+              - { artifact: requirements.consolidated, select: all_items, required: true }
+            writes:
+              - { artifact: requirements.draft }
+              - { artifact: digest.requirements }
+
+  # ---------------------------------------------------------------------------
+  # Fase 4: registrada para conformidade com o BPMN; ainda não executável.
+  # ---------------------------------------------------------------------------
+  # ---------------------------------------------------------------------------
+  # Fase 3 — executável. Taxonomias de tarefas/analisar-requisito.md; formato do RER e regras
+  # de consenso/priorização provisórios (A-13, A-14, A-15, A-16, A-20), cap. 12 §12.5.
+  # ---------------------------------------------------------------------------
+  - id: "3"
+    name: Analyze Explainability Requirements
+    openup_phase: elaboration
+    implemented: true
+    requires_phase: "2"
+    bpmn_file: "3 Analyze Explainability Requirements.bpmn"
+    bpmn_element: Id_b4a41d4d-6fba-4bcb-a443-6842ccc2e29a
+    subprocesses:
+      - id: "3.1"
+        name: Prepare Explainability Analysis
+        bpmn_file: "3.1 Prepare Explainability Analysis.bpmn"
+        bpmn_element: Id_dd65bb2c-a523-4136-9309-c897f889a9db
+        tasks:
+          - id: "3.1.1"
+            name: Review Explainability Requirements
+            bpmn_element: Id_a0b38e79-1c15-482d-b407-3d64451c2f43
+            mechanism: deterministic
+            handler: review_requirements_baseline
+            reads:
+              - { artifact: requirements.draft, select: full, required: true }
+            writes:
+              - { artifact: analysis.baseline }
+
+          - id: "3.1.2"
+            name: Consolidate and Characterize Requirements
+            bpmn_element: Id_bb99af25-1b26-4e6b-bf46-fb2de1b6eae5
+            mechanism: agent
+            baml_function: CharacterizeRequirement
+            theory_ref: tarefas/analisar-requisito.md#passo-1
+            pending: [A-14, A-20]
+            reads:
+              - { artifact: requirements.consolidated, select: all_items, required: true }
+              - { artifact: vision.stakeholders, select: all_items, required: true }
+              - { artifact: vision.explainability_needs, select: all_items, required: true }
+            writes:
+              - { artifact: analysis.characterized, item_prefix: RER }
+            completeness: all_items
+
+      - id: "3.2"
+        name: Analyze Explainability Requirements
+        bpmn_file: "3.2 Analyze Explainability Requirements.bpmn"
+        bpmn_element: Id_127c1cda-65a1-4ada-aabf-59b17c3c28b5
+        tasks:
+          - id: "3.2.1"
+            name: Classify Explainability Aspects
+            bpmn_element: Id_d80a21f5-9c66-4b6a-8a50-5ceb46182f95
+            mechanism: agent
+            baml_function: ClassifyExplainabilityAspects
+            theory_ref: tarefas/analisar-requisito.md#passo-2
+            pending: [A-15]
+            reads:
+              - { artifact: requirements.consolidated, select: all_items, required: true }
+              - { artifact: analysis.characterized, select: all_items, required: true }
+            writes:
+              - { artifact: analysis.aspects, item_prefix: ASP }
+            completeness: all_items
+
+          - id: "3.2.2"
+            name: Associate Requirements with Explanation Types
+            bpmn_element: Id_abf917c0-9aaa-4189-8cae-f986c8676afc
+            mechanism: agent
+            baml_function: AssociateExplanationTypes
+            theory_ref: tarefas/analisar-requisito.md#passo-3
+            pending: [A-15]
+            reads:
+              - { artifact: requirements.consolidated, select: all_items, required: true }
+              - { artifact: analysis.characterized, select: all_items, required: true }
+              - { artifact: analysis.aspects, select: all_items, required: true }
+            retrieval: { store: reference_base, mode: hybrid, top_k: 12, per_query_k: 3 }
+            writes:
+              - { artifact: analysis.explanation_types, item_prefix: MAP }
+            completeness: all_items
+
+          - id: "3.2.3"
+            name: Analyze Conflicts
+            bpmn_element: Id_6ab9605c-095d-4430-8823-6ca690a31863
+            mechanism: agent
+            baml_function: AnalyzeConflicts
+            theory_ref: tarefas/analisar-requisito.md#passo-4
+            reads:
+              - { artifact: requirements.consolidated, select: all_items, required: true }
+              - { artifact: analysis.aspects, select: all_items, required: true }
+              - { artifact: analysis.explanation_types, select: all_items, required: true }
+            writes:
+              - { artifact: analysis.conflicts, item_prefix: CNF }
+            completeness: all_pairs
+
+          - id: "3.2.4"
+            name: Analyze Dependencies and Constraints
+            bpmn_element: Id_0d809de4-6459-4ae5-989a-06e3531f3006
+            mechanism: agent
+            baml_function: AnalyzeDependencies
+            theory_ref: tarefas/analisar-requisito.md#passo-5
+            reads:
+              - { artifact: requirements.consolidated, select: all_items, required: true }
+              - { artifact: analysis.characterized, select: all_items, required: true }
+            retrieval: { store: reference_base, mode: hybrid, top_k: 12, per_query_k: 3 }
+            writes:
+              - { artifact: analysis.dependencies, item_prefix: DEP }
+            completeness: all_items
+
+          - id: "3.2.5"
+            name: Assess Feasibility
+            bpmn_element: Id_7cd1cc19-16ec-4339-9dde-3dc5bebd65c0
+            mechanism: agent
+            baml_function: AssessFeasibility
+            theory_ref: tarefas/analisar-requisito.md#passo-6
+            reads:
+              - { artifact: requirements.consolidated, select: all_items, required: true }
+              - { artifact: analysis.characterized, select: all_items, required: true }
+              - { artifact: analysis.explanation_types, select: all_items, required: true }
+              - { artifact: analysis.dependencies, select: all_items, required: true }
+              - { artifact: analysis.conflicts, select: all_items, required: true }
+            writes:
+              - { artifact: analysis.feasibility, item_prefix: FEA }
+            completeness: all_items
+
+          - id: "3.2.6"
+            name: Prioritize Requirements
+            bpmn_element: Id_41bd68e6-d69d-4501-ab0f-d8743c8f0bd1
+            mechanism: agent
+            baml_function: PrioritizeRequirements
+            theory_ref: tarefas/analisar-requisito.md#passo-7
+            pending: [A-16]
+            reads:
+              - { artifact: requirements.consolidated, select: all_items, required: true }
+              - { artifact: analysis.characterized, select: all_items, required: true }
+              - { artifact: analysis.aspects, select: all_items, required: true }
+              - { artifact: analysis.dependencies, select: all_items, required: true }
+              - { artifact: analysis.conflicts, select: all_items, required: true }
+              - { artifact: analysis.feasibility, select: all_items, required: true }
+            writes:
+              - { artifact: analysis.priorities, item_prefix: PRI }
+            completeness: all_items
+
+          - id: "3.2.7"
+            name: Reach Consensus
+            bpmn_element: Id_6c14e40b-3f71-4e28-987e-e90eb7e0ec16
+            mechanism: hitl_consensus
+            theory_ref: tarefas/analisar-requisito.md#passo-8
+            decided_by_role: requirements_engineer
+            reviews: analysis.priorities
+            pending: [A-13, A-16, A-20]
+            consensus:
+              participant_roles: [participant, requirements_engineer]
+              rule: no_blocking_objection
+            outcomes:
+              close: { next: "3.3.1" }
+              revisit_3_2: { next: "3.2", comment_required: true }
+
+      - id: "3.3"
+        name: Validate Explainability Analysis
+        bpmn_file: "3.3 Validate Explainability Analysis.bpmn"
+        bpmn_element: Id_4e6b0546-f5b1-49ca-ad4c-d03edae5a7a6
+        tasks:
+          - id: "3.3.1"
+            name: Review Analyzed Requirements
+            bpmn_element: Id_90467d56-451f-4e61-bc29-7cfc802fe2c3
+            mechanism: deterministic
+            handler: pre_review_analysis
+            reads:
+              - { artifact: analysis.priorities, select: all_items, required: true }
+            writes:
+              - { artifact: analysis.review_report }
+
+          - id: "3.3.gate"
+            name: "Explainability Analysis approved?"
+            bpmn_element: Id_6f62d3b8-58fa-4555-83c7-d9e51e138fa1
+            mechanism: hitl_approval
+            decided_by_role: requirements_engineer
+            reviews: analysis.priorities
+            pending: [A-01]
+            outcomes:
+              approve: { next: "3.3.2" }
+              revisit_3_1: { next: "3.1", comment_required: true }
+              revisit_3_2: { next: "3.2", comment_required: true }
+
+          - id: "3.3.2"
+            name: Consolidate Explainability Requirement Document
+            bpmn_element: Id_c14bfa88-bd74-4b93-8fa4-63d7ed8684ae
+            mechanism: deterministic
+            handler: consolidate_analysis
+            baml_function: BuildPhaseDigest
+            pending: [A-12]
+            reads:
+              - { artifact: requirements.draft, select: full, required: true }
+              - { artifact: analysis.priorities, select: all_items, required: true }
+            writes:
+              - { artifact: analysis.draft }
+              - { artifact: digest.analysis }
+
+  - id: "4"
+    name: Define Explainability Specification
+    openup_phase: elaboration
+    implemented: false
+    bpmn_file: "4 Define Explainability Specification.bpmn"
+    bpmn_element: Id_2bc7d464-5107-4690-bba1-bada9ce76960
+    subprocesses:
+      - id: "4.1"
+        bpmn_file: "4.1 Prepare Explainability Specification.bpmn"
+        bpmn_element: Id_4c8bc31c-2f16-4d51-9453-1f464b75e141
+        tasks:
+          - { id: "4.1.1", name: Review Analyzed Requirements, bpmn_element: Id_90ad6c28-99a5-4ea1-bb6f-ae6c8030143f, mechanism: deterministic }
+          - { id: "4.1.2", name: Prepare Explainability Specification, bpmn_element: Id_0b90f65f-f716-4b19-91c8-60f1dc69e2a3, mechanism: deterministic }
+      - id: "4.2"
+        bpmn_file: "4.2 Specify Explainability Requirements.bpmn"
+        bpmn_element: Id_2616161a-8d8f-45a9-ae46-e153cee21943
+        tasks:
+          - { id: "4.2.1", name: Specify Requirements, bpmn_element: Id_67eccaab-24e7-4122-b2cc-4f77e32ac69a, mechanism: agent, completeness: all_items, pending: [A-14] }
+          - { id: "4.2.2", name: Define Acceptance Criteria, bpmn_element: Id_9e26ff4b-3189-4c1e-838f-573f01331a78, mechanism: agent, completeness: all_items, pending: [A-14] }
+          - { id: "4.2.3", name: Specify Explanation Characteristics, bpmn_element: Id_0258cd32-c625-47df-8186-7b0d841658e1, mechanism: agent, pending: [A-14] }
+          - { id: "4.2.4", name: Establish Traceability, bpmn_element: Id_fdf0a553-ad3f-45da-a8da-b7dec56e2676, mechanism: deterministic, pending: [A-14] }
+          - { id: "4.2.5", name: Reach Consensus, bpmn_element: Id_b55d57c4-0a27-4540-bb11-dabcec01ce88, mechanism: hitl_consensus, pending: [A-13] }
+      - id: "4.3"
+        bpmn_file: "4.3 Validate Explainability Specification.bpmn"
+        bpmn_element: Id_e767c555-8cfd-4ecb-a946-c3fd3991642a
+        tasks:
+          - { id: "4.3.1", name: Review Explainability Specification, bpmn_element: Id_3e324bc3-70c4-4cff-b8f3-f40e7103ffe6, mechanism: deterministic }
+          - { id: "4.3.gate", name: "Specification approved?", bpmn_element: Id_d49a9520-fbf3-4740-b1ad-df94405c7d14, mechanism: hitl_approval, pending: [A-01] }
+          - { id: "4.3.2", name: Consolidate Explainability Requirement Document, bpmn_element: Id_781248de-8b17-4288-8bf5-865ad2cd03a2, mechanism: deterministic, pending: [A-12] }

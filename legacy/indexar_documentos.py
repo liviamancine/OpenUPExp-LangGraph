@@ -7,8 +7,8 @@ from sentence_transformers import SentenceTransformer
 
 
 # Diretórios
-PASTA_DOCUMENTOS = Path("documentos RAG") / "RAG"
-PASTA_CHROMA = Path("chroma_db")
+PASTA_DOCUMENTOS = Path(__file__).resolve().parent.parent / "experiments" / "cases" / "inpi" / "corpus"
+PASTA_CHROMA = Path(__file__).resolve().parent / "chroma_db"
 
 # Configuração da indexação
 NOME_COLECAO = "openup_exp"

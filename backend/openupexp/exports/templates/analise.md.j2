@@ -1,0 +1,118 @@
+{#- Parte da Fase 3 do ERD (análise dos requisitos). Passos de OpenUPExp/tarefas/analisar-requisito.md;
+    o template de Requisitos de Explicabilidade Refinados (RER) está "???Validar" na teoria (A-14). -#}
+# Análise dos Requisitos de Explicabilidade (Fase 3)
+
+> **Projeto:** {{ meta.projeto }}
+> **Data:** {{ meta.data }}
+> **Versão:** {{ meta.versao }}
+> **Execução:** `{{ meta.run_id }}` · estratégia de contexto {{ meta.estrategia }} · manifesto {{ meta.manifesto }}
+> **Requisitos de base:** execução `{{ meta.base_run_id }}`
+> **Status:** {{ meta.status }}
+>
+> _Estrutura provisória: o template dos Requisitos de Explicabilidade Refinados (RER) ainda está em validação na teoria._
+
+---
+
+## 1. Requisitos de Explicabilidade Refinados
+
+{% for r in refined -%}
+### {{ r.req.id }} — {{ r.req.enunciado | t }}
+
+{% if r.prio %}
+**Prioridade (MoSCoW):** {{ r.prio.prioridade }} — {{ r.prio.justificativa | t }}{% if r.prio.alerta %} ⚠ {{ r.prio.alerta }}{% endif +%}
+{% endif %}
+
+| Caracterização | |
+|---|---|
+| Contexto de uso | {{ r.char.contexto_uso | c }} |
+| Quem usa a explicação | {{ r.char.usuarios_explicacao | lst | c }} |
+| Decisão apoiada | {{ r.char.decisao_apoiada | c }} |
+| Risco da decisão | {{ r.char.risco_decisao | c }} |
+| Objetivo principal | {{ r.char.objetivo_principal | c }} |
+| Obrigação regulatória | {% if r.char.obrigacao_regulatoria is sameas true %}sim{% elif r.char.obrigacao_regulatoria is sameas false %}não{% else %}{{ none | c }}{% endif %} |
+| Requisitos regulatórios associados | {{ r.char.requisitos_regulatorios | lst | c }} |
+| Aspectos explicativos | {{ r.asp.aspectos | lst | c }}{% if r.asp.predominante %} (predominante: {{ r.asp.predominante }}){% endif %} |
+| Tipos de explicação | {{ r.map.tipos | lst | c }} |
+| Depende de | {{ r.dep.depende_de | lst | c }} |
+
+{% if r.map.justificativa %}
+**Justificativa dos tipos de explicação:** {{ r.map.justificativa }}
+{% endif %}
+{% for x in r.dep.restricoes or [] -%}
+- **Restrição {{ x.tipo }}:** {{ x.descricao }}{% for e in x.evidencias %} — `{{ e.chunk_ref }}` ({{ e.verificacao | default("não verificada") }}): "{{ e.citacao }}"{% endfor +%}
+{% endfor %}
+{% if r.dep.impacto %}
+**Impacto das restrições:** {{ r.dep.impacto }}
+{% endif %}
+
+| Viabilidade | Situação | Observação |
+|---|---|---|
+{% for v in r.fea.criterios or [] -%}
+| {{ v.criterio }} | {{ v.situacao }} | {{ v.observacao | c }} |
+{% endfor %}
+{% if r.fea.riscos %}
+**Riscos:** {{ r.fea.riscos | lst }}
+{% endif %}
+{% if r.fea.premissas %}
+**Premissas:** {{ r.fea.premissas | lst }}
+{% endif %}
+
+{% else %}
+_Pendente._
+{% endfor %}
+
+---
+
+## 2. Conflitos e alternativas de resolução
+
+{% if pairs %}
+_Pares avaliados: {{ pairs.avaliados }} de {{ pairs.candidatos }} ({{ pairs.criterio }})._
+
+{% endif %}
+| ID | Requisitos | Tipo | Descrição | Alternativas |
+|---|---|---|---|---|
+{% for c in conflicts -%}
+| {{ c.id }} | {{ c.req_ids | lst }} | {{ c.tipo }} | {{ c.descricao | c }} | {{ c.alternativas_resolucao | lst | c }} |
+{% else -%}
+| — | — | — | Nenhum conflito identificado | — |
+{% endfor %}
+
+---
+
+## 3. Priorização MoSCoW
+
+{% for level, label in moscow_levels -%}
+- **{{ label }}:** {{ moscow.get(level, []) | lst | t }}
+{% endfor %}
+
+_Prioridades sugeridas pelos agentes e confirmadas no consenso e na aprovação humana (A-16)._
+
+---
+
+## 4. Registro de consenso
+
+{% if consensus %}
+{% for c in consensus -%}
+- **Rodada {{ c.iteracao }}:** {{ c.resultado }}{% if c.justificativa %} — {{ c.justificativa }}{% endif +%}
+{% for p in c.posicoes -%}
+  - {{ p.nome }}: **{{ p.posicao }}**{% if p.comentario %} — {{ p.comentario }}{% endif +%}
+{% endfor %}
+{% endfor %}
+{% else %}
+_Consenso ainda não realizado._
+{% endif %}
+
+---
+
+## Lacunas registradas
+
+{% for origem, l in lacunas -%}
+- **{{ origem }}{% if l.campo not in origem %} · {{ l.campo }}{% endif %}:** {{ l.motivo | t }}{% if l.pergunta_sugerida %} — *Pergunta sugerida:* {{ l.pergunta_sugerida }}{% endif +%}
+{% else -%}
+_Nenhuma._
+{% endfor %}
+
+---
+
+> Documento gerado pela plataforma OpenUPExp a partir de artefatos estruturados e versionados.
+> Conteúdo produzido por agentes de IA e sujeito à validação do Engenheiro de Requisitos.
