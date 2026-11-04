@@ -14,7 +14,7 @@ from openupexp.context.builder import PackageItem
 from openupexp.exports.vision import render_vision_markdown
 from openupexp.retrieval.search import hybrid_search
 
-# Checklist "Limite da Explicabilidade" — OpenUPExp/artefatos/DRE.md
+# Checklist "Limite da Explicabilidade" — OpenUPExp/artefatos/ERD.md (antes DRE.md)
 LIMITS_CHECKLIST: list[tuple[str, str]] = [
     ("Escopo da Explicação", "Quais decisões, recomendações, previsões do sistema exigem explicação?"),
     ("Escopo da Explicação", "Todas as decisões precisam ser explicadas, apenas as críticas, ou apenas as decisões solicitados pelo cliente?"),
