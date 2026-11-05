@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from openupexp.db.models import Export, Project, Run
 from openupexp.domain import artifacts as store
+from openupexp.domain import labels
 
 TEMPLATE_VERSION = "visao-1.0"
 PENDENTE = "_Não identificado; requer investigação._"
@@ -61,11 +62,12 @@ def _lst(value) -> str:
     return ", ".join(str(v) for v in value)
 
 
-_env.filters.update(t=_t, c=_cell, lst=_lst)
+_env.filters.update(t=_t, c=_cell, lst=_lst, v=labels.value_label)
 
 
 def _lacunas(contents: dict[str, dict]) -> list[tuple[str, dict]]:
     out: list[tuple[str, dict]] = []
+    index = labels.label_index(contents)
     problem = contents.get("vision.problem") or {}
     out += [("Definição", lac) for lac in problem.get("lacunas", [])]
     statement = contents.get("vision.problem_statement") or {}
@@ -77,7 +79,7 @@ def _lacunas(contents: dict[str, dict]) -> list[tuple[str, dict]]:
         ("glossary", "termos", "Glossário"),
     ]:
         for item in (contents.get(atype) or {}).get(field, []):
-            out += [(f"{label} {item.get('id')}", lac) for lac in item.get("lacunas", [])]
+            out += [(f"{label} {labels.ref(index, item.get('id'))}", lac) for lac in item.get("lacunas", [])]
     for r in (contents.get("vision.limits") or {}).get("respostas", []):
         if r.get("lacuna"):
             out.append((f"Limite · {r.get('dimensao')}", r["lacuna"]))
@@ -88,6 +90,7 @@ def render_vision_markdown(contents: dict[str, dict], meta: dict) -> str:
     stakeholders = (contents.get("vision.stakeholders") or {}).get("stakeholders", [])
     names = {s.get("id"): s.get("nome") for s in stakeholders}
     limits = (contents.get("vision.limits") or {}).get("respostas", [])
+    index = labels.label_index(contents)
     grouped: dict[str, list] = {}
     for r in limits:
         grouped.setdefault(r.get("dimensao", "Outros"), []).append(r)
@@ -113,6 +116,7 @@ def render_vision_markdown(contents: dict[str, dict], meta: dict) -> str:
         sections5=SECTIONS_5_INFO if complementary_as_information(meta.get("manifesto")) else SECTIONS_5,
         stakeholder_name=lambda sid: names.get(sid, sid),
         stakeholder_names=lambda ids: ", ".join(names.get(i, i) for i in ids or []),
+        refs=lambda keys: labels.refs(index, keys),
     )
 
 

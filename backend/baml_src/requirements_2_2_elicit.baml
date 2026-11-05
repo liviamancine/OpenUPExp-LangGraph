@@ -60,6 +60,9 @@ function ExtractElicitedNeeds(entrada: ExtractNeedsInput, contexto: ContextItem[
     - Considere apenas o que este stakeholder disse ou o que o material atribui a ele.
     - Cada necessidade precisa de evidência: copie a citação literal do trecho recuperado
       (fonte_ref = referencia do item 'retrieved') ou da solicitação da Visão (fonte_ref = SN-n).
+    - Em transcrições, cite só a fala do entrevistado. A fala de quem conduz a conversa (linhas
+      que começam com "E:", "Entrevistador(a):", "Pesquisador(a):") não é evidência do que o
+      stakeholder disse: use a resposta que vem depois dela.
     - Relacione a NEED-n da Visão quando a necessidade a aprofunda; necessidades novas ficam com
       need_ids vazio e são igualmente importantes.
     - Registre conflitos, dúvidas e expectativas divergentes como Lacuna.

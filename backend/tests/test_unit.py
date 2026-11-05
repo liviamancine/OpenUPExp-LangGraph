@@ -224,3 +224,19 @@ async def test_phase4_story_prompt_renders_recommended_format():
         T.SpecifyStoriesInput(requisitos=[ficha], stakeholders=[], historias_existentes=[]), [])
     content = str(req.body.json())
     assert "REQ-01" in content and "Como <stakeholder>" in content and "NÃO INVENÇÃO" in content
+
+
+def test_labels_names_and_values():
+    from openupexp.domain import labels
+
+    contents = {"vision.stakeholders": {"stakeholders": [{"id": "STK-01", "nome": "Solicitante MEI"}]},
+                "elicitation.plan": {"itens": [{"id": "EP-01", "stakeholder_id": "STK-01"}]},
+                "vision.explainability_needs": {"necessidades": [{"id": "NEED-01", "necessidade": "x " * 60}]}}
+    index = labels.label_index(contents)
+    assert labels.ref(index, "STK-01") == "Solicitante MEI (STK-01)"
+    assert index["EP-01"] == "Conversa com Solicitante MEI"
+    assert labels.ref(index, "NEED-01").endswith("… (NEED-01)")
+    assert labels.ref(index, "XYZ-9") == "XYZ-9" and labels.ref(index, "texto livre") == "texto livre"
+    assert labels.value_label("COMPREENSAO") == "Compreensão"
+    assert labels.value_label("SOB_DEMANDA") == "Sob demanda"
+    assert labels.value_label("Texto comum") == "Texto comum"

@@ -45,6 +45,16 @@ export const PART_HELP: Record<string, Help> = {
       + "tipos de explicação e em quais pontos de interação.",
     fonte: "Definir a Visão, passo 6",
   },
+  "elicitation.plan": {
+    texto: "Como conversar com cada stakeholder: o que se quer compreender, as técnicas, as perguntas e as dúvidas "
+      + "da Visão que a conversa deve esclarecer.",
+    fonte: "Encontrar e descrever requisitos, passo 1",
+  },
+  "elicitation.needs": {
+    texto: "O que cada stakeholder pediu nas conversas (entrevistas, questionários, workshops), com as citações que "
+      + "sustentam o pedido e a necessidade da Visão que ele aprofunda.",
+    fonte: "Encontrar e descrever requisitos, passo 3",
+  },
   glossary: {
     texto: "Vocabulário comum: termos do domínio e da explicabilidade com suas definições, para evitar "
       + "interpretações divergentes ao longo do projeto.",
@@ -52,8 +62,37 @@ export const PART_HELP: Record<string, Help> = {
   },
 };
 
+// Dica do código de cada item, pelo prefixo (RN-01, STK-01...).
+export const ID_HELP: Record<string, string> = {
+  STK: "Stakeholder: quem precisa compreender, auditar ou validar as decisões do sistema.",
+  SN: "Solicitação: o que um stakeholder pediu, registrado na Visão.",
+  NEED: "Necessidade de explicabilidade da Visão (seção 4.1).",
+  POS: "Declaração de posicionamento de um perfil de usuário (Visão, seção 2.2).",
+  CR: "Informação complementar da Visão (seção 5).",
+  EP: "Item do plano de elicitação: a conversa planejada com um stakeholder.",
+  RN: "Necessidade levantada: o que um stakeholder pediu nas conversas (entrevistas, questionários…). "
+    + "É ligada a quem pediu, às citações e à necessidade da Visão que ela aprofunda.",
+  RI: "Requisito de explicabilidade identificado a partir das necessidades levantadas.",
+  RC: "Requisito complementar levantado na elicitação.",
+  REQ: "Requisito consolidado: a versão final, que entra no Documento de Requisitos de Explicabilidade.",
+};
+
 // Dicas de campos que mudam conforme a parte (ver PART_FIELD_LABEL em components/ui.tsx).
 export const PART_FIELD_HELP: Record<string, Record<string, string>> = {
+  "elicitation.plan": {
+    lacunas_alvo: "Pontos que ficaram sem resposta na Visão (os avisos \"Falta informação\") e que esta conversa deve esclarecer.",
+    tecnicas: "Como a conversa será feita: entrevista, workshop, observação, análise de documentos ou protótipo.",
+  },
+  "elicitation.needs": {
+    stakeholder_id: "Quem expressou a necessidade.",
+    necessidade: "O que a pessoa precisa, resumido a partir do que ela disse.",
+    decisao_alvo: "Qual decisão, recomendação ou previsão do sistema precisa ser explicada.",
+    objetivo: "Para que serve a explicação. É uma classificação feita pela IA ao ler a conversa, numa lista fechada "
+      + "tirada do passo 3 de \"Encontrar e descrever requisitos\": compreensão, justificativa, transparência, "
+      + "rastreabilidade, auditoria, conformidade regulatória, confiança ou outro.",
+    need_ids: "A necessidade da Visão (seção 4.1) que esta necessidade levantada aprofunda. Vazio quando a "
+      + "necessidade é nova, surgida só nas conversas.",
+  },
   "vision.complementary_requirements": {
     requisito: "Orientação para conhecer o negócio antes das entrevistas, por exemplo \"Importante disponibilizar "
       + "informações sobre ...\". Não é requisito do sistema.",

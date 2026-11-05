@@ -93,6 +93,9 @@ const FIELD_LABEL: Record<string, string> = {
   posicionamento_id: "perfil (posicionamento)", o_problema_da: "o problema da", afeta: "afeta",
   cujo_impacto_e: "cujo impacto é", solucao_bem_sucedida: "uma solução bem-sucedida seria",
   descricao: "descrição", prioridade: "prioridade", aspecto_associado: "aspecto associado", planned_release: "planned release",
+  decisao_alvo: "decisão a ser explicada", lacunas_alvo: "dúvidas da Visão que esta conversa deve esclarecer",
+  tecnicas: "técnicas", perguntas: "perguntas", enunciado: "enunciado", solicitacao: "solicitação",
+  necessidade: "necessidade", responsabilidade: "responsabilidade", justificativa: "justificativa",
 };
 
 export function fieldLabel(k: string): string {
@@ -104,6 +107,11 @@ export function fieldLabel(k: string): string {
 const PART_FIELD_LABEL: Record<string, Record<string, string>> = {
   "vision.complementary_requirements": { requisito: "informação", justificativa: "por que importa",
     requisitos: "informações" },
+  "elicitation.plan": { need_ids: "necessidades da Visão", objetivo: "o que se quer compreender" },
+  "elicitation.needs": { objetivo: "objetivo da explicação", need_ids: "aprofunda a necessidade da Visão",
+    necessidades: "necessidades levantadas" },
+  "requirements.identified": { need_ids: "necessidades da Visão", rn_ids: "necessidades levantadas" },
+  "requirements.consolidated": { need_ids: "necessidades da Visão", objetivo: "objetivo da explicação" },
 };
 
 // Nome de um item de lista que muda conforme a parte (botões Adicionar/Remover do formulário).
@@ -111,15 +119,64 @@ export const PART_ITEM_NOUN: Record<string, Record<string, string>> = {
   "vision.complementary_requirements": { requisitos: "informação" },
 };
 
-// Valores de listas fechadas com nome legível (categoria das seções 5.1 a 5.5 da Visão).
+// Valores de listas fechadas com nome legível (o mesmo dicionário de backend/openupexp/domain/labels.py).
 const VALUE_LABEL: Record<string, string> = {
+  ENTREVISTA: "Entrevista", WORKSHOP: "Workshop", OBSERVACAO: "Observação", ANALISE_DOCUMENTAL: "Análise documental",
+  PROTOTIPO: "Protótipo", OUTRA: "Outra",
+  COMPREENSAO: "Compreensão", JUSTIFICATIVA: "Justificativa", TRANSPARENCIA: "Transparência",
+  RASTREABILIDADE: "Rastreabilidade", AUDITORIA: "Auditoria", CONFORMIDADE_REGULATORIA: "Conformidade regulatória",
+  CONFIANCA: "Confiança", OUTRO: "Outro", CONTESTACAO: "Contestação", APRENDIZADO: "Aprendizado",
+  EXPLICABILIDADE: "Explicabilidade", COMPLEMENTAR: "Complementar",
   NORMAS_REGULAMENTOS: "Padrões, normas e regulamentos", PLATAFORMA_DESEMPENHO: "Plataforma, hardware e desempenho",
   QUALIDADE_EXPLICACOES: "Qualidade das explicações", RESTRICOES_DEPENDENCIAS: "Restrições, dependências e assunções",
   DOCUMENTACAO_SUPORTE: "Documentação e suporte",
+  OBRIGACAO_NORMATIVA: "Exigência legal", RECOMENDACAO_TECNICA: "Recomendação técnica", DERIVADO_VISAO: "Vem da Visão",
+  ALTO: "Alto", MEDIO: "Médio", BAIXO: "Baixo",
 };
 
 export function valueLabel(v: string): string {
-  return VALUE_LABEL[v] ?? v;
+  if (VALUE_LABEL[v]) return VALUE_LABEL[v];
+  // outro valor de lista fechada (MAIUSCULAS_COM_SUBLINHADO): só a primeira letra maiúscula
+  return /^[A-Z][A-Z_]+$/.test(v) ? (v.charAt(0) + v.slice(1).toLowerCase()).replace(/_/g, " ") : v;
+}
+
+/** ID -> nome dos itens da execução (e da Visão de base), para mostrar o nome ao lado do código. */
+export const LabelsContext = createContext<Record<string, string>>({});
+export const ITEM_ID = /^[A-Z]{2,4}-\d+$/;
+
+function shortName(text: string, n = 70): string {
+  const t = text.replace(/\s+/g, " ").trim();
+  return t.length <= n ? t : `${t.slice(0, n - 1).replace(/[ ,.;:]+$/, "")}…`;
+}
+
+/** "Solicitante MEI STK-01": o nome em destaque e o código pequeno ao lado. */
+export function Ref({ id }: { id: string }) {
+  const name = useContext(LabelsContext)[id];
+  if (!name) return <span className="code-chip">{id}</span>;
+  return <span className="ref" title={name.length > 70 ? name : undefined}>{shortName(name)} <span className="code-chip">{id}</span></span>;
+}
+
+/** Valor de um campo na leitura: códigos viram nome + código; listas fechadas, nome legível. */
+export function FieldValue({ value }: { value: unknown }) {
+  const names = useContext(LabelsContext);
+  const one = (x: string, i: number, sep: string) => (
+    <span key={i}>{i > 0 && sep}{ITEM_ID.test(x) ? <Ref id={x} /> : valueLabel(x)}</span>
+  );
+  if (typeof value === "string") return one(value, 0, "");
+  if (Array.isArray(value) && value.length && value.every((x) => typeof x === "string")) {
+    const list = value as string[];
+    const ids = list.some((x) => ITEM_ID.test(x));
+    // frases (perguntas, dúvidas) ficam uma por linha; nomes curtos, na mesma linha
+    // códigos de itens com nomes longos (necessidades, requisitos): um por linha
+    if (ids && list.length > 1 && list.some((x) => (names[x] ?? "").length > 30)) {
+      return <ul className="plain-list">{list.map((x, i) => <li key={i}><Ref id={x} /></li>)}</ul>;
+    }
+    if (!ids && list.length > 1 && list.some((x) => x.length > 40)) {
+      return <ul className="plain-list">{list.map((x, i) => <li key={i}>{valueLabel(x)}</li>)}</ul>;
+    }
+    return <>{list.map((x, i) => one(x, i, ids ? "; " : ", "))}</>;
+  }
+  return <>{show(value)}</>;
 }
 
 /** Tipo da parte aberta, para rótulos e dicas próprios dela. */

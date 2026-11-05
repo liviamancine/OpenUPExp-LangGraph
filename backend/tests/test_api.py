@@ -145,6 +145,24 @@ async def test_phase2_human_points_via_api(client, scope_bytes, law_bytes):
     arts = (await client.get(f"/api/runs/{run}/artifacts", headers=eng)).json()
     assert {a["artifact_type"] for a in arts if a["secao"]} >= {"elicitation.plan", "requirements.consolidated"}
 
+    # nomes ao lado dos códigos: a Fase 2 também conhece os itens da Visão de base
+    needs = next(a for a in arts if a["artifact_type"] == "elicitation.needs")
+    detail = (await client.get(f"/api/artifact-versions/{needs['id']}", headers=eng)).json()
+    stk_ids = {n["stakeholder_id"] for n in detail["content"]["necessidades"]}
+    assert stk_ids and all(detail["rotulos"].get(i) for i in stk_ids)
+    # a citação aponta para o documento, que abre para os membros do projeto
+    doc_ids = {e["chunk"]["documento_id"] for e in detail["evidencias"] if e["chunk"]}
+    assert doc_ids
+    doc = (await client.get(f"/api/source-documents/{doc_ids.pop()}", headers=stk)).json()
+    assert doc["arquivo"] == "entrevista.txt" and "critérios" in doc["texto"]
+    async with session_scope() as s:
+        await create_user(s, "fora2@x.org", "De fora", "senha123")
+    outsider = await _login(client, "fora2@x.org")
+    assert (await client.get(f"/api/source-documents/{doc['id']}", headers=outsider)).status_code == 403
+    draft = next(a for a in arts if a["artifact_type"] == "requirements.draft")
+    md = (await client.get(f"/api/artifact-versions/{draft['id']}", headers=eng)).json()["content"]["markdown"]
+    assert "COMPREENSAO" not in md and "Aprofunda a necessidade da Visão" in md
+
 
 async def test_retry_after_failure_via_api(client, scope_bytes, law_bytes):
     """Tentar de novo: a execução com falha volta à fila e continua (antes respondia 500 e nada era gravado)."""

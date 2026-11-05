@@ -16,9 +16,11 @@ from openupexp.db.models import (
     Chunk,
     Evidence,
     Run,
+    SourceDocument,
     TraceLink,
 )
 from openupexp.domain import artifacts as store
+from openupexp.domain import labels
 from openupexp.domain import services
 from openupexp.domain.diff import diff_contents
 
@@ -90,13 +92,32 @@ async def get_version(version_id: uuid.UUID, user: AppUser = Depends(current_use
         "historico": [_version(h, a.artifact_type) for h in history],
         "dependencias": [{"version_id": str(d), "artifact": via, "version_no": n, "status": st}
                          for d, via, n, st in deps],
+        "rotulos": await labels.run_index(session, run),
         "evidencias": [{
             "id": str(e.id), "item_key": e.item_key, "chunk_ref": e.chunk_ref, "citacao": e.citacao,
             "kind": e.kind, "verification": e.verification, "human_status": e.human_status,
             "chunk": None if c is None else {"id": str(c.id), "stable_key": c.stable_key, "texto": c.texto,
-                                             "pagina": c.pagina, "meta": c.meta, "source_kind": c.source_kind},
+                                             "pagina": c.pagina, "meta": c.meta, "source_kind": c.source_kind,
+                                             "documento_id": str(c.source_document_id)},
         } for e, c in evidences],
     }
+
+
+@router.get("/source-documents/{document_id}")
+async def get_source_document(document_id: uuid.UUID, user: AppUser = Depends(current_user),
+                              session: AsyncSession = Depends(get_session)):
+    """Texto de um documento enviado ao projeto, para conferir de onde saiu uma citação."""
+    doc = await session.get(SourceDocument, document_id)
+    if doc is None:
+        raise HTTPException(404, "Documento inexistente")
+    await require_member(session, doc.project_id, user)
+    texto = doc.texto
+    if not texto:  # documentos antigos sem o texto inteiro: junta os trechos indexados
+        rows = (await session.scalars(select(Chunk).where(Chunk.source_document_id == doc.id)
+                                      .order_by(Chunk.pagina, Chunk.stable_key))).all()
+        texto = "\n\n".join(dict.fromkeys(c.texto for c in rows))
+    return {"id": str(doc.id), "project_id": str(doc.project_id), "arquivo": doc.arquivo,
+            "source_kind": doc.source_kind, "paginas": doc.paginas, "texto": texto or ""}
 
 
 @router.get("/artifact-versions/{version_id}/diff/{other_id}")

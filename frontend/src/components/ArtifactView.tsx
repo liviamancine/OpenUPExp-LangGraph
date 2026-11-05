@@ -6,8 +6,8 @@ import type { Evidence, ItemComment, VersionDetail } from "../api/types";
 import { SchemaForm } from "./SchemaForm";
 import Icon from "./Icon";
 import { useContext } from "react";
-import { ErrorBox, InfoTip, Loading, Markdown, PartTypeContext, Status, show, usePartLabel, valueLabel } from "./ui";
-import { FIELD_HELP, PART_FIELD_HELP, PART_HELP } from "../help";
+import { ErrorBox, FieldValue, InfoTip, LabelsContext, Loading, Markdown, PartTypeContext, Ref, Status, show, usePartLabel } from "./ui";
+import { FIELD_HELP, ID_HELP, PART_FIELD_HELP, PART_HELP } from "../help";
 
 function usePartHelp(): (k: string) => string | undefined {
   const part = useContext(PartTypeContext);
@@ -103,6 +103,7 @@ export default function ArtifactView({ versionId, onComment, onNewVersion }: {
 
   return (
     <PartTypeContext.Provider value={d.artifact_type}>
+    <LabelsContext.Provider value={d.rotulos ?? {}}>
     <div className="stack">
       <div className="stack tight">
         <div className="row" style={{ flexWrap: "nowrap", alignItems: "flex-start" }}>
@@ -149,7 +150,7 @@ export default function ArtifactView({ versionId, onComment, onNewVersion }: {
           {discarded.length > 0 && (
             <div className="item-card">
               <h3>Itens deixados de fora</h3>
-              {discarded.map((x) => <div key={x.origem_id} className="small"><span className="badge warn">{x.origem_id}</span> {x.motivo}</div>)}
+              {discarded.map((x) => <div key={x.origem_id} className="small"><Ref id={x.origem_id} /> — {x.motivo}</div>)}
             </div>
           )}
         </div>
@@ -157,6 +158,7 @@ export default function ArtifactView({ versionId, onComment, onNewVersion }: {
         <ObjectView value={d.content} order={order} onComment={onComment ? (texto) => onComment({ alvo: d.artifact_type, texto }) : undefined} />
       )}
     </div>
+    </LabelsContext.Provider>
     </PartTypeContext.Provider>
   );
 }
@@ -211,10 +213,9 @@ function ItemCard({ item, hide = [], order = [], evidences, onComment }: {
   return (
     <div className="item-card">
       <div className="item-head">
-        {item.id ? <span className="badge item-id">{String(item.id)}</span> : null}
-        {"fundamentacao_verificada" in item && (
-          <span className={`badge ${item.fundamentacao_verificada ? "ok" : "warn"}`}>
-            {item.fundamentacao_verificada ? "fonte conferida" : "sem fonte conferida"}</span>)}
+        {item.id ? <span className="badge item-id">{String(item.id)}
+          <InfoTip text={ID_HELP[String(item.id).split("-")[0]]} /></span> : null}
+        <SourceBadge item={item} evidences={evidences} />
         {item.alerta ? <span className="badge err">{String(item.alerta)}</span> : null}
         <span className="grow" />
         {onComment && <CommentButton onSubmit={onComment} />}
@@ -243,7 +244,20 @@ function isEmpty(v: unknown): boolean {
 function FragmentKV({ k, v }: { k: string; v: unknown }) {
   const fieldLabel = usePartLabel();
   const help = usePartHelp();
-  return <><dt>{fieldLabel(k)}<InfoTip text={help(k)} /></dt><dd>{typeof v === "string" ? valueLabel(v) : show(v)}</dd></>;
+  return <><dt>{fieldLabel(k)}<InfoTip text={help(k)} /></dt><dd><FieldValue value={v} /></dd></>;
+}
+
+// "2 de 6 citações conferidas": quantas citações foram achadas, palavra por palavra, na fonte.
+function SourceBadge({ item, evidences }: { item: Item; evidences: Evidence[] }) {
+  if (evidences.length) {
+    const ok = evidences.filter((e) => e.verification === "verified").length;
+    const tone = ok === evidences.length ? "ok" : ok ? "warn" : "err";
+    return <span className={`badge ${tone}`} title="Citação conferida: o trecho foi achado, palavra por palavra, no documento.">
+      {ok} de {evidences.length} {evidences.length === 1 ? "citação conferida" : "citações conferidas"}</span>;
+  }
+  if (!("fundamentacao_verificada" in item)) return null;
+  return <span className={`badge ${item.fundamentacao_verificada ? "ok" : "warn"}`}>
+    {item.fundamentacao_verificada ? "fonte conferida" : "sem fonte conferida"}</span>;
 }
 
 function ObjectView({ value, order = [], onComment }: { value: Item; order?: string[]; onComment?: (t: string) => void }) {
@@ -284,6 +298,9 @@ const KIND_LABEL: Record<string, string> = {
   ELICITACAO: "conversa com as pessoas", VISAO: "pedido registrado na Visão",
 };
 
+// Fala de quem conduz a conversa ("E:", "Entrevistadora:"): não é evidência do que o stakeholder disse.
+const INTERVIEWER = /^\s*["“]?\s*(E|P|Entrevistador[a]?|Pesquisador[a]?|Moderador[a]?)\s*[:\-–]/i;
+
 export function EvidenceCard({ evidence }: { evidence: Evidence }) {
   const qc = useQueryClient();
   const review = useMutation({
@@ -292,27 +309,31 @@ export function EvidenceCard({ evidence }: { evidence: Evidence }) {
   });
   const c = evidence.chunk;
   const meta = c?.meta ?? {};
+  const arquivo = String(meta.arquivo ?? evidence.chunk_ref);
+  const docUrl = c?.documento_id
+    ? `/documentos/${c.documento_id}?trecho=${encodeURIComponent(evidence.citacao.slice(0, 160))}` : null;
   return (
-    <details className="quote" style={{ marginTop: 8 }}>
-      <summary className="row" style={{ gap: 6 }}>
+    <div className="quote citation">
+      <div className="row small" style={{ gap: 6 }}>
         <span className="badge">{KIND_LABEL[evidence.kind.split(".").pop() ?? ""] ?? evidence.kind}</span>
         <Status value={evidence.verification} />
-        <span className="small mono">{String(meta.arquivo ?? evidence.chunk_ref)}{meta.artigo ? ` · art. ${meta.artigo}` : ""}{c?.pagina ? ` · p. ${c.pagina}` : ""}</span>
-        {evidence.human_status !== "pending" && <span className={`badge ${evidence.human_status === "accepted" ? "ok" : "err"}`}>{evidence.human_status === "accepted" ? "aceita" : "rejeitada"}</span>}
-      </summary>
-      <div className="small" style={{ marginTop: 6 }}>"{evidence.citacao}"</div>
-      {c && <pre className="small" style={{ marginTop: 6, maxHeight: 240, overflow: "auto" }}>{highlight(c.texto, evidence.citacao)}</pre>}
-      <div className="row" style={{ marginTop: 6 }}>
+        {evidence.human_status !== "pending" && <span className={`badge ${evidence.human_status === "accepted" ? "ok" : "err"}`}>
+          {evidence.human_status === "accepted" ? "você confirmou" : "você não confirmou"}</span>}
+      </div>
+      <blockquote>"{evidence.citacao}"</blockquote>
+      {INTERVIEWER.test(evidence.citacao) && <div className="alert warn small"><Icon name="alert" size={14} />
+        Este trecho parece ser a fala de quem conduziu a conversa, não do stakeholder. Confira antes de aceitar.</div>}
+      {evidence.verification === "unverified_quote" && <div className="muted small">
+        A IA pode ter mudado as palavras: o trecho não foi achado igual no documento. Abra o documento para conferir.</div>}
+      <div className="row small" style={{ gap: 8 }}>
+        {docUrl
+          ? <Link to={docUrl} target="_blank" rel="noopener"><Icon name="file" size={14} /> Abrir {arquivo}{meta.artigo ? ` · art. ${meta.artigo}` : ""}{c?.pagina ? ` · p. ${c.pagina}` : ""}</Link>
+          : <span className="mono">{arquivo}</span>}
+        <span className="grow" />
         <button className="small" onClick={() => review.mutate("accepted")}><Icon name="check" size={14} />A fonte confirma</button>
         <button className="small danger" onClick={() => review.mutate("rejected")}><Icon name="x" size={14} />Não confirma</button>
       </div>
-    </details>
+    </div>
   );
 }
 
-function highlight(text: string, quote: string) {
-  const q = quote.trim().slice(0, 80);
-  const i = q ? text.toLowerCase().indexOf(q.toLowerCase()) : -1;
-  if (i < 0) return text;
-  return <>{text.slice(0, i)}<mark>{text.slice(i, i + quote.length)}</mark>{text.slice(i + quote.length)}</>;
-}

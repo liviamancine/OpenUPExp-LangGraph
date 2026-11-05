@@ -64,7 +64,8 @@ export interface ArtifactSummary extends VersionRef {
 
 export interface Evidence {
   id: string; item_key: string; chunk_ref: string; citacao: string; kind: string; verification: string; human_status: string;
-  chunk: null | { id: string; stable_key: string; texto: string; pagina: number | null; meta: Record<string, unknown>; source_kind: string };
+  chunk: null | { id: string; stable_key: string; texto: string; pagina: number | null; meta: Record<string, unknown>; source_kind: string;
+    documento_id?: string };
 }
 
 export interface VersionDetail extends VersionRef {
@@ -72,6 +73,7 @@ export interface VersionDetail extends VersionRef {
   list_field: string | null; documento: boolean;
   historico: VersionRef[]; dependencias: { version_id: string; artifact: string; version_no: number; status: string }[];
   evidencias: Evidence[];
+  rotulos?: Record<string, string>;
 }
 
 export interface Outcome { next: string; comment_required: boolean }
@@ -192,3 +194,7 @@ export interface LabDetail {
   gabarito: { artefatos: string[]; artifact_type: string | null; itens: string[]; autoria: string | null; atualizado_em: string | null };
 }
 export interface LabSummary { id: string; projeto: string; task_id: string; fase: string; nome: string; created_at: string; modelos: (string | null)[]; situacao: string[] }
+
+export interface SourceDocumentText {
+  id: string; project_id: string; arquivo: string; source_kind: string; paginas: number | null; texto: string;
+}
