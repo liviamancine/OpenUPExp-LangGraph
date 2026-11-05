@@ -1,7 +1,7 @@
 /** Formulário gerado a partir do JSON Schema dos tipos BAML (via Pydantic). */
 import Icon from "./Icon";
 import { useContext } from "react";
-import { InfoTip, PART_ITEM_NOUN, PartTypeContext, usePartLabel, valueLabel } from "./ui";
+import { ITEM_ID, InfoTip, PART_ITEM_NOUN, PartTypeContext, Ref, usePartLabel, valueLabel } from "./ui";
 import { FIELD_HELP, PART_FIELD_HELP } from "../help";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -87,6 +87,8 @@ export function FieldEditor({ name, schema, value, onChange, defs, hidden, gap, 
         <label><Label name={name} /> <span className="muted">(um por linha)</span>
           <textarea value={items.join("\n")} rows={Math.max(2, items.length)}
             onChange={(e) => onChange(e.target.value.split("\n").map((x) => x.trim()).filter(Boolean))} />
+          {items.some((x) => ITEM_ID.test(String(x))) && <span className="small muted">
+            {items.filter((x) => ITEM_ID.test(String(x))).map((x, i) => <span key={i}>{i > 0 && "; "}<Ref id={String(x)} /></span>)}</span>}
           {gapNote}
         </label>
       );
@@ -146,6 +148,7 @@ export function FieldEditor({ name, schema, value, onChange, defs, hidden, gap, 
       {text.length > 60 || name.includes("descricao") || name.includes("necessidade") || name.includes("requisito")
         ? <textarea value={text} onChange={(e) => onChange(e.target.value === "" && nullable ? null : e.target.value)} />
         : <input value={text} onChange={(e) => onChange(e.target.value === "" && nullable ? null : e.target.value)} />}
+      {ITEM_ID.test(text) && <span className="small muted"><Ref id={text} /></span>}
       {gapNote}
     </label>
   );

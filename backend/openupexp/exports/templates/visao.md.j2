@@ -114,7 +114,7 @@ _Não identificado nas informações disponíveis; requer investigação._
 | ID | Necessidade | Stakeholders | Prioridade | Planned Release |
 |---|---|---|---|---|
 {% for n in needs -%}
-| {{ n.id }} | {{ n.necessidade | c }} | {{ stakeholder_names(n.stakeholder_ids) | c }} | {{ n.prioridade | c }} | {{ n.planned_release | c }} |
+| {{ n.id }} | {{ n.necessidade | c }} | {{ stakeholder_names(n.stakeholder_ids) | c }} | {{ n.prioridade | v | c }} | {{ n.planned_release | c }} |
 {% endfor %}
 {% endif %}
 
@@ -124,7 +124,7 @@ _Não identificado nas informações disponíveis; requer investigação._
 | ID | Stakeholder | Solicitação |
 |---|---|---|
 {% for sn in stakeholder_needs -%}
-| {{ sn.id }} | {{ sn.stakeholder_id }} | {{ sn.solicitacao | c }} |
+| {{ sn.id }} | {{ stakeholder_name(sn.stakeholder_id) | c }} | {{ sn.solicitacao | c }} |
 {% endfor %}
 </details>
 {% endif %}
@@ -146,9 +146,9 @@ _Orientações para o Engenheiro de Requisitos conhecer o negócio, as normas e 
 **{{ r.id }}.** {{ r.requisito | t }}
 
 - *{{ "Por que importa" if info_mode else "Justificativa" }}:* {{ r.justificativa | t }}
-- *Necessidades relacionadas:* {{ r.need_ids | lst }}
+- *Necessidades relacionadas:* {{ refs(r.need_ids) }}
 {% for e in r.evidencias %}
-- *Evidência ({{ e.tipo }}{% if e.verificacao %}, {{ e.verificacao }}{% endif %}):* `{{ e.chunk_ref }}` — "{{ e.citacao | t }}"
+- *Evidência ({{ e.tipo | v }}{% if e.verificacao %}, {{ e.verificacao | v }}{% endif %}):* `{{ e.chunk_ref }}` — "{{ e.citacao | t }}"
 {% endfor %}
 
 {% else %}

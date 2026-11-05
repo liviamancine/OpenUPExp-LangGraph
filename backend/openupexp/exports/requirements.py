@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from openupexp.context.builder import CONSENSUS_POSITIONS
 from openupexp.db.models import AppUser, HitlRequest, HitlResponse, Run
 from openupexp.domain import artifacts as store
+from openupexp.domain import labels
 from openupexp.exports.vision import _env
 
 TEMPLATE_VERSION = "requisitos-0.1-provisorio"
@@ -13,6 +14,7 @@ TEMPLATE_VERSION = "requisitos-0.1-provisorio"
 
 def _lacunas(contents: dict[str, dict]) -> list[tuple[str, dict]]:
     out: list[tuple[str, dict]] = []
+    index = labels.label_index(contents)
     for atype, field, label in [
         ("elicitation.plan", "itens", "Plano"),
         ("elicitation.needs", "necessidades", "Necessidade elicitada"),
@@ -20,7 +22,7 @@ def _lacunas(contents: dict[str, dict]) -> list[tuple[str, dict]]:
         ("requirements.consolidated", "requisitos", "Requisito"),
     ]:
         for item in (contents.get(atype) or {}).get(field, []):
-            out += [(f"{label} {item.get('id')}", lac) for lac in item.get("lacunas", [])]
+            out += [(f"{label} {labels.ref(index, item.get('id'))}", lac) for lac in item.get("lacunas", [])]
     return out
 
 
@@ -30,6 +32,7 @@ def render_requirements_markdown(contents: dict[str, dict], base: dict[str, dict
     names = {s.get("id"): s.get("nome") for s in stakeholders}
     consolidated = (contents.get("requirements.consolidated") or {}).get("requisitos", [])
     needs = (base.get("vision.explainability_needs") or {}).get("necessidades", [])
+    index = labels.label_index(contents, base)
     need_matrix = [(n.get("id"), [r.get("id") for r in consolidated if n.get("id") in (r.get("need_ids") or [])])
                    for n in needs]
     return _env.get_template("requisitos.md.j2").render(
@@ -43,7 +46,10 @@ def render_requirements_markdown(contents: dict[str, dict], base: dict[str, dict
         need_matrix=need_matrix,
         consensus=consensus or [],
         lacunas=_lacunas(contents),
-        stakeholder_name=lambda sid: f"{sid} {names[sid]}" if sid in names else sid,
+        stakeholder_name=lambda sid: f"{names[sid]} ({sid})" if sid in names else sid,
+        ref=lambda key: labels.ref(index, key),
+        refs=lambda keys: labels.refs(index, keys),
+        vals=lambda values: ", ".join(labels.value_label(v) for v in values or []),
     )
 
 

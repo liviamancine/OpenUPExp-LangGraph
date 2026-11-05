@@ -11,6 +11,7 @@ import RunPage from "./pages/RunPage";
 import ReviewPage from "./pages/ReviewPage";
 import InboxPage from "./pages/InboxPage";
 import ArtifactPage from "./pages/ArtifactPage";
+import DocumentPage from "./pages/DocumentPage";
 import AdminModelsPage from "./pages/AdminModelsPage";
 import LabPage from "./pages/LabPage";
 import LabComparisonPage from "./pages/LabComparisonPage";
@@ -116,6 +117,7 @@ export default function App() {
           <Route path="/decisoes" element={<InboxPage />} />
           <Route path="/decisoes/:requestId" element={<ReviewPage />} />
           <Route path="/versoes/:versionId" element={<ArtifactPage />} />
+          <Route path="/documentos/:documentId" element={<DocumentPage />} />
           <Route path="/admin/modelos" element={<AdminModelsPage />} />
           <Route path="/laboratorio" element={<LabPage />} />
           <Route path="/laboratorio/:comparisonId" element={<LabComparisonPage />} />

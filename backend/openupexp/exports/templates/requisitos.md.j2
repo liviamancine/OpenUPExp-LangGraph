@@ -20,10 +20,10 @@
 ### {{ p.id }} — {{ stakeholder_name(p.stakeholder_id) }}
 
 - **Objetivo:** {{ p.objetivo | t }}
-- **Técnicas:** {{ p.tecnicas | lst | t }}
-- **Necessidades da Visão:** {{ p.need_ids | lst | t }}
+- **Técnicas:** {{ vals(p.tecnicas) | t }}
+- **Necessidades da Visão:** {{ refs(p.need_ids) | t }}
 {% if p.lacunas_alvo %}
-- **Lacunas da Visão visadas:** {{ p.lacunas_alvo | lst }}
+- **Dúvidas da Visão que esta conversa deve esclarecer:** {{ p.lacunas_alvo | lst }}
 {% endif %}
 
 {% for q in p.perguntas -%}
@@ -42,7 +42,7 @@ _Pendente._
 | Documento | Tipo | Páginas | SHA-256 |
 |---|---|---|---|
 {% for d in sources.documentos -%}
-| {{ d.arquivo | c }} | {{ d.source_kind }} | {{ d.paginas | c }} | `{{ d.sha256[:12] }}` |
+| {{ d.arquivo | c }} | {{ d.source_kind | v }} | {{ d.paginas | c }} | `{{ d.sha256[:12] }}` |
 {% endfor %}
 {% elif sources %}
 Nenhum material de elicitação foi fornecido. Justificativa do Engenheiro de Requisitos: {{ sources.justificativa | t }}
@@ -56,10 +56,10 @@ _Pendente._
 
 ## 3. Necessidades de explicabilidade elicitadas
 
-| ID | Stakeholder | Necessidade | Decisão a explicar | Objetivo | Visão |
+| ID | Stakeholder | Necessidade | Decisão a ser explicada | Objetivo da explicação | Aprofunda a necessidade da Visão |
 |---|---|---|---|---|---|
 {% for n in elicited -%}
-| {{ n.id }} | {{ stakeholder_name(n.stakeholder_id) | c }} | {{ n.necessidade | c }} | {{ n.decisao_alvo | c }} | {{ n.objetivo | c }} | {{ n.need_ids | lst | c }} |
+| {{ n.id }} | {{ stakeholder_name(n.stakeholder_id) | c }} | {{ n.necessidade | c }} | {{ n.decisao_alvo | c }} | {{ n.objetivo | v | c }} | {{ refs(n.need_ids) | c }} |
 {% endfor %}
 
 ---
@@ -69,9 +69,10 @@ _Pendente._
 {% for r in consolidated -%}
 **{{ r.id }}.** {{ r.enunciado | t }}
 
-- **Tipo:** {{ r.tipo | t }}{% if r.objetivo %} · **Objetivo:** {{ r.objetivo }}{% endif %}{% if r.categoria %} · **Categoria:** {{ r.categoria }}{% endif +%}
-- **Stakeholders:** {{ r.stakeholder_ids | lst | t }} · **Necessidades:** {{ r.need_ids | lst | t }}
-- **Origem:** {{ r.origem_ids | lst | t }}
+- **Tipo:** {{ r.tipo | v | t }}{% if r.objetivo %} · **Objetivo:** {{ r.objetivo | v }}{% endif %}{% if r.categoria %} · **Categoria:** {{ r.categoria | v }}{% endif +%}
+- **Stakeholders:** {{ refs(r.stakeholder_ids) | t }}
+- **Necessidades da Visão:** {{ refs(r.need_ids) | t }}
+- **Origem:** {{ refs(r.origem_ids) | t }}
 {% if r.justificativa_agrupamento %}
 - **Consolidação:** {{ r.justificativa_agrupamento }}
 {% endif %}
@@ -85,7 +86,7 @@ _Pendente._
 | Origem | Motivo |
 |---|---|
 {% for d in discarded -%}
-| {{ d.origem_id }} | {{ d.motivo | c }} |
+| {{ ref(d.origem_id) | c }} | {{ d.motivo | c }} |
 {% endfor %}
 {% endif %}
 
@@ -96,10 +97,12 @@ _Pendente._
 {% for c in complementary -%}
 **{{ c.id }}.** {{ c.requisito | t }}
 
-- **Categoria:** {{ c.categoria | t }} · **Requisitos afetados:** {{ c.ri_ids | lst | t }}{% if c.cr_ids %} · **Refina:** {{ c.cr_ids | lst }}{% endif +%}
+- **Categoria:** {{ c.categoria | v | t }}
+- **Requisitos afetados:** {{ refs(c.ri_ids) | t }}{% if c.cr_ids %}
+- **Refina:** {{ refs(c.cr_ids) }}{% endif +%}
 - **Justificativa:** {{ c.justificativa | t }}
 {% for e in c.evidencias -%}
-- **Evidência** ({{ e.tipo }}, {{ e.verificacao | default("não verificada") }}): `{{ e.chunk_ref }}` — "{{ e.citacao }}"
+- **Evidência** ({{ e.tipo | v }}, {{ (e.verificacao or "não verificada") | v }}): `{{ e.chunk_ref }}` — "{{ e.citacao }}"
 {% endfor %}
 
 {% else %}
@@ -113,7 +116,7 @@ _Nenhum requisito complementar fundamentado pelas evidências recuperadas._
 | Necessidade da Visão | Requisitos consolidados |
 |---|---|
 {% for need_id, reqs in need_matrix -%}
-| {{ need_id }} | {{ reqs | lst | t }} |
+| {{ ref(need_id) | c }} | {{ refs(reqs) | c }} |
 {% endfor %}
 
 ---
