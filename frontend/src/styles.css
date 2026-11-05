@@ -145,7 +145,7 @@ pre { white-space: pre-wrap; word-break: break-word; margin: 0; }
 .grid-2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
 .split { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(320px, 1fr); gap: 16px; align-items: start; }
 .review-grid { display: grid; grid-template-columns: 270px minmax(0, 1fr) 360px; gap: 16px; align-items: start; }
-@media (max-width: 1280px) { .review-grid { grid-template-columns: 250px minmax(0, 1fr); } .review-grid > :last-child { grid-column: 1 / -1; } }
+@media (max-width: 1440px) { .review-grid { grid-template-columns: 250px minmax(0, 1fr); } .review-grid > :last-child { grid-column: 1 / -1; } }
 @media (max-width: 900px) { .split, .grid-2, .review-grid { grid-template-columns: 1fr; } }
 
 .muted { color: var(--muted); }
@@ -235,6 +235,11 @@ tr:last-child td { border-bottom: 0; }
 .ref + .ref, .ref { line-height: 1.6; }
 .citation { margin-top: 8px; }
 .plain-list { margin: 0; padding-left: 18px; }
+.gap.resolved { background: var(--ok-soft); color: var(--ok); }
+.gaps-editor { border-color: var(--warn); }
+.gap-row { padding: 8px 0; border-top: 1px dashed var(--border); }
+.gap-row:first-of-type { border-top: none; }
+.gap-row.resolvida, .gap-row.nao_se_aplica { opacity: .9; }
 .plain-list li + li { margin-top: 4px; }
 .citation blockquote { margin: 6px 0; font-style: italic; }
 .doc-text { white-space: pre-wrap; font-family: inherit; font-size: 15px; line-height: 1.65; background: var(--surface-2);
@@ -382,7 +387,7 @@ mark { background: #fde68a; color: #1e1b4b; border-radius: 3px; }
 .mech { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; flex: none; background: var(--surface-3); color: var(--muted); }
 .mech.agent { background: var(--accent-soft); color: var(--accent); }
 .mech.hitl_approval, .mech.hitl_consensus { background: var(--human-soft); color: var(--human); }
-.kv { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; font-size: 14px; }
+.kv { display: grid; grid-template-columns: fit-content(40%) minmax(0, 1fr); gap: 4px 14px; font-size: 14px; }
 .kv dt { color: var(--muted); font-weight: 600; }
 .kv dd { margin: 0; }
 .field-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }

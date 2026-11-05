@@ -7,6 +7,7 @@ import { FIELD_HELP, PART_FIELD_HELP } from "../help";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Schema = any;
 type Gap = { campo: string; motivo: string; pergunta_sugerida?: string | null };
+type ResolvedGap = Gap & { situacao: "resolvida" | "nao_se_aplica"; resposta?: string | null };
 
 // Nome de um item de cada lista, para os botões dizerem o que adicionam ou removem.
 const ITEM_NOUN: Record<string, string> = {
@@ -126,12 +127,17 @@ export function FieldEditor({ name, schema, value, onChange, defs, hidden, gap, 
   if (s.type === "object" || s.properties) {
     const obj = (value as Record<string, unknown> | null) ?? {};
     const gaps = (obj.lacunas as Gap[] | undefined) ?? [];
+    const resolved = (obj.lacunas_resolvidas as ResolvedGap[] | undefined) ?? [];
     return (
       <div className={depth > 0 ? "field-grid" : "stack"}>
         {Object.entries(s.properties ?? {}).filter(([k]) => !hidden.includes(k)).map(([k, sub]) => (
           <FieldEditor key={k} name={k} schema={sub} value={obj[k]} defs={defs} hidden={hidden} depth={depth + 1}
             gap={gaps.find((g) => g.campo === k)} onChange={(v) => onChange({ ...obj, [k]: v })} />
         ))}
+        {(gaps.length > 0 || resolved.length > 0) && (
+          <GapsEditor open={gaps} resolved={resolved}
+            onChange={(o, r) => onChange({ ...obj, lacunas: o, lacunas_resolvidas: r })} />
+        )}
       </div>
     );
   }
@@ -159,4 +165,43 @@ export function SchemaForm({ schema, value, onChange, hidden = [] }: {
 }) {
   return <FieldEditor name={schema.title ?? "conteudo"} schema={schema} value={value} onChange={onChange}
     defs={schema.$defs ?? {}} hidden={hidden} />;
+}
+
+const GAP_STATE_LABEL = { aberta: "Em aberto", resolvida: "Resolvida", nao_se_aplica: "Não se aplica" };
+
+/** "Falta informação": o Engenheiro responde (resolvida), descarta (não se aplica) ou deixa em aberto. */
+function GapsEditor({ open, resolved, onChange }: {
+  open: Gap[]; resolved: ResolvedGap[]; onChange: (open: Gap[], resolved: ResolvedGap[]) => void;
+}) {
+  const fieldLabel = usePartLabel();
+  const rows: (ResolvedGap | (Gap & { situacao: "aberta"; resposta?: string | null }))[] = [
+    ...open.map((g) => ({ ...g, situacao: "aberta" as const })), ...resolved];
+  const update = (i: number, patch: Partial<{ situacao: string; resposta: string }>) => {
+    const next = rows.map((r, j) => (j === i ? { ...r, ...patch } : r));
+    const strip = ({ campo, motivo, pergunta_sugerida }: Gap): Gap => ({ campo, motivo, pergunta_sugerida });
+    onChange(next.filter((r) => r.situacao === "aberta").map(strip),
+      next.filter((r) => r.situacao !== "aberta") as ResolvedGap[]);
+  };
+  return (
+    <fieldset className="item-card stack gaps-editor" style={{ margin: 0, gridColumn: "1 / -1" }}>
+      <legend className="small"><Icon name="help" size={14} /> Falta informação ({open.length} em aberto)</legend>
+      {rows.map((g, i) => (
+        <div key={`${g.campo}-${i}`} className={`stack tight gap-row ${g.situacao}`}>
+          <div className="small"><strong>{fieldLabel(g.campo)}</strong>: {g.motivo}
+            {g.pergunta_sugerida && <> — <em>pergunte: {g.pergunta_sugerida}</em></>}</div>
+          <div className="stack tight">
+            <label style={{ maxWidth: 220 }}>Situação
+              <select value={g.situacao} onChange={(e) => update(i, { situacao: e.target.value })}>
+                {Object.entries(GAP_STATE_LABEL).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+              </select></label>
+            {g.situacao !== "aberta" && (
+              <label>{g.situacao === "resolvida" ? "Resposta (o que você descobriu)" : "Por que não se aplica (opcional)"}
+                <textarea rows={2} value={g.resposta ?? ""} required={g.situacao === "resolvida"}
+                  onChange={(e) => update(i, { resposta: e.target.value })} /></label>
+            )}
+          </div>
+        </div>
+      ))}
+    </fieldset>
+  );
 }

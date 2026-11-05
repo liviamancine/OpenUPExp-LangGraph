@@ -117,6 +117,7 @@ def render_vision_markdown(contents: dict[str, dict], meta: dict) -> str:
         stakeholder_name=lambda sid: names.get(sid, sid),
         stakeholder_names=lambda ids: ", ".join(names.get(i, i) for i in ids or []),
         refs=lambda keys: labels.refs(index, keys),
+        resolvidas=labels.resolved_gaps(contents, index),
     )
 
 

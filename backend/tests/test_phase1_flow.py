@@ -180,6 +180,63 @@ async def test_human_edit_creates_version_and_is_used_on_approval(scope_bytes, l
         assert "Responsabilidade definida pelo engenheiro" in draft.content["markdown"]
 
 
+async def test_gap_answers_are_kept_and_shown(scope_bytes, law_bytes):
+    """'Falta informação': a resposta do Engenheiro fica no item e aparece no documento."""
+    import pytest
+
+    run_id = await _setup(scope_bytes, law_bytes)
+    await drain()
+    async with session_scope() as s:
+        v = await store.current_version(s, run_id, "vision.stakeholders")
+        content = dict(v.content)
+        content["stakeholders"] = [dict(i) for i in content["stakeholders"]]
+        first = content["stakeholders"][0]
+        gap = first["lacunas"][0]
+        first["lacunas"] = first["lacunas"][1:]
+        first["lacunas_resolvidas"] = [{**gap, "situacao": "resolvida", "resposta": ""}]
+        with pytest.raises(services.DomainError):  # resolvida exige a resposta
+            await services.human_edit(s, v.id, content, None, bypass_role_check=True)
+        first["lacunas_resolvidas"] = [{**gap, "situacao": "resolvida", "resposta": "Confirmado na entrevista 2"}]
+        edited = await services.human_edit(s, v.id, content, None, bypass_role_check=True)
+        item = edited.content["stakeholders"][0]
+        assert item["lacunas_resolvidas"][0]["resposta"] == "Confirmado na entrevista 2"
+        assert all(g["campo"] != gap["campo"] for g in item["lacunas"])
+        # preencher o campo também registra a lacuna como resolvida (a pergunta não se perde)
+        content = dict(edited.content)
+        content["stakeholders"] = [dict(i) for i in content["stakeholders"]]
+        second = content["stakeholders"][1]
+        if second.get("lacunas"):
+            campo = second["lacunas"][0]["campo"]
+            second[campo] = "Preenchido pelo engenheiro"
+            edited2 = await services.human_edit(s, edited.id, content, None, bypass_role_check=True)
+            assert any(g["campo"] == campo for g in edited2.content["stakeholders"][1]["lacunas_resolvidas"])
+    req = await _open_request(run_id)
+    async with session_scope() as s:
+        await services.decide(s, req.id, None, "approve", None, bypass_role_check=True)
+    await drain()
+    async with session_scope() as s:
+        draft = await store.current_version(s, run_id, "vision.draft")
+        assert "Informações que faltavam e foram respondidas" in draft.content["markdown"]
+        assert "Confirmado na entrevista 2" in draft.content["markdown"]
+
+
+async def test_human_edit_keeps_citations(scope_bytes, law_bytes):
+    from openupexp.db.models import Evidence
+
+    run_id = await _setup(scope_bytes, law_bytes)
+    await drain()
+    async with session_scope() as s:
+        v = await store.current_version(s, run_id, "vision.complementary_requirements")
+        before = await s.scalar(select(func.count(Evidence.id)).where(Evidence.artifact_version_id == v.id))
+        assert before
+        content = dict(v.content)
+        content["requisitos"] = [dict(i) for i in content["requisitos"]]
+        content["requisitos"][0]["justificativa"] = "Ajustada pelo engenheiro"
+        edited = await services.human_edit(s, v.id, content, None, bypass_role_check=True)
+        after = await s.scalar(select(func.count(Evidence.id)).where(Evidence.artifact_version_id == edited.id))
+        assert after == before
+
+
 async def test_strategy_a_includes_full_document(scope_bytes, law_bytes):
     run_id = await _setup(scope_bytes, law_bytes, strategy="A")
     await drain()

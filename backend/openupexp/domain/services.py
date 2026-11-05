@@ -282,6 +282,10 @@ async def human_edit(
     at = ARTIFACT_TYPES.get(artifact.artifact_type)
     if at is None or at.schema is None:
         raise DomainError("Este artefato é derivado e não pode ser editado diretamente.", 422)
+    # respostas às lacunas ("Falta informação") ficam fora do contrato da IA: são separadas antes da
+    # validação e devolvidas depois, por item
+    resolved_raw = ({i.get("id"): i[RESOLVED] for i in content.get(at.list_field) or [] if RESOLVED in i}
+                    if at.list_field else {})
     try:
         validated = at.schema.model_validate(content).model_dump(mode="json")
     except ValidationError as exc:
@@ -292,12 +296,16 @@ async def human_edit(
         for item in validated.get(at.list_field, []):
             extra = {k: v for k, v in old.get(item.get("id"), {}).items() if k not in item}
             item.update(extra)
+            if item.get("id") in resolved_raw:
+                item[RESOLVED] = _clean_resolved(resolved_raw[item.get("id")])
         for item in validated.get(at.list_field, []):
             _drop_filled_gaps(item)
         keys = [i.get("id") for i in validated.get(at.list_field, [])]
         if any(not k for k in keys) or len(set(keys)) != len(keys):
             raise DomainError(f"Cada item precisa de um ID único com prefixo {at.prefix}-.", 422)
 
+    if not at.list_field and RESOLVED in content:
+        validated[RESOLVED] = _clean_resolved(content[RESOLVED])
     _drop_filled_gaps(validated)
     # campos de sistema fora do contrato (ex.: cobertura de pares em 3.2.3) são preservados
     for key, value in base.content.items():
@@ -315,6 +323,16 @@ async def human_edit(
         # editar uma versão desatualizada é como o Engenheiro a atualiza (não há retorno à IA)
         status="in_review" if base.status == "stale" else base.status, iteracao=base.iteracao, invalidate=False,
     )
+    # as citações continuam valendo para os itens que permanecem (inclusive o que o revisor já conferiu)
+    from openupexp.db.models import Evidence
+
+    keep = ({i.get("id") for i in validated.get(at.list_field, [])} if at.list_field else None)
+    for ev in (await session.scalars(select(Evidence).where(Evidence.artifact_version_id == base.id))).all():
+        if keep is None or ev.item_key in keep:
+            session.add(Evidence(artifact_version_id=version.id, item_key=ev.item_key, chunk_id=ev.chunk_id,
+                                 chunk_ref=ev.chunk_ref, citacao=ev.citacao, kind=ev.kind,
+                                 verification=ev.verification, human_status=ev.human_status))
+    await session.flush()
     # O rascunho (1.2.4) não é invalidado: a consolidação (1.3.2) remonta o documento
     # a partir das versões mais recentes, incluindo as edições humanas.
     await emit(session, run.id, "artifact_edited", artifact=artifact.artifact_type, version_id=version.id,
@@ -324,11 +342,35 @@ async def human_edit(
     return version
 
 
+RESOLVED = "lacunas_resolvidas"
+GAP_STATES = ("resolvida", "nao_se_aplica")
+
+
+def _clean_resolved(raw) -> list[dict]:
+    """Lacunas que o Engenheiro respondeu (resolvida) ou descartou (não se aplica), com a resposta."""
+    out = []
+    for g in raw if isinstance(raw, list) else []:
+        if not isinstance(g, dict) or g.get("situacao") not in GAP_STATES or not str(g.get("campo") or "").strip():
+            continue
+        resposta = str(g.get("resposta") or "").strip()
+        if g["situacao"] == "resolvida" and not resposta:
+            raise DomainError(f"Escreva a resposta da informação que faltava em '{g['campo']}' "
+                              "ou marque como \"não se aplica\".", 422)
+        out.append({"campo": str(g["campo"]), "motivo": str(g.get("motivo") or ""),
+                    "pergunta_sugerida": g.get("pergunta_sugerida"), "situacao": g["situacao"],
+                    "resposta": resposta or None})
+    return out
+
+
 def _drop_filled_gaps(obj: dict) -> None:
-    """Remove lacunas cujo campo o revisor humano preencheu."""
+    """Lacunas cujo campo o revisor preencheu passam a resolvidas (a pergunta fica registrada)."""
     lacunas = obj.get("lacunas")
     if isinstance(lacunas, list):
-        obj["lacunas"] = [g for g in lacunas if obj.get(g.get("campo")) in (None, "", [])]
+        filled = [g for g in lacunas if obj.get(g.get("campo")) not in (None, "", [])]
+        obj["lacunas"] = [g for g in lacunas if g not in filled]
+        if filled:
+            obj[RESOLVED] = [*(obj.get(RESOLVED) or []), *({**g, "situacao": "resolvida",
+                                                             "resposta": "Campo preenchido na edição."} for g in filled)]
     if obj.get("lacuna") and obj.get("resposta"):
         obj["lacuna"] = None
 
