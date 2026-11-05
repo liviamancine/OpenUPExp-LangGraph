@@ -19,11 +19,11 @@ const LIST_FIELD: Record<string, string> = {
   glossary: "termos", "vision.explainability_needs": "necessidades", "vision.positioning": "posicionamentos",
   "vision.complementary_requirements": "requisitos", "vision.limits": "respostas", "vision.reference_queries": "consultas",
 };
-const HIDDEN = new Set(["id", "lacunas", "origem", "evidencias", "lacuna", "baseada_em", "descartados"]);
+const HIDDEN = new Set(["id", "lacunas", "lacunas_resolvidas", "origem", "evidencias", "lacuna", "baseada_em", "descartados"]);
 // Campos que valem para todos os itens da parte: aparecem uma vez, no topo, e são editados uma vez.
 const SHARED_FIELDS: Record<string, string[]> = { "vision.positioning": ["nome_produto", "categoria_produto"] };
 // Campos mantidos pela plataforma (rastreabilidade, pontos em aberto): ficam fora do formulário, mas são preservados.
-const SYSTEM_FIELDS = ["lacunas", "lacuna", "origem", "baseada_em", "evidencias", "fundamentacao_verificada", "alerta", "descartados"];
+const SYSTEM_FIELDS = ["lacunas", "lacunas_resolvidas", "lacuna", "origem", "baseada_em", "evidencias", "fundamentacao_verificada", "alerta", "descartados"];
 
 // Campos de manifestos antigos: saem do formulário quando estão vazios (a partir do 0.5.0, o perfil
 // do Posicionamento não aponta para stakeholder nem necessidades, e a Definição não traz a Declaração do Problema).
@@ -164,6 +164,27 @@ export default function ArtifactView({ versionId, onComment, onNewVersion }: {
 }
 
 type Gap = { campo: string; motivo: string; pergunta_sugerida?: string };
+type ResolvedGap = Gap & { situacao: string; resposta?: string | null };
+
+function ResolvedLine({ gap }: { gap: ResolvedGap }) {
+  const fieldLabel = usePartLabel();
+  return <div className="gap resolved"><Icon name="checkCircle" size={16} /><span>
+    {gap.situacao === "nao_se_aplica" ? "Não se aplica" : "Respondida"}: <strong>{fieldLabel(gap.campo)}</strong>
+    {gap.resposta && <> — {gap.resposta}</>}</span></div>;
+}
+
+function GapLines({ item, hide = [] }: { item: Item; hide?: string[] }) {
+  const open = ((item.lacunas as Gap[] | undefined) ?? []).filter((g) => !hide.includes(g.campo));
+  const lacuna = item.lacuna as { motivo: string; pergunta_sugerida?: string } | null | undefined;
+  const resolved = (item.lacunas_resolvidas as ResolvedGap[] | undefined) ?? [];
+  if (!open.length && !lacuna && !resolved.length) return null;
+  return (
+    <div className="stack small" style={{ marginTop: 6 }}>
+      {[...open, ...(lacuna ? [{ campo: "resposta", ...lacuna }] : [])].map((l, i) => <GapLine key={i} gap={l} />)}
+      {resolved.map((g, i) => <ResolvedLine key={`r${i}`} gap={g} />)}
+    </div>
+  );
+}
 
 function GapLine({ gap }: { gap: Gap }) {
   const fieldLabel = usePartLabel();
@@ -208,8 +229,6 @@ function SharedFieldsEditor({ fields, items, onChange }: { fields: string[]; ite
 function ItemCard({ item, hide = [], order = [], evidences, onComment }: {
   item: Item; hide?: string[]; order?: string[]; evidences: Evidence[]; onComment?: (texto: string) => void;
 }) {
-  const lacunas = ((item.lacunas as Gap[] | undefined) ?? []).filter((g) => !hide.includes(g.campo));
-  const lacuna = item.lacuna as { motivo: string; pergunta_sugerida?: string } | null | undefined;
   return (
     <div className="item-card">
       <div className="item-head">
@@ -226,11 +245,7 @@ function ItemCard({ item, hide = [], order = [], evidences, onComment }: {
           <FragmentKV key={k} k={k} v={v} />
         ))}
       </dl>
-      {(lacunas.length > 0 || lacuna) && (
-        <div className="stack small" style={{ marginTop: 6 }}>
-          {[...lacunas, ...(lacuna ? [{ campo: "resposta", ...lacuna }] : [])].map((l, i) => <GapLine key={i} gap={l} />)}
-        </div>
-      )}
+      <GapLines item={item} hide={hide} />
       {evidences.map((e) => <EvidenceCard key={e.id} evidence={e} />)}
     </div>
   );
@@ -265,17 +280,13 @@ function ObjectView({ value, order = [], onComment }: { value: Item; order?: str
     <div className="item-card">
       {onComment && <div className="item-head"><span className="grow" /><CommentButton onSubmit={onComment} /></div>}
       <dl className="kv">
-        {ordered(value, order).filter(([k, v]) => k !== "lacunas" && !isEmpty(v)).map(([k, v]) => (
+        {ordered(value, order).filter(([k, v]) => k !== "lacunas" && k !== "lacunas_resolvidas" && !isEmpty(v)).map(([k, v]) => (
           typeof v === "object" && v !== null && !Array.isArray(v)
             ? <FragmentKV key={k} k={k} v={Object.entries(v).map(([a, b]) => `${a}: ${show(b)}`).join(" · ")} />
             : <FragmentKV key={k} k={k} v={v} />
         ))}
       </dl>
-      {((value.lacunas as Gap[] | undefined) ?? []).length > 0 && (
-        <div className="stack small" style={{ marginTop: 6 }}>
-          {(value.lacunas as Gap[]).map((g, i) => <GapLine key={i} gap={g} />)}
-        </div>
-      )}
+      <GapLines item={value} />
     </div>
   );
 }

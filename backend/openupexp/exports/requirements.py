@@ -50,6 +50,7 @@ def render_requirements_markdown(contents: dict[str, dict], base: dict[str, dict
         ref=lambda key: labels.ref(index, key),
         refs=lambda keys: labels.refs(index, keys),
         vals=lambda values: ", ".join(labels.value_label(v) for v in values or []),
+        resolvidas=labels.resolved_gaps(contents, index),
     )
 
 

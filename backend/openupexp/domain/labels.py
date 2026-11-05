@@ -102,3 +102,16 @@ def value_label(value) -> str:
     if not isinstance(value, str) or not _ENUM.match(value):
         return "" if value is None else str(value)
     return VALUE_LABELS.get(value) or value.replace("_", " ").capitalize()
+
+
+def resolved_gaps(contents: dict[str, dict], index: dict[str, str]) -> list[tuple[str, dict]]:
+    """Lacunas respondidas pelo Engenheiro (campo lacunas_resolvidas), com a parte e o item de origem."""
+    out: list[tuple[str, dict]] = []
+    for atype, value in contents.items():
+        at = ARTIFACT_TYPES.get(atype)
+        if not at or not isinstance(value, dict):
+            continue
+        out += [(at.title, g) for g in value.get("lacunas_resolvidas") or []]
+        for item in (value.get(at.list_field) or []) if at.list_field else []:
+            out += [(f"{at.title} · {ref(index, item.get('id'))}", g) for g in item.get("lacunas_resolvidas") or []]
+    return out

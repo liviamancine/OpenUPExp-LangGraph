@@ -143,6 +143,14 @@ _Consenso ainda não realizado._
 {% else -%}
 _Nenhuma._
 {% endfor %}
+{% if resolvidas %}
+
+### Informações que faltavam e foram respondidas
+
+{% for origem, l in resolvidas -%}
+- **{{ origem }} · {{ l.campo }}:** {% if l.situacao == "nao_se_aplica" %}_não se aplica_{% if l.resposta %} — {{ l.resposta }}{% endif %}{% else %}{{ l.resposta | t }}{% endif %}{% if l.pergunta_sugerida %} _(pergunta: {{ l.pergunta_sugerida }})_{% endif +%}
+{% endfor %}
+{% endif %}
 
 ---
 
